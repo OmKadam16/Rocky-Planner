@@ -234,3 +234,34 @@ export async function readLaptopLastSeen(): Promise<LaptopPresence | null> {
     laptopName: row.name ?? 'your laptop',
   };
 }
+
+export interface PhoneDevice {
+  id: string;
+  name: string;
+}
+
+/**
+ * This account's phone row, if the phone already paired.
+ * The /remote gate uses this (not localStorage) to decide pair vs home.
+ */
+export async function readPhoneDevice(): Promise<PhoneDevice | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  const { data, error } = await sb
+    .from('devices')
+    .select('id,name')
+    .eq('role', 'phone')
+    .limit(1)
+    .maybeSingle();
+  if (error || !data) return null;
+  const row = data as { id: string; name: string | null };
+  return { id: row.id, name: row.name ?? 'this phone' };
+}
+
+/** Remove this account's phone row. The laptop row is left untouched. */
+export async function unpairPhone(): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) return;
+  const { error } = await sb.from('devices').delete().eq('role', 'phone');
+  if (error) throw mapPairFailure(error);
+}
