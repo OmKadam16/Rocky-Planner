@@ -111,7 +111,7 @@ export function RemotePage() {
   const denied = state === 'camDenied';
   const primer = state === 'camPrimer' || denied;
 
-  // ?pair=<CODE> deep link from the laptop QR (BrowserRouter, Vercel).
+  // ?pair=<CODE> deep link from the laptop QR (BrowserRouter + SPA rewrite).
   // Prefill the code boxes; the user still taps once to pair.
   useEffect(() => {
     const fromUrl = parsePairParam(window.location.search || `?${params.toString()}`);

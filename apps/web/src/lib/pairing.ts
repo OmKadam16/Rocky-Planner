@@ -4,7 +4,7 @@
 // without telling the other agent):
 //   devices(id, user_id, role laptop|phone, name, last_seen,
 //           pair_code, pair_expires_at)
-//   QR payload: https://<site>/remote?pair=<CODE>  (BrowserRouter, Vercel)
+//   QR payload: https://<site>/remote?pair=<CODE>  (BrowserRouter + SPA rewrite)
 //   Code: 6 Crockford chars, STORED without dash, SHOWN as XXX-XXX,
 //         accepted with or without the dash.
 

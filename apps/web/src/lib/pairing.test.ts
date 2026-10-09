@@ -55,7 +55,7 @@ describe('pairing codes (6 Crockford chars, stored without dash)', () => {
   });
 });
 
-describe('QR payload (BrowserRouter, Vercel)', () => {
+describe('QR payload (BrowserRouter + SPA rewrite)', () => {
   it('builds https://<site>/remote?pair=<CODE> without dash', () => {
     expect(buildPairUrl('https://rocky.vercel.app', 'K7P2QM')).toBe(
       'https://rocky.vercel.app/remote?pair=K7P2QM',

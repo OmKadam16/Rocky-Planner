@@ -1,0 +1,22 @@
+# Render blueprint: Rocky web as a static site (phone PWA + laptop app).
+# The phone mic/camera require HTTPS, so this hosted build is the mic path;
+# the laptop brain still runs locally and talks through Supabase.
+# NOTE: VITE_ROCKY_DEMO_PAIRING is deliberately absent — the demo
+# localStorage relay must never be enabled on a deployed build.
+services:
+  - type: web
+    name: rocky
+    env: static
+    buildCommand: npm ci && npm run build -w apps/web
+    staticPublishPath: apps/web/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+      - key: VITE_SITE_URL
+        sync: false
