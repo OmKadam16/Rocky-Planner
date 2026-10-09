@@ -38,7 +38,8 @@ export type PhonePairState =
   | 'expired'
   | 'wrong'
   | 'offline'
-  | 'already';
+  | 'already'
+  | 'generic'; // relay error with the real message — never "offline"
 
 /** Shape of the Supabase `devices` row (PLAN.md section 6). */
 export interface DeviceRow {

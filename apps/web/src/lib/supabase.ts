@@ -1,4 +1,8 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import {
+  createClient,
+  type SupabaseClient,
+  type User,
+} from '@supabase/supabase-js';
 
 // Supabase client — PKCE flow (per approved decision).
 // Returns null when env is missing so pages fall back to the clearly
@@ -33,57 +37,143 @@ export function getSupabase(): SupabaseClient | null {
   return cached;
 }
 
-export type ClaimPairErrorKind =
-  | 'expired'
-  | 'wrong'
-  | 'offline'
-  | 'already'
-  | 'network';
+/** Current signed-in user, or null (no session / unconfigured). */
+export async function getSessionUser(): Promise<User | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  const { data } = await sb.auth.getSession();
+  return data.session?.user ?? null;
+}
 
-export class ClaimPairError extends Error {
-  kind: ClaimPairErrorKind;
-  constructor(kind: ClaimPairErrorKind, message: string) {
+// ---------------------------------------------------------------------------
+// Pairing failures — mapped by Postgres errcode, never by message sniffing.
+// "Laptop offline" is NEVER produced here: it is decided only from
+// devices.last_seen older than 45 s (see readLaptopLastSeen + demoClaimPair).
+// ---------------------------------------------------------------------------
+
+/** Stable failure kinds for pairing UI. */
+export type PairFailureKind =
+  | 'expired' // P0001: code past pair_expires_at
+  | 'wrong' // P0002: no active code for this account
+  | 'not-signed-in' // 28000 / 401 / 42501: no usable session
+  | 'unknown'; // anything else — UI must show error.message in small text
+
+export class PairError extends Error {
+  kind: PairFailureKind;
+  constructor(kind: PairFailureKind, message: string) {
     super(message);
     this.kind = kind;
   }
 }
 
-/**
- * Phone claims a laptop pairing code. Requires the Supabase migration
- * from PLAN.md section 6 (devices table + claim_pair RPC).
- * Maps RPC failures onto the phone pair states.
- */
-export async function claimPair(code: string): Promise<{ laptopName: string }> {
-  const sb = getSupabase();
-  if (!sb) throw new ClaimPairError('network', 'Supabase is not configured.');
-  const { data, error } = await sb.rpc('claim_pair', { code });
-  if (error) {
-    const msg = error.message.toLowerCase();
-    if (msg.includes('expir')) throw new ClaimPairError('expired', error.message);
-    if (msg.includes('account') || msg.includes('auth') || msg.includes('user'))
-      throw new ClaimPairError('wrong', error.message);
-    if (msg.includes('offline')) throw new ClaimPairError('offline', error.message);
-    if (msg.includes('already') || msg.includes('paired'))
-      throw new ClaimPairError('already', error.message);
-    throw new ClaimPairError('network', error.message);
+/** Map a Postgres/PostgREST errcode to a failure kind (null = unknown). */
+export function mapDbErrcode(code: string | null | undefined): PairFailureKind | null {
+  switch (code) {
+    case 'P0001':
+      return 'expired';
+    case 'P0002':
+      return 'wrong';
+    case '28000': // claim_pair: auth.uid() is null
+    case '42501': // RLS / permission denied (session missing or unusable)
+    case '401': // PostgREST: unauthenticated
+      return 'not-signed-in';
+    default:
+      return null;
   }
-  const row = data as { laptop_name?: string } | null;
-  return { laptopName: row?.laptop_name ?? 'your laptop' };
+}
+
+export interface DbLikeError {
+  code?: string | null;
+  message: string;
+}
+
+/** Build a PairError from a DB/PostgREST error, preserving the message. */
+export function mapPairFailure(error: DbLikeError): PairError {
+  const kind = mapDbErrcode(error.code ?? null) ?? 'unknown';
+  return new PairError(kind, error.message);
+}
+
+// Backwards-compatible alias (was string-matched; now code-mapped).
+export { PairError as ClaimPairError };
+
+export interface ClaimPairResult {
+  laptopName: string;
+  laptopDeviceId: string;
+  phoneDeviceId: string;
 }
 
 /**
- * Laptop publishes a fresh pairing code. Best-effort: resolves null when
- * Supabase is unconfigured (caller uses the DEMO-ONLY fallback instead).
- * NOTE: the server must enforce code uniqueness + 5-min expiry in the
- * `claim_pair` RPC — the client cannot enforce rate limits.
+ * Phone claims a laptop pairing code. Requires a session — with none,
+ * auth.uid() is null inside claim_pair and every code looks dead, which is
+ * why callers must redirect to /login on 'not-signed-in' instead of
+ * showing "laptop offline".
+ */
+export async function claimPair(
+  code: string,
+  phoneName: string,
+): Promise<ClaimPairResult> {
+  const sb = getSupabase();
+  if (!sb) {
+    throw new PairError(
+      'unknown',
+      'Supabase is not configured (missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).',
+    );
+  }
+  const {
+    data: { session },
+  } = await sb.auth.getSession();
+  if (!session) {
+    throw new PairError('not-signed-in', 'No session — sign in first.');
+  }
+  const { data, error } = await sb.rpc('claim_pair', {
+    code,
+    phone_name: phoneName,
+  });
+  if (error) throw mapPairFailure(error);
+  const row = data as {
+    laptop_name?: string;
+    laptop_device_id?: string;
+    phone_device_id?: string;
+  } | null;
+  return {
+    laptopName: row?.laptop_name ?? 'your laptop',
+    laptopDeviceId: row?.laptop_device_id ?? '',
+    phoneDeviceId: row?.phone_device_id ?? '',
+  };
+}
+
+export type PublishResult = { ok: true } | { ok: false; failure: PairError };
+
+/**
+ * Laptop publishes a fresh pairing code. Surfaces the REAL failure —
+ * callers must show it with a Retry button, never a QR for an unsaved code.
+ * NOTE: the server enforces code format/expiry in claim_pair — the client
+ * cannot enforce rate limits.
  */
 export async function publishLaptopPairing(
   code: string,
   expiresAtMs: number,
   laptopName: string,
-): Promise<boolean> {
+): Promise<PublishResult> {
   const sb = getSupabase();
-  if (!sb) return false;
+  if (!sb) {
+    return {
+      ok: false,
+      failure: new PairError(
+        'unknown',
+        'Supabase is not configured (missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).',
+      ),
+    };
+  }
+  const {
+    data: { session },
+  } = await sb.auth.getSession();
+  if (!session) {
+    return {
+      ok: false,
+      failure: new PairError('not-signed-in', 'No session — sign in first.'),
+    };
+  }
   const { error } = await sb.from('devices').upsert(
     {
       role: 'laptop',
@@ -94,9 +184,53 @@ export async function publishLaptopPairing(
     },
     { onConflict: 'user_id,role' },
   );
+  if (error) return { ok: false, failure: mapPairFailure(error) };
+  return { ok: true };
+}
+
+/**
+ * Refresh devices.last_seen for this account's laptop row.
+ * Called from PairPage every 15 s while /pair is open.
+ * TEMPORARY owner: apps/brain takes this over with its own 15 s heartbeat
+ * (PLAN.md section 6) once the brain runs — then delete these calls.
+ */
+export async function touchLaptopHeartbeat(): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  const { error } = await sb
+    .from('devices')
+    .update({ last_seen: new Date().toISOString() })
+    .eq('role', 'laptop');
   if (error) {
-    console.warn('[pair] publishLaptopPairing failed (migration missing?):', error.message);
+    console.warn('[pair] heartbeat failed:', error.message);
     return false;
   }
   return true;
+}
+
+export interface LaptopPresence {
+  lastSeenMs: number;
+  laptopName: string;
+}
+
+/**
+ * Read this account's laptop row for a last_seen offline check.
+ * Returns null when no laptop row exists yet (fresh account).
+ * "Laptop offline" <=> now - lastSeenMs > 45 s. Nothing else decides it.
+ */
+export async function readLaptopLastSeen(): Promise<LaptopPresence | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  const { data, error } = await sb
+    .from('devices')
+    .select('name,last_seen')
+    .eq('role', 'laptop')
+    .limit(1)
+    .maybeSingle();
+  if (error || !data) return null;
+  const row = data as { name: string | null; last_seen: string };
+  return {
+    lastSeenMs: new Date(row.last_seen).getTime(),
+    laptopName: row.name ?? 'your laptop',
+  };
 }

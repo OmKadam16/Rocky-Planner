@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import jsQR from 'jsqr';
 import {
   ChevronLeft,
+  CircleAlert,
   CircleCheck,
   Flashlight,
   FlashlightOff,
@@ -15,6 +16,7 @@ import {
   WifiOff,
 } from 'lucide-react';
 import {
+  LAPTOP_OFFLINE_AFTER_SEC,
   buzz,
   defaultPhoneName,
   extractPairFromQrText,
@@ -30,7 +32,14 @@ import {
   demoUnpair,
   isDemoPairingEnabled,
 } from '../lib/demoOnly.pairingFallback';
-import { ClaimPairError, claimPair, isSupabaseConfigured } from '../lib/supabase';
+import {
+  PairError,
+  claimPair,
+  getSessionUser,
+  isSupabaseConfigured,
+  readLaptopLastSeen,
+} from '../lib/supabase';
+import { buildLoginRedirect } from '../lib/auth';
 import { DemoBadge } from '../components/DemoBadge';
 import { Logo } from '../components/Logo';
 import { ThemeToggle } from '../components/ThemeToggle';
@@ -80,9 +89,11 @@ const ERROR_META: Record<
 
 export function RemotePage() {
   const [params] = useSearchParams();
+  const navigate = useNavigate();
   const demo = isSupabaseConfigured() ? false : isDemoPairingEnabled();
   const [state, setState] = useState<PhonePairState>('intro');
   const [code, setCode] = useState('');
+  const [genericMsg, setGenericMsg] = useState<string | null>(null);
   const [laptopName, setLaptopName] = useState('your laptop');
   const [phoneName] = useState(() => defaultPhoneName());
   const [torch, setTorch] = useState(false);
@@ -144,6 +155,7 @@ export function RemotePage() {
     (next: PhonePairState) => {
       if (next !== 'scanner') stopCamera();
       setCamError(null);
+      setGenericMsg(null);
       setState(next);
     },
     [stopCamera],
@@ -154,43 +166,90 @@ export function RemotePage() {
       const normalized = normalizePairCode(raw);
       if (!isValidPairCode(normalized)) return;
       setCode(normalized);
+      setGenericMsg(null);
       setState('confirming');
       buzz(15);
       const fail = (kind: PhonePairState) => setState(kind);
+      const failGeneric = (message: string) => {
+        setGenericMsg(message);
+        setState('generic');
+      };
       const done = (name: string) => {
         setLaptopName(name);
         setState('connected');
         buzz([20, 60, 20]);
       };
-      // Give up after 12 s with no answer (laptop asleep etc.).
-      if (confirmTimer.current) window.clearTimeout(confirmTimer.current);
+      const sendToLogin = () =>
+        navigate(buildLoginRedirect(`/remote?pair=${normalized}`), { replace: true });
+      const clearTimer = () => {
+        if (confirmTimer.current) window.clearTimeout(confirmTimer.current);
+      };
+      // 12 s with no answer: re-check presence instead of assuming offline.
+      clearTimer();
       confirmTimer.current = window.setTimeout(() => {
-        if (stateRef.current === 'confirming') setState('offline');
+        if (stateRef.current !== 'confirming') return;
+        void (async () => {
+          if (!isSupabaseConfigured() || demo) {
+            setState('offline');
+            return;
+          }
+          const presence = await readLaptopLastSeen();
+          if (presence && Date.now() - presence.lastSeenMs > LAPTOP_OFFLINE_AFTER_SEC * 1000) {
+            setState('offline');
+          } else {
+            failGeneric('The laptop didn’t answer in time. Keep Rocky open on the laptop and try again.');
+          }
+        })();
       }, 12_000);
 
       try {
         if (isSupabaseConfigured()) {
-          const r = await claimPair(normalized);
-          if (confirmTimer.current) window.clearTimeout(confirmTimer.current);
+          // No session => auth.uid() is null inside claim_pair and EVERY
+          // code looks dead. Redirect to sign in; the ?pair= survives.
+          const user = await getSessionUser();
+          if (!user) {
+            clearTimer();
+            sendToLogin();
+            return;
+          }
+          // "Laptop offline" is decided ONLY from devices.last_seen.
+          const presence = await readLaptopLastSeen();
+          if (presence && Date.now() - presence.lastSeenMs > LAPTOP_OFFLINE_AFTER_SEC * 1000) {
+            clearTimer();
+            fail('offline');
+            return;
+          }
+          const r = await claimPair(normalized, phoneName);
+          clearTimer();
           done(r.laptopName);
         } else if (demo) {
           // DEMO-ONLY path.
           await new Promise((r) => setTimeout(r, 1400));
           const res = demoClaimPair(normalized);
-          if (confirmTimer.current) window.clearTimeout(confirmTimer.current);
+          clearTimer();
           if (res.ok) done(res.laptopName);
-          else fail(res.kind === 'network' ? 'offline' : res.kind);
+          else if (res.kind === 'expired') fail('expired');
+          else if (res.kind === 'offline') fail('offline');
+          else failGeneric('Demo relay failed. Restart the laptop /pair page and try again.');
         } else {
-          if (confirmTimer.current) window.clearTimeout(confirmTimer.current);
-          fail('offline');
+          clearTimer();
+          failGeneric('Supabase is not configured (missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).');
         }
       } catch (e) {
-        if (confirmTimer.current) window.clearTimeout(confirmTimer.current);
-        if (e instanceof ClaimPairError) fail(e.kind === 'network' ? 'offline' : e.kind);
-        else fail('offline');
+        clearTimer();
+        // Mapped by Postgres errcode — never string-sniffed, and an
+        // unrecognized error is NEVER shown as "laptop offline".
+        if (e instanceof PairError) {
+          if (e.kind === 'expired') fail('expired');
+          else if (e.kind === 'wrong') fail('wrong');
+          else if (e.kind === 'not-signed-in') sendToLogin();
+          else failGeneric(e.message);
+        } else {
+          failGeneric(e instanceof Error ? e.message : 'Something went wrong claiming the code.');
+        }
       }
     },
-    [demo],
+    [demo, navigate, phoneName],
   );
 
   const handleDetectedText = useCallback(
@@ -587,6 +646,43 @@ export function RemotePage() {
         </div>
       )}
 
+      {/* Generic relay error — shows the REAL message, never "offline". */}
+      {state === 'generic' && (
+        <div className="flex flex-1 flex-col items-center gap-4 py-14 text-center">
+          <span
+            className="grid h-16 w-16 place-items-center rounded-full"
+            style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}
+          >
+            <CircleAlert size={30} aria-hidden />
+          </span>
+          <h1 className="text-[24px] font-bold tracking-tight">Something went wrong</h1>
+          <p className="max-w-[320px] text-[15px] leading-relaxed text-ink2">
+            The relay answered with an error. Your laptop is not necessarily offline.
+          </p>
+          {genericMsg && (
+            <p className="max-w-[320px] break-words rounded-xl border border-line bg-surface p-3 font-mono text-[11px] leading-relaxed text-ink3">
+              {genericMsg}
+            </p>
+          )}
+          <div className="mt-2 flex w-full flex-col gap-2.5">
+            <button
+              type="button"
+              onClick={() => goPair('code')}
+              className="inline-flex h-[52px] items-center justify-center rounded-2xl bg-accent text-[16px] font-bold text-white"
+            >
+              Try again
+            </button>
+            <button
+              type="button"
+              onClick={() => goPair('intro')}
+              className="inline-flex h-[52px] items-center justify-center rounded-2xl text-[16px] font-semibold text-ink2"
+            >
+              Back
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ERROR STATES */}
       {err && (
         <div className="flex flex-1 flex-col items-center gap-4 py-14 text-center">
@@ -689,6 +785,7 @@ export function RemotePage() {
                 'wrong',
                 'offline',
                 'already',
+                'generic',
               ] as PhonePairState[]
             ).map((s) => (
               <button

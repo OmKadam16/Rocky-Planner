@@ -1,0 +1,76 @@
+import { describe, expect, it } from 'vitest';
+import {
+  buildLoginRedirect,
+  isValidEmail,
+  mapAuthError,
+  parseNextParam,
+} from './auth';
+
+describe('buildLoginRedirect (preserves full path incl. query)', () => {
+  it('keeps /remote?pair=<CODE> through the login redirect', () => {
+    const to = buildLoginRedirect('/remote?pair=K7P2QM');
+    expect(to).toBe('/login?next=%2Fremote%3Fpair%3DK7P2QM');
+    // Round-trips back to the exact pre-login target.
+    expect(parseNextParam(new URLSearchParams(to.split('?')[1]).get('next'))).toBe(
+      '/remote?pair=K7P2QM',
+    );
+  });
+
+  it('handles plain paths', () => {
+    expect(buildLoginRedirect('/pair')).toBe('/login?next=%2Fpair');
+    expect(parseNextParam('%2Fpair')).toBe('/pair');
+  });
+});
+
+describe('parseNextParam (open-redirect guard)', () => {
+  it('rejects off-origin targets', () => {
+    expect(parseNextParam('//evil.com/x')).toBe('/pair');
+    expect(parseNextParam('https://evil.com/')).toBe('/pair');
+    expect(parseNextParam('javascript:alert(1)')).toBe('/pair');
+  });
+
+  it('falls back when missing or malformed', () => {
+    expect(parseNextParam(null)).toBe('/pair');
+    expect(parseNextParam('')).toBe('/pair');
+    expect(parseNextParam('%E0%A4%A')).toBe('/pair');
+    expect(parseNextParam(null, '/remote')).toBe('/remote');
+  });
+});
+
+describe('mapAuthError', () => {
+  it('maps invalid credentials (unknown email AND wrong password share one message)', () => {
+    const f = mapAuthError({ message: 'Invalid login credentials' });
+    expect(f.kind).toBe('invalid-credentials');
+    expect(f.message).toMatch(/don’t match/);
+  });
+
+  it('maps existing account on sign-up', () => {
+    expect(mapAuthError({ message: 'User already registered' }).kind).toBe('email-taken');
+  });
+
+  it('maps rate limits', () => {
+    expect(mapAuthError({ message: 'Email rate limit exceeded' }).kind).toBe('rate-limit');
+    expect(mapAuthError({ message: 'Over request rate limit' }).kind).toBe('rate-limit');
+  });
+
+  it('maps network failures', () => {
+    expect(mapAuthError(new TypeError('Failed to fetch')).kind).toBe('network');
+    expect(mapAuthError({ message: 'Network request failed' }).kind).toBe('network');
+  });
+
+  it('keeps unknown messages visible', () => {
+    const f = mapAuthError({ message: 'Something exotic happened' });
+    expect(f.kind).toBe('unknown');
+    expect(f.message).toBe('Something exotic happened');
+  });
+});
+
+describe('isValidEmail', () => {
+  it('accepts normal addresses and rejects junk', () => {
+    expect(isValidEmail('oma@school.edu')).toBe(true);
+    expect(isValidEmail(' a@b.co ')).toBe(true);
+    expect(isValidEmail('nope')).toBe(false);
+    expect(isValidEmail('a@b')).toBe(false);
+    expect(isValidEmail('')).toBe(false);
+  });
+});

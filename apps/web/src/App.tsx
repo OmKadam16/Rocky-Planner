@@ -1,7 +1,9 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
+import { SessionProvider, RequireAuth } from './lib/auth';
 import { AppShell } from './components/AppShell';
 import { PairPage } from './pages/PairPage';
 import { RemotePage } from './pages/RemotePage';
+import { LoginPage } from './pages/LoginPage';
 
 function Placeholder({ title }: { title: string }) {
   return (
@@ -18,27 +20,44 @@ function Placeholder({ title }: { title: string }) {
 export function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Phone PWA — calendar only + talk button (B3). No laptop chrome. */}
-        <Route path="/remote" element={<RemotePage />} />
-        <Route
-          path="/pair"
-          element={
-            <AppShell>
-              <PairPage />
-            </AppShell>
-          }
-        />
-        <Route path="/" element={<Navigate to="/pair" replace />} />
-        <Route
-          path="*"
-          element={
-            <AppShell>
-              <Placeholder title="Not found" />
-            </AppShell>
-          }
-        />
-      </Routes>
+      <SessionProvider>
+        <Routes>
+          {/* Public: sign in / create account. ?next preserves the target,
+              including /remote?pair=<CODE> query strings. */}
+          <Route path="/login" element={<LoginPage />} />
+          {/* Phone PWA — calendar only + talk button (B3). No laptop chrome.
+              Requires the same account as the laptop. */}
+          <Route
+            path="/remote"
+            element={
+              <RequireAuth>
+                <RemotePage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/pair"
+            element={
+              <RequireAuth>
+                <AppShell>
+                  <PairPage />
+                </AppShell>
+              </RequireAuth>
+            }
+          />
+          <Route path="/" element={<Navigate to="/pair" replace />} />
+          <Route
+            path="*"
+            element={
+              <RequireAuth>
+                <AppShell>
+                  <Placeholder title="Not found" />
+                </AppShell>
+              </RequireAuth>
+            }
+          />
+        </Routes>
+      </SessionProvider>
     </BrowserRouter>
   );
 }

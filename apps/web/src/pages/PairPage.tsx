@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   Check,
+  CircleAlert,
   CircleCheck,
   Copy,
   RefreshCw,
@@ -28,7 +30,12 @@ import {
   demoReadPaired,
   isDemoPairingEnabled,
 } from '../lib/demoOnly.pairingFallback';
-import { isSupabaseConfigured, publishLaptopPairing } from '../lib/supabase';
+import {
+  isSupabaseConfigured,
+  publishLaptopPairing,
+  touchLaptopHeartbeat,
+  type PairError,
+} from '../lib/supabase';
 import { DemoBadge } from '../components/DemoBadge';
 import { StatusBadge } from '../components/StatusBadge';
 
@@ -108,11 +115,14 @@ export function PairPage() {
   const [secsLeft, setSecsLeft] = useState(PAIR_EXPIRY_SEC);
   const [copied, setCopied] = useState(false);
   const [heard, setHeard] = useState(false);
+  const [publishError, setPublishError] = useState<PairError | null>(null);
   const [netOffline, setNetOffline] = useState(
     () => typeof navigator !== 'undefined' && navigator.onLine === false,
   );
   const createdAt = useRef(Date.now());
   const timers = useRef<number[]>([]);
+  const laptopNameRef = useRef(laptopName);
+  laptopNameRef.current = laptopName;
 
   const siteOrigin = useMemo(() => {
     const env = (import.meta.env.VITE_SITE_URL as string | undefined)?.trim();
@@ -121,6 +131,26 @@ export function PairPage() {
   }, []);
   const pairUrl = useMemo(() => buildPairUrl(siteOrigin, code), [siteOrigin, code]);
   const meta = STATUS_META[netOffline && status === 'waiting' ? 'offline' : status];
+
+  // Publish one code to the relay. Surfaces the REAL failure — the QR is
+  // only shown when the code was actually saved (see publishError below).
+  const doPublish = useCallback(
+    async (c: string, e: number) => {
+      if (demo) {
+        demoPublishLaptopPair({
+          code: c,
+          expiresAtMs: e,
+          laptopName: laptopNameRef.current,
+          lastSeenMs: Date.now(),
+        });
+        setPublishError(null);
+        return;
+      }
+      const res = await publishLaptopPairing(c, e, laptopNameRef.current);
+      setPublishError(res.ok ? null : res.failure);
+    },
+    [demo],
+  );
 
   const resetPair = useCallback(
     (next?: { code: string; expiresAtMs: number }) => {
@@ -135,41 +165,41 @@ export function PairPage() {
       setStatus('waiting');
       setHeard(false);
       setCopied(false);
-      if (demo) {
-        demoPublishLaptopPair({
-          code: c,
-          expiresAtMs: e,
-          laptopName,
-          lastSeenMs: Date.now(),
-        });
-      } else {
-        void publishLaptopPairing(c, e, laptopName);
-      }
+      setPublishError(null);
+      void doPublish(c, e);
     },
-    [demo, laptopName],
+    [doPublish],
   );
 
-  // Publish on mount + laptop-name change (debounced by effect).
-  useEffect(() => {
-    if (demo) {
-      demoPublishLaptopPair({
-        code,
-        expiresAtMs,
-        laptopName,
-        lastSeenMs: Date.now(),
-      });
+  // Retry publishing the CURRENT code when it hasn't expired yet;
+  // otherwise start over with a fresh one.
+  const retryPublish = useCallback(() => {
+    if (expiresAtMs > Date.now()) {
+      setPublishError(null);
+      setStatus('waiting');
+      void doPublish(code, expiresAtMs);
     } else {
-      void publishLaptopPairing(code, expiresAtMs, laptopName);
+      resetPair();
     }
+  }, [code, expiresAtMs, doPublish, resetPair]);
+
+  // Publish on mount.
+  useEffect(() => {
+    void doPublish(code, expiresAtMs);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Heartbeat every 15 s. NOTE: with Supabase the real heartbeat belongs to
-  // the brain (Agent A, apps/brain heartbeat.ts); here we only keep the
-  // DEMO-ONLY localStorage last_seen fresh so /remote offline checks work.
+  // Heartbeat every 15 s keeps devices.last_seen fresh while /pair is open.
+  // TEMPORARY owner: apps/brain takes this over with its own 15 s heartbeat
+  // (PLAN.md section 6) once the brain runs — then delete this interval and
+  // keep only the brain's. The phone decides "laptop offline" solely from
+  // last_seen older than 45 s, so this interval is what keeps the laptop
+  // looking alive until the brain exists.
   useEffect(() => {
-    if (!demo) return;
-    const id = window.setInterval(() => demoHeartbeat(), 15_000);
+    const id = window.setInterval(() => {
+      if (demo) demoHeartbeat();
+      else void touchLaptopHeartbeat();
+    }, 15_000);
     return () => window.clearInterval(id);
   }, [demo]);
 
@@ -373,6 +403,43 @@ export function PairPage() {
           </div>
 
           <div className="relative self-center">
+            {publishError ? (
+              <div
+                role="alert"
+                className="flex w-[300px] flex-col items-center gap-3 rounded-2xl border border-danger bg-danger-soft p-6 text-center"
+              >
+                <span className="grid h-14 w-14 place-items-center rounded-full bg-surface text-danger">
+                  <CircleAlert size={26} aria-hidden />
+                </span>
+                <span className="text-xl font-bold text-ink1">Couldn’t save the code</span>
+                <span className="text-sm leading-relaxed text-ink1">
+                  {publishError.kind === 'not-signed-in'
+                    ? 'Your sign-in expired. Sign in again, then retry.'
+                    : 'The relay rejected the new code.'}
+                </span>
+                <span className="break-words font-mono text-[11px] leading-relaxed text-ink2">
+                  {publishError.kind}: {publishError.message}
+                </span>
+                <span className="flex flex-wrap justify-center gap-2">
+                  {publishError.kind === 'not-signed-in' && (
+                    <Link
+                      to="/login?next=%2Fpair"
+                      className="inline-flex h-10 items-center rounded-[10px] bg-accent px-4 text-sm font-bold text-white"
+                    >
+                      Sign in again
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    onClick={retryPublish}
+                    className="inline-flex h-10 items-center gap-2 rounded-[10px] border border-line bg-surface px-4 text-sm font-bold text-ink1"
+                  >
+                    <RefreshCw size={15} aria-hidden />
+                    Retry
+                  </button>
+                </span>
+              </div>
+            ) : (
             <div className="rounded-2xl bg-white p-[18px]">
               <QRCodeSVG
                 value={pairUrl}
@@ -384,7 +451,8 @@ export function PairPage() {
                 aria-label={`Pairing QR code for ${pairUrl}`}
               />
             </div>
-            {(status === 'confirming' || status === 'connected' || status === 'expired' || status === 'wrong' || status === 'offline') && (
+            )}
+            {!publishError && (status === 'confirming' || status === 'connected' || status === 'expired' || status === 'wrong' || status === 'offline') && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-surface p-6 text-center opacity-[0.97]">
                 {status === 'confirming' && (
                   <span className="grid h-14 w-14 place-items-center rounded-full bg-accent-soft text-accent-ink">
@@ -425,6 +493,7 @@ export function PairPage() {
             )}
           </div>
 
+          {!publishError && (
           <div className="flex flex-col items-center gap-2">
             <span className="text-xs text-ink3">Camera not working? Enter this code on your phone</span>
             <div className="flex items-center gap-2.5">
@@ -452,10 +521,13 @@ export function PairPage() {
               Generate new code
             </button>
           </div>
+          )}
 
+          {!publishError && (
           <p className="tnum break-all text-center font-mono text-[11px] leading-relaxed text-ink4">
             {pairUrl}
           </p>
+          )}
           <p className="text-center text-[11px] text-ink4">
             Laptop offline threshold: {LAPTOP_OFFLINE_AFTER_SEC}s heartbeat window.
           </p>
