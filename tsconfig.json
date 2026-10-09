@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["packages/core/src", "apps/brain/src", "supabase/tests", "vitest.config.ts"]
+}

@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/lucide-static@0.460.0/font/lucide.css">
+<style>
+html,body{margin:0;min-height:100%;background:#050608}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+a{color:var(--accent-ink,#A3AAF5);text-decoration:none}a:hover{text-decoration:underline}
+[class^="icon-"],[class*=" icon-"]{line-height:1;display:inline-block}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent-ink);outline-offset:2px}
+[data-theme="dark"]{--bg:#0D0E13;--surface:#15171E;--surface2:#1C1F28;--line:#2A2E3A;--ink1:#EDEFF5;--ink2:#B3B8C6;--ink3:#868C9C;--ink4:#5A6070;--accent:#4F5BD5;--accent-hover:#5D69E0;--accent-ink:#A3AAF5;--accent-soft:#222750;--success:#46C08A;--success-soft:#15302A;--warning:#E8B04B;--warning-soft:#33291A;--danger:#F06A60;--danger-soft:#3A1E1E;--cls-bg:#232A55;--cls-edge:#6B76E8;--cls-fg:#DCE0FF;--com-bg:#2F2545;--com-edge:#A585E8;--com-fg:#E8DDFF;--stu-bg:#17322F;--stu-edge:#43BFA8;--stu-fg:#CFF5EC;--per-bg:#382A1C;--per-edge:#E59A52;--per-fg:#FBE3CB;--brk-bg:#1F222B;--brk-edge:#6A7080;--brk-fg:#C3C8D4;--ddl-bg:#3A1E22;--ddl-edge:#F06A60;--ddl-fg:#FFD9D5;--shadow:0 24px 60px rgba(0,0,0,.5);--scrim:rgba(5,6,8,.6);--fade:rgba(13,14,19,1)}
+[data-theme="light"]{--bg:#F6F7F9;--surface:#FFFFFF;--surface2:#EFF1F5;--line:#E2E5EC;--ink1:#15171D;--ink2:#3D4250;--ink3:#636978;--ink4:#9DA2AF;--accent:#4F5BD5;--accent-hover:#3E48B8;--accent-ink:#3E48B8;--accent-soft:#ECEEFC;--success:#1E8C5A;--success-soft:#E3F4EC;--warning:#A86A00;--warning-soft:#FBF1DE;--danger:#C9372C;--danger-soft:#FCE8E6;--cls-bg:#E6E8FB;--cls-edge:#4F5BD5;--cls-fg:#262D7A;--com-bg:#EFE7FB;--com-edge:#8457D6;--com-fg:#4A2A86;--stu-bg:#E1F4F0;--stu-edge:#1F9C86;--stu-fg:#0E5A4D;--per-bg:#FCEEDF;--per-edge:#D7802F;--per-fg:#7A4310;--brk-bg:#EEF0F3;--brk-edge:#8A909E;--brk-fg:#3D4250;--ddl-bg:#FCE8E6;--ddl-edge:#C9372C;--ddl-fg:#8A2019;--shadow:0 24px 60px rgba(20,24,40,.18);--scrim:rgba(20,24,40,.35);--fade:rgba(246,247,249,1)}
+@keyframes rk-spin{to{transform:rotate(360deg)}}
+@keyframes rk-breathe{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(79,91,213,.5)}50%{transform:scale(1.07);box-shadow:0 0 0 22px rgba(79,91,213,0)}}
+@keyframes rk-wave{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+@keyframes rk-pop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.1);opacity:1}100%{transform:scale(1)}}
+@keyframes rk-ping{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.6);opacity:0}}
+@keyframes rk-scan{0%,100%{top:8%}50%{top:88%}}
+@keyframes rk-shimmer{0%,100%{opacity:.55}50%{opacity:1}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="min-height:100vh;padding:16px;display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:24px;background:#050608;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#D6D9E0">
+
+<aside style="width:260px;display:flex;flex-direction:column;gap:14px;font-size:12px;color:#9AA0AE;padding-top:8px">
+  <div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:9px;background:#4F5BD5;display:flex;align-items:flex-end;justify-content:center;gap:3px;padding-bottom:7px"><span style="width:3px;height:7px;border-radius:2px;background:#fff"></span><span style="width:3px;height:13px;border-radius:2px;background:#fff"></span><span style="width:3px;height:9px;border-radius:2px;background:#fff"></span></div><div><div style="font-size:16px;font-weight:700;color:#EDEFF5">Rocky mobile</div><div>390 × 844 · PWA</div></div></div>
+  <sc-for list="{{ dev }}" as="g" hint-placeholder-count="5">
+    <div style="display:flex;flex-direction:column;gap:6px"><span style="font-weight:700;color:#D6D9E0;letter-spacing:.04em;text-transform:uppercase">{{ g.label }}</span>
+      <div style="display:flex;flex-wrap:wrap;gap:4px"><sc-for list="{{ g.items }}" as="it"><button onClick="{{ it.go }}" style="flex:none;white-space:nowrap;height:28px;padding:0 10px;border-radius:7px;border:1px solid #2A2E3A;background:{{ it.bg }};color:{{ it.fg }};font:inherit;font-size:12px;cursor:pointer">{{ it.label }}</button></sc-for></div>
+    </div>
+  </sc-for>
+</aside>
+
+<div style="width:{{ frame.w }};height:{{ frame.h }};flex:none;position:relative">
+<div style="position:absolute;left:0;top:0;width:414px;height:868px;transform:{{ frame.t }};transform-origin:0 0;border-radius:62px;background:#000;padding:12px;box-shadow:0 0 0 2px #22252E, 0 40px 90px rgba(0,0,0,.6)">
+<div data-theme="{{ theme }}" data-screen-label="{{ screenLabel }}" style="position:relative;width:390px;height:844px;border-radius:50px;overflow:hidden;background:var(--bg);color:var(--ink1);font-size:14px;font-variant-numeric:tabular-nums">
+
+  <div style="position:absolute;left:0;right:0;top:0;height:54px;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:6px 32px 0 40px;font-size:16px;font-weight:600;color:{{ sbColor }};pointer-events:none"><span>10:42</span><span style="display:flex;gap:6px;align-items:center"><i class="icon-signal" style="font-size:16px"></i><i class="icon-wifi" style="font-size:16px"></i><i class="icon-battery-full" style="font-size:20px"></i></span></div>
+  <div style="position:absolute;left:50%;top:11px;transform:translateX(-50%);width:122px;height:35px;border-radius:20px;background:#000;z-index:61"></div>
+  <div style="position:absolute;left:50%;bottom:8px;transform:translateX(-50%);width:134px;height:5px;border-radius:9px;background:{{ homeBar }};z-index:61"></div>
+
+  <sc-if value="{{ is.signin }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;inset:0;padding:96px 24px 48px;display:flex;flex-direction:column;background:radial-gradient(90% 50% at 50% 0%, var(--accent-soft) 0%, transparent 70%), var(--bg)">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;margin-top:40px">
+        <div style="width:72px;height:72px;border-radius:22px;background:var(--accent);display:flex;align-items:flex-end;justify-content:center;gap:6px;padding-bottom:18px"><span style="width:6px;height:16px;border-radius:3px;background:#fff"></span><span style="width:6px;height:32px;border-radius:3px;background:#fff"></span><span style="width:6px;height:22px;border-radius:3px;background:#fff"></span></div>
+        <div><div style="font-size:28px;font-weight:700;letter-spacing:-0.02em">Rocky</div><div style="font-size:16px;color:var(--ink2);margin-top:4px">Talk to your day.</div></div>
+      </div>
+      <span style="flex:1"></span>
+      <sc-if value="{{ signErr.on }}"><div role="alert" style="display:flex;gap:10px;padding:12px 14px;border-radius:14px;background:var(--danger-soft);color:var(--ink1);margin-bottom:14px"><i class="{{ signErr.icon }}" style="font-size:18px;color:var(--danger);margin-top:1px"></i><div><div style="font-weight:700;color:var(--danger)">{{ signErr.title }}</div><div style="font-size:14px;color:var(--ink2);margin-top:2px;line-height:1.45">{{ signErr.body }}</div></div></div></sc-if>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <button onClick="{{ signIn }}" style="height:56px;border-radius:16px;border:0;background:var(--accent);color:#fff;font:inherit;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer"><span style="width:24px;height:24px;border-radius:99px;background:#fff;color:#4F5BD5;font-size:14px;font-weight:700;display:grid;place-items:center">G</span>Continue with Google</button>
+        <sc-if value="{{ is.emailClosed }}"><button onClick="{{ openEmail }}" style="height:48px;border-radius:14px;border:0;background:transparent;color:var(--ink2);font:inherit;font-size:14px;font-weight:600;cursor:pointer">Use email instead</button></sc-if>
+        <sc-if value="{{ is.emailOpen }}">
+          <div style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:16px;background:var(--surface);border:1px solid var(--line)">
+            <input value="omkadam@gmail.com" readonly aria-label="Email" style="height:48px;padding:0 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);color:var(--ink1);font:inherit;font-size:16px;outline:none">
+            <input value="rocky-is-ready" type="password" readonly aria-label="Password" style="height:48px;padding:0 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);color:var(--ink1);font:inherit;font-size:16px;outline:none">
+            <div style="display:flex;justify-content:space-between;align-items:center"><a href="#" style="font-size:14px">Forgot password?</a><button onClick="{{ signIn }}" style="height:44px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);color:var(--ink1);font:inherit;font-weight:700;cursor:pointer">Sign in</button></div>
+          </div>
+        </sc-if>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--ink3);margin-top:20px"><i class="icon-lock" style="font-size:12px"></i>Your AI and memory stay on your laptop.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ is.pair }}" hint-placeholder-val="{{ false }}">
+    <sc-if value="{{ pv.scanner }}">
+      <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#1a1c22 0 14px,#15171c 14px 28px);color:#fff">
+        <span style="position:absolute;left:50%;top:150px;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:12px;color:#7F8596">live camera feed</span>
+        <button onClick="{{ detect }}" aria-label="Viewfinder. Tap to simulate detecting the code" style="position:absolute;left:50%;top:230px;transform:translateX(-50%);width:270px;height:270px;border-radius:32px;border:0;background:transparent;box-shadow:0 0 0 999px rgba(0,0,0,.55);cursor:pointer">
+          <span style="position:absolute;left:0;top:0;width:48px;height:48px;border-left:4px solid #fff;border-top:4px solid #fff;border-top-left-radius:32px"></span>
+          <span style="position:absolute;right:0;top:0;width:48px;height:48px;border-right:4px solid #fff;border-top:4px solid #fff;border-top-right-radius:32px"></span>
+          <span style="position:absolute;left:0;bottom:0;width:48px;height:48px;border-left:4px solid #fff;border-bottom:4px solid #fff;border-bottom-left-radius:32px"></span>
+          <span style="position:absolute;right:0;bottom:0;width:48px;height:48px;border-right:4px solid #fff;border-bottom:4px solid #fff;border-bottom-right-radius:32px"></span>
+          {{ scanLine }}
+        </button>
+        <div style="position:absolute;left:24px;right:24px;top:530px;text-align:center;display:flex;flex-direction:column;gap:6px"><span style="font-size:20px;font-weight:700">Point at the code on your laptop</span><span style="font-size:14px;color:#C3C8D4">Settings → Devices → Connect your phone</span></div>
+        <div style="position:absolute;left:0;right:0;bottom:48px;display:flex;justify-content:space-between;align-items:center;padding:0 32px">
+          <button onClick="{{ pairGo.intro }}" style="height:48px;padding:0 18px;border-radius:99px;border:0;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-weight:600;cursor:pointer">Cancel</button>
+          <button onClick="{{ toggleTorch }}" aria-label="{{ torch.label }}" aria-pressed="{{ torch.pressed }}" style="width:56px;height:56px;border-radius:99px;border:0;background:{{ torch.bg }};color:{{ torch.fg }};display:grid;place-items:center;cursor:pointer"><i class="{{ torch.icon }}" style="font-size:22px"></i></button>
+          <button onClick="{{ pairGo.code }}" style="height:48px;padding:0 18px;border-radius:99px;border:0;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-weight:600;cursor:pointer">Enter code</button>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ pv.notScanner }}">
+      <div style="position:absolute;inset:0;padding:70px 24px 44px;display:flex;flex-direction:column">
+        <div style="height:44px;display:flex;align-items:center"><sc-if value="{{ pv.showBack }}"><button onClick="{{ pairGo.intro }}" aria-label="Back" style="width:44px;height:44px;margin-left:-10px;border-radius:12px;border:0;background:transparent;color:var(--ink1);display:grid;place-items:center;cursor:pointer"><i class="icon-chevron-left" style="font-size:24px"></i></button></sc-if></div>
+
+        <sc-if value="{{ pv.intro }}">
+          <div style="flex:1;display:flex;flex-direction:column;gap:28px;padding-top:20px">
+            <div style="display:flex;align-items:center;justify-content:center;gap:14px;padding:36px 0;border-radius:24px;background:var(--surface);border:1px solid var(--line)">
+              <span style="width:76px;height:76px;border-radius:22px;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center"><i class="icon-smartphone" style="font-size:34px"></i></span>
+              <i class="icon-arrow-left-right" style="font-size:22px;color:var(--ink3)"></i>
+              <span style="width:76px;height:76px;border-radius:22px;background:var(--accent);color:#fff;display:grid;place-items:center"><i class="icon-laptop" style="font-size:34px"></i></span>
+            </div>
+            <div><h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Pair with your laptop</h1><p style="margin:10px 0 0;font-size:16px;line-height:1.55;color:var(--ink2);text-wrap:pretty">Your phone becomes a mic and a live window into the calendar on your laptop. Open Rocky on your laptop and go to <b style="color:var(--ink1)">Connect your phone</b>.</p></div>
+            <span style="flex:1"></span>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <button onClick="{{ startScan }}" style="height:56px;border-radius:16px;border:0;background:var(--accent);color:#fff;font:inherit;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer"><i class="icon-scan-line" style="font-size:20px"></i>Scan QR code</button>
+              <button onClick="{{ pairGo.code }}" style="height:52px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink1);font:inherit;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer"><i class="icon-keyboard" style="font-size:18px"></i>Enter code instead</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ pv.primer }}">
+          <div style="flex:1;display:flex;flex-direction:column;gap:20px;padding-top:40px">
+            <span style="width:72px;height:72px;border-radius:22px;background:{{ pv.primerBg }};color:{{ pv.primerFg }};display:grid;place-items:center"><i class="{{ pv.primerIcon }}" style="font-size:32px"></i></span>
+            <div><h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">{{ pv.primerTitle }}</h1><p style="margin:10px 0 0;font-size:16px;line-height:1.55;color:var(--ink2);text-wrap:pretty">{{ pv.primerBody }}</p></div>
+            <sc-if value="{{ pv.denied }}">
+              <ol style="margin:0;padding:16px 16px 16px 36px;border-radius:16px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.5;color:var(--ink2)"><li>Tap the <b style="color:var(--ink1)">aA</b> or lock icon in the address bar</li><li>Open <b style="color:var(--ink1)">Website settings</b> → <b style="color:var(--ink1)">Camera</b></li><li>Choose <b style="color:var(--ink1)">Allow</b>, then come back here</li></ol>
+            </sc-if>
+            <span style="flex:1"></span>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <button onClick="{{ pv.primerAction }}" style="height:56px;border-radius:16px;border:0;background:var(--accent);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer">{{ pv.primerCta }}</button>
+              <button onClick="{{ pairGo.code }}" style="height:52px;border-radius:16px;border:0;background:transparent;color:var(--ink2);font:inherit;font-size:16px;font-weight:600;cursor:pointer">Enter code instead</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ pv.code }}">
+          <div style="flex:1;display:flex;flex-direction:column;gap:24px;padding-top:20px">
+            <div><h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Enter the code</h1><p style="margin:10px 0 0;font-size:16px;line-height:1.55;color:var(--ink2)">It's under the QR code on your laptop.</p></div>
+            <label style="position:relative;display:grid;grid-template-columns:repeat(3,1fr) 14px repeat(3,1fr);gap:8px;align-items:center">
+              <input value="{{ code }}" onChange="{{ onCode }}" maxlength="6" autocomplete="one-time-code" aria-label="6 character pairing code" style="position:absolute;inset:0;opacity:0;font-size:16px">
+              <sc-for list="{{ codeBoxes }}" as="cb" hint-placeholder-count="7">
+                <sc-if value="{{ cb.sep }}"><span style="height:2px;background:var(--ink4);border-radius:2px"></span></sc-if>
+                <sc-if value="{{ cb.box }}"><span style="height:60px;border-radius:14px;background:var(--surface);border:1.5px solid {{ cb.border }};display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:500">{{ cb.ch }}</span></sc-if>
+              </sc-for>
+            </label>
+            <button onClick="{{ pasteCode }}" style="align-self:flex-start;height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink1);font:inherit;font-weight:600;display:flex;gap:8px;align-items:center;cursor:pointer"><i class="icon-clipboard-paste" style="font-size:16px"></i>Paste</button>
+            <span style="flex:1"></span>
+            <button onClick="{{ submitCode }}" style="height:56px;border-radius:16px;border:0;background:var(--accent);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer;opacity:{{ codeReadyOp }}">Connect</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ pv.status }}">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;gap:20px;padding-top:110px">
+            <sc-if value="{{ pv.spin }}"><span style="width:88px;height:88px;border-radius:99px;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center">{{ bigSpin }}</span></sc-if>
+            <sc-if value="{{ pv.success }}">{{ pop }}</sc-if>
+            <sc-if value="{{ pv.icon }}"><span style="width:88px;height:88px;border-radius:99px;background:{{ pv.toneBg }};color:{{ pv.toneFg }};display:grid;place-items:center"><i class="{{ pv.icon }}" style="font-size:38px"></i></span></sc-if>
+            <div><h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em;text-wrap:balance">{{ pv.title }}</h1><p style="margin:10px 0 0;font-size:16px;line-height:1.55;color:var(--ink2);text-wrap:pretty">{{ pv.body }}</p></div>
+            <sc-if value="{{ pv.success }}"><div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:var(--surface);border:1px solid var(--line);text-align:left"><span style="width:44px;height:44px;border-radius:99px;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none"><i class="icon-mic" style="font-size:18px"></i></span><span style="font-size:14px;line-height:1.5;color:var(--ink2)">Try it: hold the button and say <b style="color:var(--ink1)">“What's my day look like?”</b></span></div></sc-if>
+            <span style="flex:1"></span>
+            <div style="width:100%;display:flex;flex-direction:column;gap:10px">
+              <sc-if value="{{ pv.cta }}"><button onClick="{{ pv.ctaGo }}" style="height:56px;border-radius:16px;border:0;background:var(--accent);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer">{{ pv.cta }}</button></sc-if>
+              <sc-if value="{{ pv.cta2 }}"><button onClick="{{ pv.cta2Go }}" style="height:52px;border-radius:16px;border:0;background:transparent;color:var(--ink2);font:inherit;font-size:16px;font-weight:600;cursor:pointer">{{ pv.cta2 }}</button></sc-if>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+  </sc-if>
+
+  <sc-if value="{{ is.home }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;padding-top:54px">
+      <div style="padding:6px 20px 0;display:flex;flex-direction:column;gap:10px;flex:none">
+        <sc-if value="{{ is.notif }}"><div style="display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:16px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)"><span style="width:32px;height:32px;border-radius:9px;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none"><i class="icon-bell" style="font-size:16px"></i></span><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700">Study: Calculus in 15 min</div><div style="font-size:12px;color:var(--ink3)">Library 2F · flexible</div></div><span style="font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--warning-soft);color:var(--warning)">Future</span></div></sc-if>
+        <div style="display:flex;align-items:center;justify-content:space-between;height:40px"><h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">{{ dayTitle }}</h1><button onClick="{{ openSettings }}" aria-label="More" style="width:44px;height:44px;margin-right:-8px;border-radius:12px;border:0;background:transparent;color:var(--ink2);display:grid;place-items:center;cursor:pointer"><i class="icon-ellipsis" style="font-size:22px"></i></button></div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <button onClick="{{ openOffline }}" style="height:32px;padding:0 12px 0 10px;border-radius:99px;border:0;background:{{ lap.bg }};color:{{ lap.fg }};font:inherit;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;cursor:pointer"><span style="width:8px;height:8px;border-radius:99px;background:{{ lap.fg }}"></span>{{ lap.label }}</button>
+          <div style="display:flex;padding:3px;border-radius:10px;background:var(--surface2)"><sc-for list="{{ views }}" as="vw"><button onClick="{{ vw.go }}" style="height:30px;min-width:56px;padding:0 12px;border-radius:8px;border:0;background:{{ vw.bg }};color:{{ vw.fg }};font:inherit;font-size:12px;font-weight:700;cursor:pointer">{{ vw.label }}</button></sc-for></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
+          <sc-for list="{{ strip }}" as="d" hint-placeholder-count="7">
+            <button onClick="{{ d.go }}" aria-label="{{ d.aria }}" style="height:60px;border-radius:14px;border:0;background:{{ d.bg }};color:{{ d.fg }};font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer">
+              <span style="font-size:12px;font-weight:600;opacity:.85">{{ d.l }}</span><span style="font-size:16px;font-weight:700">{{ d.n }}</span><span style="width:5px;height:5px;border-radius:99px;background:{{ d.dot }}"></span>
+            </button>
+          </sc-for>
+        </div>
+        <sc-if value="{{ banner.on }}"><div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:{{ banner.bg }}"><i class="{{ banner.icon }}" style="font-size:16px;color:{{ banner.fg }}"></i><span style="flex:1;font-size:12px;line-height:1.4;color:var(--ink1)">{{ banner.text }}</span><sc-if value="{{ banner.cta }}"><button onClick="{{ openOffline }}" style="height:32px;padding:0 10px;border-radius:8px;border:0;background:transparent;color:var(--accent-ink);font:inherit;font-size:12px;font-weight:700;cursor:pointer">{{ banner.cta }}</button></sc-if></div></sc-if>
+        <sc-if value="{{ is.dayData }}"><div style="display:flex;align-items:center;gap:10px;height:48px;padding:0 14px;border-radius:14px;background:var(--surface);border:1px solid var(--line)"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-ink)">Next</span><span style="flex:1;min-width:0;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Study: Calculus · 11:00</span><span style="font-size:12px;font-weight:700;color:var(--ink1);background:var(--accent-soft);padding:4px 8px;border-radius:8px">in 18 min</span></div></sc-if>
+      </div>
+
+      <sc-if value="{{ is.dayView }}">
+        <div ref="{{ tlRef }}" style="flex:1;min-height:0;overflow-y:auto;position:relative;margin-top:10px;padding-bottom:150px;scrollbar-width:none">
+          <sc-if value="{{ is.skeleton }}">
+            <div style="display:flex;flex-direction:column;gap:10px;padding:16px 20px 0 68px">
+              <span style="height:52px;border-radius:12px;background:var(--surface2);animation:rk-shimmer 1.4s ease-in-out infinite"></span><span style="height:80px;border-radius:12px;background:var(--surface2);animation:rk-shimmer 1.4s ease-in-out .2s infinite"></span><span style="height:36px;border-radius:12px;background:var(--surface2);animation:rk-shimmer 1.4s ease-in-out .4s infinite"></span><span style="height:110px;border-radius:12px;background:var(--surface2);animation:rk-shimmer 1.4s ease-in-out .6s infinite"></span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ is.emptyDay }}">
+            <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:72px 40px 0">
+              <span style="width:64px;height:64px;border-radius:20px;background:var(--surface2);color:var(--ink3);display:grid;place-items:center"><i class="icon-sun" style="font-size:28px"></i></span>
+              <span style="font-size:20px;font-weight:700">Nothing planned</span>
+              <span style="font-size:14px;line-height:1.5;color:var(--ink2)">Hold the button and tell Rocky your plans.</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ is.dayData }}">
+            <div style="position:relative;height:{{ tl.height }}">
+              <div style="position:absolute;left:64px;right:16px;top:0;height:32px;display:flex;gap:6px"><span style="display:flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;background:var(--ddl-bg);color:var(--ddl-fg);border:1px solid var(--ddl-edge);font-size:12px;font-weight:700"><i class="icon-flag" style="font-size:12px"></i>Problem Set 4 · due 11:59 PM</span></div>
+              <sc-for list="{{ tl.hours }}" as="hh"><div style="position:absolute;left:0;right:0;top:{{ hh.top }};display:flex"><span style="width:56px;font-size:12px;color:var(--ink3);text-align:right;padding-right:10px;position:relative;top:-8px">{{ hh.l }}</span><span style="flex:1;border-top:1px solid var(--line)"></span></div></sc-for>
+              <div style="position:absolute;left:64px;right:16px;top:{{ tl.travelTop }};height:{{ tl.travelH }};border-radius:8px;background:repeating-linear-gradient(135deg, var(--line) 0 5px, transparent 5px 10px);display:flex;align-items:center;padding:0 10px;font-size:12px;color:var(--ink2);gap:6px"><i class="icon-footprints" style="font-size:12px"></i>15 min walk</div>
+              <sc-for list="{{ tl.blocks }}" as="b" hint-placeholder-count="8">
+                <button onClick="{{ b.open }}" aria-label="{{ b.aria }}" style="position:absolute;left:64px;right:16px;top:{{ b.top }};height:{{ b.h }};border-radius:12px;background:{{ b.bg }};color:{{ b.fg }};border:{{ b.border }};border-top:{{ b.bt }};opacity:{{ b.op }};transform:{{ b.tf }};box-shadow:{{ b.shadow }};z-index:{{ b.z }};font:inherit;text-align:left;padding:6px 12px;display:flex;flex-direction:column;justify-content:center;gap:2px;cursor:pointer;overflow:hidden;transition:top .7s cubic-bezier(.2,.8,.2,1),height .7s cubic-bezier(.2,.8,.2,1),opacity .45s ease,transform .45s ease,box-shadow .4s ease">
+                  <span style="display:flex;align-items:center;gap:6px;width:100%"><sc-if value="{{ b.fixed }}"><i class="icon-lock" style="font-size:12px;flex:none"></i></sc-if><span style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ b.t }}</span><span style="flex:1"></span><sc-if value="{{ b.tag }}"><span style="font-size:12px;font-weight:700;padding:1px 7px;border-radius:99px;background:var(--accent);color:#fff">{{ b.tag }}</span></sc-if><sc-if value="{{ b.hasPr }}"><span title="{{ b.prLabel }} priority" style="width:8px;height:8px;border-radius:99px;background:{{ b.prColor }};flex:none"></span></sc-if></span>
+                  <sc-if value="{{ b.tall }}"><span style="font-size:12px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ b.meta }}</span></sc-if>
+                </button>
+              </sc-for>
+              <sc-for list="{{ tl.ghosts }}" as="gh"><div style="position:absolute;left:64px;right:16px;top:{{ gh.top }};height:{{ gh.h }};border-radius:12px;border:1.5px dashed var(--ink2);opacity:{{ gh.op }};transition:opacity .6s ease;z-index:6;pointer-events:none;display:flex;align-items:flex-end;justify-content:flex-end;padding:4px 8px"><span style="font-size:12px;font-weight:700;background:var(--bg);padding:1px 6px;border-radius:6px">{{ gh.label }}</span></div></sc-for>
+              <div style="position:absolute;left:56px;right:0;top:{{ tl.nowTop }};height:2px;background:var(--danger);z-index:8"><span style="position:absolute;left:-4px;top:-4px;width:10px;height:10px;border-radius:99px;background:var(--danger)"></span></div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ is.weekView }}">
+        <div style="flex:1;min-height:0;overflow-y:auto;padding:12px 20px 160px;display:flex;flex-direction:column;gap:14px;scrollbar-width:none">
+          <sc-for list="{{ agenda }}" as="ag" hint-placeholder-count="7">
+            <button onClick="{{ ag.go }}" style="display:flex;flex-direction:column;gap:8px;padding:0;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer">
+              <span style="display:flex;align-items:center;gap:8px;width:100%"><span style="font-size:14px;font-weight:700;color:{{ ag.fg }}">{{ ag.label }}</span><sc-if value="{{ ag.isToday }}"><span style="font-size:12px;font-weight:700;padding:1px 7px;border-radius:99px;background:var(--accent);color:#fff">Today</span></sc-if><span style="flex:1"></span><span style="font-size:12px;color:var(--ink3)">{{ ag.count }}</span><i class="icon-chevron-right" style="font-size:14px;color:var(--ink3)"></i></span>
+              <sc-for list="{{ ag.items }}" as="ai"><span style="display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:12px;background:{{ ai.bg }};color:{{ ai.fg }};border:{{ ai.border }};border-top:{{ ai.bt }}"><span style="font-size:12px;width:62px;flex:none">{{ ai.time }}</span><span style="flex:1;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ ai.t }}</span><i class="{{ ai.icon }}" style="font-size:12px"></i></span></sc-for>
+              <sc-if value="{{ ag.empty }}"><span style="padding:10px 12px;border-radius:12px;border:1px dashed var(--line);font-size:14px;color:var(--ink3);width:100%">Free day</span></sc-if>
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <div style="position:absolute;left:0;right:0;bottom:0;height:200px;background:linear-gradient(to bottom, transparent, var(--fade) 55%);pointer-events:none;z-index:20"></div>
+      <sc-if value="{{ is.scrim }}"><div onClick="{{ cancelVoice }}" style="position:absolute;inset:0;background:var(--scrim);z-index:21"></div></sc-if>
+
+      <div style="position:absolute;left:16px;right:16px;bottom:150px;z-index:25;display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:none">
+        <sc-if value="{{ is.listening }}"><div style="max-width:100%;text-align:center;font-size:20px;font-weight:700;line-height:1.35;color:var(--ink1);min-height:28px">{{ transcriptText }}</div></sc-if>
+        <sc-if value="{{ is.ack }}"><span style="height:36px;padding:0 16px;border-radius:99px;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;gap:8px;font-weight:700;box-shadow:var(--shadow)"><i class="icon-check" style="font-size:16px;color:var(--success)"></i>On it</span></sc-if>
+        <sc-if value="{{ is.working }}">
+          <div style="width:100%;padding:14px;border-radius:18px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;gap:6px"><sc-for list="{{ stages }}" as="sg"><span style="flex:1;height:30px;border-radius:9px;background:{{ sg.bg }};color:{{ sg.fg }};display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:700;white-space:nowrap"><i class="{{ sg.icon }}" style="font-size:12px"></i>{{ sg.l }}</span></sc-for></div>
+            <span style="font-size:14px;color:var(--ink2)">Heard: <b style="color:var(--ink1)">“{{ heardShort }}”</b></span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ is.queued }}"><div style="pointer-events:auto;display:flex;align-items:center;gap:10px;height:44px;padding:0 6px 0 14px;border-radius:99px;background:var(--warning-soft);border:1px solid var(--warning);color:var(--ink1)"><i class="icon-clock" style="font-size:16px;color:var(--warning)"></i><span style="font-size:14px;font-weight:600">Waiting for your laptop · {{ queued }} command</span><button onClick="{{ cancelQueue }}" style="height:32px;padding:0 12px;border-radius:99px;border:0;background:var(--surface);color:var(--ink1);font:inherit;font-size:12px;font-weight:700;cursor:pointer">Cancel</button></div></sc-if>
+        <sc-if value="{{ is.error }}"><div style="pointer-events:auto;width:100%;display:flex;align-items:center;gap:12px;padding:12px 12px 12px 16px;border-radius:18px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)"><i class="icon-ear-off" style="font-size:20px;color:var(--danger)"></i><div style="flex:1"><div style="font-weight:700">I didn't catch that</div><div style="font-size:12px;color:var(--ink3)">Mostly background noise. Try again closer.</div></div><button onClick="{{ retry }}" style="height:44px;padding:0 14px;border-radius:12px;border:0;background:var(--accent);color:#fff;font:inherit;font-weight:700;cursor:pointer">Retry</button></div></sc-if>
+        <sc-if value="{{ is.toast }}"><span style="height:40px;padding:0 16px;border-radius:12px;background:var(--ink1);color:var(--bg);display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;box-shadow:var(--shadow);white-space:nowrap">{{ toast }}</span></sc-if>
+      </div>
+
+      <div style="position:absolute;left:0;right:0;bottom:40px;z-index:26;display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div style="position:relative;width:96px;height:96px;display:grid;place-items:center">
+          <sc-if value="{{ is.listening }}">{{ waveRing }}</sc-if>
+          <button onPointerDown="{{ talkDown }}" onPointerUp="{{ talkUp }}" onContextMenu="{{ noMenu }}" aria-label="{{ talk.aria }}" style="width:{{ talk.size }};height:{{ talk.size }};border-radius:99px;border:0;background:{{ talk.bg }};color:#fff;display:grid;place-items:center;cursor:pointer;touch-action:none;user-select:none;box-shadow:0 12px 30px rgba(79,91,213,.45);transition:width .25s cubic-bezier(.2,.9,.3,1.2),height .25s cubic-bezier(.2,.9,.3,1.2),background .2s;position:relative;z-index:2"><i class="{{ talk.icon }}" style="font-size:30px"></i></button>
+          <sc-if value="{{ is.ack }}">{{ ping }}</sc-if>
+        </div>
+        <span style="font-size:12px;font-weight:600;color:var(--ink3);height:16px">{{ talk.hint }}</span>
+      </div>
+
+      <sc-if value="{{ is.sheet }}">
+        <div onClick="{{ closeSheet }}" style="position:absolute;inset:0;background:var(--scrim);z-index:40"></div>
+        <div role="dialog" style="position:absolute;left:0;right:0;bottom:0;z-index:41;background:var(--surface);border-radius:28px 28px 0 0;padding:10px 20px 40px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:16px;max-height:640px">
+          <span style="align-self:center;width:40px;height:5px;border-radius:9px;background:var(--line)"></span>
+
+          <sc-if value="{{ sh.event }}">
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;align-items:center;gap:8px"><span style="width:12px;height:12px;border-radius:4px;background:{{ ev.edge }}"></span><span style="font-size:12px;font-weight:700;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase">{{ ev.kind }}</span></span><span style="font-size:28px;font-weight:700;letter-spacing:-0.02em">{{ ev.t }}</span><span style="font-size:16px;color:var(--ink2)">{{ ev.range }}</span></div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px"><span style="height:32px;padding:0 12px;border-radius:99px;background:var(--surface2);border:{{ ev.chipBorder }};display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700"><i class="{{ ev.lockIcon }}" style="font-size:12px"></i>{{ ev.fixedLabel }}</span><sc-if value="{{ ev.pr }}"><span style="height:32px;padding:0 12px;border-radius:99px;background:var(--surface2);display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700"><span style="width:8px;height:8px;border-radius:99px;background:{{ ev.prColor }}"></span>{{ ev.pr }} priority</span></sc-if></div>
+            <div style="display:flex;flex-direction:column;border-radius:16px;background:var(--surface2);overflow:hidden">
+              <sc-for list="{{ ev.rows }}" as="er"><div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-top:{{ er.div }}"><i class="{{ er.icon }}" style="font-size:16px;color:var(--ink3)"></i><span style="flex:1;font-size:14px;color:var(--ink2)">{{ er.k }}</span><span style="font-size:14px;font-weight:600;text-align:right">{{ er.v }}</span></div></sc-for>
+            </div>
+            <button onClick="{{ askMove }}" style="height:56px;border-radius:16px;border:0;background:var(--accent);color:#fff;font:inherit;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer"><i class="icon-mic" style="font-size:18px"></i>Ask Rocky to move this</button>
+            <span style="font-size:12px;color:var(--ink3);text-align:center;margin-top:-6px">{{ ev.note }}</span>
+          </sc-if>
+
+          <sc-if value="{{ sh.result }}">
+            <div style="display:flex;align-items:flex-start;gap:12px"><span style="width:40px;height:40px;border-radius:99px;background:var(--success-soft);color:var(--success);display:grid;place-items:center;flex:none"><i class="icon-circle-check" style="font-size:20px"></i></span><div><div style="font-size:16px;font-weight:700;line-height:1.4">Added Meet friend 7:00–8:30. Moved Gym to 8:30.</div><div style="font-size:12px;color:var(--ink3);margin-top:4px">“I'm meeting a friend at 7, replan my day”</div></div></div>
+            <div style="display:flex;flex-direction:column;border-radius:16px;background:var(--surface2);padding:4px 14px">
+              <div style="display:grid;grid-template-columns:70px 1fr auto;gap:8px;align-items:center;padding:10px 0"><span style="font-size:12px;font-weight:700;color:var(--success);display:flex;gap:4px;align-items:center"><i class="icon-plus" style="font-size:12px"></i>Added</span><span style="font-weight:600">Meet friend</span><span>7:00–8:30</span></div>
+              <div style="display:grid;grid-template-columns:70px 1fr auto;gap:8px;align-items:center;padding:10px 0;border-top:1px solid var(--line)"><span style="font-size:12px;font-weight:700;color:var(--accent-ink);display:flex;gap:4px;align-items:center"><i class="icon-move-right" style="font-size:12px"></i>Moved</span><span style="font-weight:600">Gym</span><span><s style="color:var(--ink3)">7:00</s> 8:30</span></div>
+              <div style="display:grid;grid-template-columns:70px 1fr auto;gap:8px;align-items:center;padding:10px 0;border-top:1px solid var(--line)"><span style="font-size:12px;font-weight:700;color:var(--accent-ink);display:flex;gap:4px;align-items:center"><i class="icon-move-right" style="font-size:12px"></i>Moved</span><span style="font-weight:600">Read Bio Ch. 7</span><span><s style="color:var(--ink3)">8:15</s> 9:30</span></div>
+              <div style="display:grid;grid-template-columns:70px 1fr;gap:8px;align-items:center;padding:10px 0;border-top:1px solid var(--line)"><span style="font-size:12px;font-weight:700;color:var(--ink3);display:flex;gap:4px;align-items:center"><i class="icon-lock" style="font-size:12px"></i>Kept</span><span style="color:var(--ink2)">Part-time job</span></div>
+            </div>
+            <sc-if value="{{ latency }}"><span style="align-self:flex-start;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink2);display:flex;gap:10px;padding:6px 10px;border-radius:8px;background:var(--surface2)"><span>Upload 180 ms</span><span>STT 312</span><span>AI 1,148</span><span style="color:var(--success)">1.79 s</span></span></sc-if>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button onClick="{{ undo }}" style="height:56px;border-radius:16px;border:1px solid var(--line);background:var(--surface2);color:var(--ink1);font:inherit;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer"><i class="icon-undo-2" style="font-size:18px"></i>Undo</button><button onClick="{{ closeSheet }}" style="height:56px;border-radius:16px;border:0;background:var(--accent);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer">Done</button></div>
+          </sc-if>
+
+          <sc-if value="{{ sh.clarify }}">
+            <div style="display:flex;gap:12px;align-items:flex-start"><span style="width:40px;height:40px;border-radius:99px;background:var(--warning-soft);color:var(--warning);display:grid;place-items:center;flex:none"><i class="icon-message-circle-question" style="font-size:20px"></i></span><div><div style="font-size:12px;font-weight:700;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase">Rocky asks</div><div style="font-size:20px;font-weight:700;line-height:1.35;margin-top:4px">{{ clar.q }}</div></div></div>
+            <div style="display:flex;flex-direction:column;gap:10px"><sc-for list="{{ clar.opts }}" as="co"><button onClick="{{ co.go }}" style="height:56px;border-radius:16px;border:1px solid {{ co.border }};background:{{ co.bg }};color:{{ co.fg }};font:inherit;font-size:16px;font-weight:700;cursor:pointer">{{ co.l }}</button></sc-for></div>
+            <button onClick="{{ speakAnswer }}" style="height:48px;border-radius:14px;border:0;background:transparent;color:var(--accent-ink);font:inherit;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer"><i class="icon-mic" style="font-size:16px"></i>Speak your answer</button>
+          </sc-if>
+
+          <sc-if value="{{ sh.micBlocked }}">
+            <span style="width:56px;height:56px;border-radius:18px;background:var(--danger-soft);color:var(--danger);display:grid;place-items:center"><i class="icon-mic-off" style="font-size:26px"></i></span>
+            <div><div style="font-size:20px;font-weight:700">Microphone blocked</div><p style="margin:6px 0 0;font-size:14px;line-height:1.55;color:var(--ink2)">Rocky can't hear you until the mic is allowed for rocky.app.</p></div>
+            <ol style="margin:0;padding:14px 14px 14px 34px;border-radius:14px;background:var(--surface2);display:flex;flex-direction:column;gap:6px;font-size:14px;line-height:1.5;color:var(--ink2)"><li>Tap the lock icon next to rocky.app</li><li>Set <b style="color:var(--ink1)">Microphone</b> to <b style="color:var(--ink1)">Allow</b></li><li>Installed app: Settings → Rocky → Microphone</li></ol>
+            <button onClick="{{ closeSheet }}" style="height:56px;border-radius:16px;border:0;background:var(--accent);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer">I've allowed it</button>
+          </sc-if>
+
+          <sc-if value="{{ sh.settings }}">
+            <span style="font-size:20px;font-weight:700">Settings</span>
+            <div style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--surface2)"><span style="width:44px;height:44px;border-radius:12px;background:var(--surface);display:grid;place-items:center;position:relative"><i class="icon-laptop" style="font-size:20px;color:var(--ink2)"></i><span style="position:absolute;right:-2px;bottom:-2px;width:12px;height:12px;border-radius:99px;background:{{ lap.fg }};border:2px solid var(--surface2)"></span></span><div style="flex:1"><div style="font-weight:700">Om's MacBook Pro</div><div style="font-size:12px;color:var(--ink3)">{{ lap.label }}</div></div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button onClick="{{ switchLaptop }}" style="height:44px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink1);font:inherit;font-weight:700;cursor:pointer">Switch laptop</button><button onClick="{{ unpair }}" style="height:44px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--danger);font:inherit;font-weight:700;cursor:pointer">Unpair</button></div>
+            <div style="display:flex;flex-direction:column;border-radius:16px;background:var(--surface2);overflow:hidden">
+              <sc-for list="{{ toggles }}" as="tg"><button onClick="{{ tg.go }}" role="switch" aria-checked="{{ tg.aria }}" style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border:0;border-top:{{ tg.div }};background:transparent;color:var(--ink1);font:inherit;font-size:14px;text-align:left;cursor:pointer"><span style="flex:1">{{ tg.l }}</span><span style="width:44px;height:26px;border-radius:99px;background:{{ tg.track }};position:relative;transition:background .2s"><span style="position:absolute;top:3px;left:{{ tg.knob }};width:20px;height:20px;border-radius:99px;background:#fff;transition:left .2s"></span></span></button></sc-for>
+              <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-top:1px solid var(--line)"><span style="flex:1">Voice speed</span><div style="display:flex;padding:3px;border-radius:9px;background:var(--surface)"><sc-for list="{{ speeds }}" as="sp"><button onClick="{{ sp.go }}" style="height:28px;padding:0 10px;border-radius:7px;border:0;background:{{ sp.bg }};color:{{ sp.fg }};font:inherit;font-size:12px;font-weight:700;cursor:pointer">{{ sp.l }}</button></sc-for></div></div>
+              <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-top:1px solid var(--line)"><span style="flex:1">Appearance</span><div style="display:flex;padding:3px;border-radius:9px;background:var(--surface)"><sc-for list="{{ themesSeg }}" as="ts"><button onClick="{{ ts.go }}" style="height:28px;padding:0 10px;border-radius:7px;border:0;background:{{ ts.bg }};color:{{ ts.fg }};font:inherit;font-size:12px;font-weight:700;cursor:pointer">{{ ts.l }}</button></sc-for></div></div>
+            </div>
+            <button onClick="{{ signOut }}" style="height:48px;border-radius:14px;border:0;background:transparent;color:var(--danger);font:inherit;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer"><i class="icon-log-out" style="font-size:16px"></i>Sign out</button>
+          </sc-if>
+
+          <sc-if value="{{ sh.install }}">
+            <div style="display:flex;gap:14px;align-items:center"><div style="width:56px;height:56px;border-radius:16px;background:var(--accent);display:flex;align-items:flex-end;justify-content:center;gap:4px;padding-bottom:14px;flex:none"><span style="width:4px;height:11px;border-radius:2px;background:#fff"></span><span style="width:4px;height:22px;border-radius:2px;background:#fff"></span><span style="width:4px;height:15px;border-radius:2px;background:#fff"></span></div><div><div style="font-size:20px;font-weight:700">Add Rocky to your Home Screen</div><div style="font-size:14px;color:var(--ink2);margin-top:2px">Opens full screen, one tap away.</div></div></div>
+            <div style="display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:14px;background:var(--surface2);font-size:14px;color:var(--ink2)"><span style="display:flex;align-items:center;gap:10px"><i class="icon-share" style="font-size:16px;color:var(--ink1)"></i>Tap Share in the toolbar</span><span style="display:flex;align-items:center;gap:10px"><i class="icon-square-plus" style="font-size:16px;color:var(--ink1)"></i>Choose “Add to Home Screen”</span></div>
+            <button onClick="{{ closeSheet }}" style="height:52px;border-radius:16px;border:0;background:var(--surface2);color:var(--ink1);font:inherit;font-size:16px;font-weight:700;cursor:pointer">Not now</button>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ is.micPrimer }}">
+    <div style="position:absolute;inset:0;z-index:50;background:var(--bg);padding:120px 24px 48px;display:flex;flex-direction:column;gap:20px">
+      <span style="width:72px;height:72px;border-radius:22px;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center"><i class="icon-mic" style="font-size:32px"></i></span>
+      <div><h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Let Rocky hear you</h1><p style="margin:10px 0 0;font-size:16px;line-height:1.55;color:var(--ink2);text-wrap:pretty">Your phone records only while you hold the button. The clip goes straight to your laptop and is deleted after it's processed.</p></div>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--ink2)"><span style="display:flex;gap:10px;align-items:center"><i class="icon-hand" style="font-size:16px;color:var(--ink1)"></i>Never listens in the background</span><span style="display:flex;gap:10px;align-items:center"><i class="icon-trash-2" style="font-size:16px;color:var(--ink1)"></i>Clips deleted after processing</span></div>
+      <span style="flex:1"></span>
+      <button onClick="{{ allowMic }}" style="height:56px;border-radius:16px;border:0;background:var(--accent);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer">Continue</button>
+      <button onClick="{{ denyMic }}" style="height:48px;border-radius:14px;border:0;background:transparent;color:var(--ink2);font:inherit;font-size:16px;font-weight:600;cursor:pointer">Not now</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ is.offlineFull }}">
+    <div style="position:absolute;inset:0;z-index:50;background:var(--bg);padding:70px 24px 48px;display:flex;flex-direction:column;gap:20px">
+      <button onClick="{{ closeOffline }}" aria-label="Close" style="width:44px;height:44px;margin-left:-10px;border-radius:12px;border:0;background:transparent;color:var(--ink1);display:grid;place-items:center;cursor:pointer"><i class="icon-x" style="font-size:22px"></i></button>
+      <div style="display:flex;align-items:center;justify-content:center;gap:14px;padding:28px 0;border-radius:24px;background:var(--surface);border:1px solid var(--line)"><span style="width:64px;height:64px;border-radius:20px;background:var(--surface2);color:var(--ink3);display:grid;place-items:center"><i class="icon-laptop" style="font-size:28px"></i></span><i class="icon-moon" style="font-size:22px;color:var(--warning)"></i></div>
+      <div><h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Rocky's laptop is offline</h1><p style="margin:8px 0 0;font-size:14px;color:var(--ink3)">Om's MacBook Pro · last seen 10:12 AM</p></div>
+      <div style="display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:16px;background:var(--surface)"><span style="display:flex;gap:10px;align-items:center;font-size:14px"><i class="icon-circle-check" style="font-size:16px;color:var(--success)"></i>Your calendar from the last sync</span><span style="display:flex;gap:10px;align-items:center;font-size:14px"><i class="icon-circle-check" style="font-size:16px;color:var(--success)"></i>Voice commands, queued until it's back</span><span style="display:flex;gap:10px;align-items:center;font-size:14px;color:var(--ink3)"><i class="icon-circle-x" style="font-size:16px"></i>Answers and replanning</span></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5;color:var(--ink2)"><i class="icon-lightbulb" style="font-size:16px;color:var(--ink1);margin-top:2px"></i>Open the lid and make sure Rocky is running.</div>
+      <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)">Queued · {{ queued }}</span>
+        <sc-if value="{{ is.hasQueue }}"><div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:var(--warning-soft)"><i class="icon-clock" style="font-size:16px;color:var(--warning)"></i><span style="flex:1;font-size:14px">“I'm meeting a friend at 7…”</span><button onClick="{{ cancelQueue }}" style="height:32px;padding:0 10px;border-radius:8px;border:0;background:var(--surface);color:var(--ink1);font:inherit;font-size:12px;font-weight:700;cursor:pointer">Cancel</button></div></sc-if>
+        <sc-if value="{{ is.noQueue }}"><span style="font-size:14px;color:var(--ink3)">Nothing waiting.</span></sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ is.expired }}">
+    <div style="position:absolute;inset:0;z-index:55;background:var(--bg);padding:200px 24px 48px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px">
+      <span style="width:80px;height:80px;border-radius:99px;background:var(--warning-soft);color:var(--warning);display:grid;place-items:center"><i class="icon-key-round" style="font-size:34px"></i></span>
+      <h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Session expired</h1>
+      <p style="margin:0;font-size:16px;line-height:1.55;color:var(--ink2)">Sign in again to keep your calendar in sync. Your pairing stays.</p>
+      <span style="flex:1"></span>
+      <button onClick="{{ reSignIn }}" style="width:100%;height:56px;border-radius:16px;border:0;background:var(--accent);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer">Sign in again</button>
+    </div>
+  </sc-if>
+</div>
+</div>
+</div>
+
+<aside style="width:300px;display:flex;flex-direction:column;gap:14px;font-size:12px;line-height:1.55;color:#9AA0AE;padding-top:8px">
+  <div style="padding:14px;border-radius:14px;background:#15171E;border:1px solid #2A2E3A"><div style="font-weight:700;color:#EDEFF5;font-size:14px;margin-bottom:4px">Now showing</div><div style="color:#C3C8D4">{{ noteNow }}</div></div>
+  <sc-for list="{{ notes }}" as="n" hint-placeholder-count="4">
+    <div style="display:flex;flex-direction:column;gap:6px"><span style="font-weight:700;color:#D6D9E0;letter-spacing:.04em;text-transform:uppercase">{{ n.h }}</span><sc-for list="{{ n.items }}" as="ni"><span style="display:flex;gap:8px"><span style="width:4px;height:4px;border-radius:9px;background:#4F5BD5;margin-top:8px;flex:none"></span>{{ ni.t }}</span></sc-for></div>
+  </sc-for>
+</aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;'dark'|'light'&quot;},&quot;showLatency&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  T = []; VT = [];
+  tlRef = React.createRef();
+  CMD = "I'm meeting a friend at 7, replan my day";
+  state = {
+    scale: 0.8, theme: null, screen: 'signin', emailOpen: false, signErr: null,
+    pair: 'intro', code: '', torch: false,
+    view: 'day', day: 4, sheet: null, evt: null,
+    voice: 'idle', transcript: '', stage: 0, toggleMode: false, micAllowed: false, micPrimer: false, ctx: null,
+    applied: false, ghosts: 0, highlight: false,
+    laptop: 'online', queued: 0, offlineFull: false, expired: false,
+    latency: this.props.showLatency ?? true, speak: true, speed: '1×',
+    toast: null, skeleton: false, notif: false, net: true, update: false, clar: null,
+  };
+  componentDidMount() { this.fit(); window.addEventListener('resize', this.fit); }
+  componentWillUnmount() { window.removeEventListener('resize', this.fit); this.clr(); this.vclr(); }
+  componentDidUpdate(pp, ps) {
+    if (this.state.screen === 'home' && this.state.view === 'day' && (ps.screen !== 'home' || ps.view !== 'day' || ps.day !== this.state.day)) setTimeout(() => this.scrollTo(642 - 70, false), 30);
+  }
+  fit = () => { const s = Math.min((window.innerHeight - 32) / 868, 1); this.setState({ scale: Math.max(0.45, s) }); };
+  later(f, ms) { this.T.push(setTimeout(f, ms)); } clr() { this.T.forEach(clearTimeout); this.T = []; }
+  vlater(f, ms) { this.VT.push(setTimeout(f, ms)); } vclr() { this.VT.forEach(clearTimeout); this.VT = []; }
+  y(m) { return (m - 480) / 60 * 56 + 40; }
+  scrollTo(m, smooth) { const el = this.tlRef.current; if (el) el.scrollTo({ top: Math.max(0, this.y(m)), behavior: smooth ? 'smooth' : 'auto' }); }
+  flash(t, ms = 2400) { clearTimeout(this.tt); this.setState({ toast: t }); this.tt = setTimeout(() => this.setState({ toast: null }), ms); }
+  buzz(n) { try { navigator.vibrate && navigator.vibrate(n); } catch (e) {} }
+
+  goPair(p) {
+    this.clr(); this.setState({ screen: 'pair', pair: p });
+    if (p === 'confirming') this.later(() => this.setState({ pair: 'connected' }), 2000);
+  }
+  goHome(extra) { this.clr(); this.setState({ screen: 'home', sheet: null, offlineFull: false, expired: false, ...(extra || {}) }); }
+
+  talkDown = (e) => {
+    const s = this.state;
+    if (!s.micAllowed) { this.setState({ micPrimer: true }); return; }
+    if (s.voice === 'listening' && s.toggleMode) { this.send(); return; }
+    if (['ack', 'working'].includes(s.voice)) return;
+    this.downAt = Date.now(); this.buzz(8);
+    this.vclr(); clearTimeout(this.tt);
+    this.setState({ voice: 'listening', transcript: '', toggleMode: false, sheet: null, toast: null, ctx: null });
+    this.typeOut(this.CMD);
+  };
+  typeOut(text) { const w = text.split(' '); w.forEach((_, i) => this.vlater(() => this.setState({ transcript: w.slice(0, i + 1).join(' ') }), 250 + i * 210)); }
+  talkUp = () => {
+    const s = this.state; if (s.voice !== 'listening' || s.toggleMode) return;
+    if (Date.now() - this.downAt < 300) { this.setState({ toggleMode: true }); return; }
+    this.send();
+  };
+  send() {
+    const ctx = this.state.ctx;
+    this.vclr(); this.buzz(18);
+    this.setState({ voice: 'ack', transcript: ctx ? 'Move this to tomorrow morning' : this.CMD, toggleMode: false });
+    this.vlater(() => {
+      if (this.state.laptop === 'offline') { this.setState(x => ({ voice: 'idle', queued: x.queued + 1 })); this.flash('Saved. It runs when your laptop is back.'); return; }
+      this.work(ctx);
+    }, 500);
+  }
+  work(ctx) {
+    this.setState({ voice: 'working', stage: 0 });
+    this.vlater(() => this.setState({ stage: 1 }), 600);
+    this.vlater(() => this.setState({ stage: 2 }), 1300);
+    this.vlater(() => ctx ? this.setState({ voice: 'idle', sheet: 'clarify', clar: { q: 'Tomorrow at 9:00 AM or 5:00 PM?', opts: ['9:00 AM', '5:00 PM'], kind: 'ctx' } }) : this.applyResult(), 2500);
+  }
+  applyResult() {
+    this.setState({ voice: 'idle', view: 'day', day: 4 });
+    setTimeout(() => this.scrollTo(1125, true), 40);
+    this.vlater(() => { this.buzz([10, 40, 10]); this.setState({ applied: true, highlight: true, ghosts: 1, sheet: 'result' }); }, 450);
+    this.vlater(() => this.setState({ ghosts: 2 }), 2450);
+    this.vlater(() => this.setState({ ghosts: 0 }), 3100);
+  }
+  undo = () => {
+    this.vclr(); this.buzz(8);
+    this.setState({ applied: false, ghosts: 0, highlight: true, sheet: null });
+    this.flash('Undone. Back to your original plan.');
+    this.vlater(() => this.setState({ highlight: false }), 1600);
+  };
+  closeSheet = () => this.setState(s => ({ sheet: null, highlight: s.sheet === 'result' ? false : s.highlight }));
+  cancelVoice = () => { if (this.state.voice === 'listening') { this.vclr(); this.setState({ voice: 'idle', toggleMode: false }); } };
+  setLaptop(l) {
+    const was = this.state.laptop; this.setState({ laptop: l });
+    if (l === 'online' && was !== 'online' && this.state.queued) { this.setState({ queued: 0, offlineFull: false }); this.flash('Laptop is back. Running 1 command.', 1500); this.vlater(() => this.work(null), 1200); }
+  }
+
+  fmt(m, ap) { const h = Math.floor(m / 60), mm = m % 60; return (h % 12 || 12) + ':' + String(mm).padStart(2, '0') + (ap ? (h >= 12 ? ' PM' : ' AM') : ''); }
+  rng(a, b) { return this.fmt(a) + '–' + this.fmt(b, true); }
+  blocks(A) {
+    return [
+      { id: 'bio', t: 'Biology Lecture', loc: 'Science 214', k: 'cls', s: 540, e: 630, fixed: 1, rep: 'Mon, Wed, Fri until Dec 18' },
+      { id: 'calc', t: 'Study: Calculus', loc: 'Library 2F', k: 'stu', s: 660, e: 750, pr: 'high' },
+      { id: 'lunch', t: 'Lunch', loc: '', k: 'brk', s: 750, e: 780 },
+      { id: 'chem', t: 'Chem Lab', loc: 'Science 108', k: 'cls', s: 780, e: 900, fixed: 1, rep: 'Fridays until Dec 18' },
+      { id: 'job', t: 'Part-time job', loc: 'Campus Bookstore', k: 'com', s: 930, e: 1110, fixed: 1, travel: 15, rep: 'Mon–Fri' },
+      { id: 'friend', t: 'Meet friend', loc: 'The Grind', k: 'per', s: 1140, e: 1230, fixed: 1, hidden: !A, isNew: 1 },
+      { id: 'gym', t: 'Gym', loc: 'Rec Center', k: 'per', s: A ? 1230 : 1140, e: A ? 1290 : 1200, pr: 'med', moves: 1 },
+      { id: 'read', t: 'Read Bio Ch. 7', loc: 'Home', k: 'stu', s: A ? 1290 : 1215, e: A ? 1350 : 1275, pr: 'low', moves: 1 },
+    ];
+  }
+  spinEl(sz) { return React.createElement('span', { style: { width: sz, height: sz, borderRadius: 99, border: '3px solid currentColor', borderTopColor: 'transparent', display: 'inline-block', animation: 'rk-spin .8s linear infinite' } }); }
+  popEl() { return React.createElement('span', { style: { width: 88, height: 88, borderRadius: 99, background: 'var(--success)', color: '#fff', display: 'grid', placeItems: 'center', animation: 'rk-pop .55s cubic-bezier(.2,.9,.3,1.3) both' } }, React.createElement('i', { className: 'icon-check', style: { fontSize: 42 } })); }
+  pingEl() { return React.createElement('span', { style: { position: 'absolute', inset: 10, borderRadius: 99, border: '3px solid var(--accent)', animation: 'rk-ping .6s ease-out both', zIndex: 1 } }); }
+  scanEl() { return React.createElement('span', { style: { position: 'absolute', left: 20, right: 20, height: 2, background: '#8B94F0', boxShadow: '0 0 12px #8B94F0', animation: 'rk-scan 2.4s ease-in-out infinite' } }); }
+  waveRingEl() {
+    const n = 28, bars = Array.from({ length: n }, (_, i) => React.createElement('span', { key: i, style: { position: 'absolute', left: '50%', top: '50%', width: 3, height: 14, marginLeft: -1.5, marginTop: -7, borderRadius: 2, background: 'var(--accent-ink)', transform: `rotate(${i * 360 / n}deg) translateY(-62px)` } },
+      React.createElement('span', { style: { display: 'block', width: '100%', height: '100%', borderRadius: 2, background: 'inherit', animation: `rk-wave ${0.6 + (i % 4) * 0.13}s ease-in-out ${(i * 0.05).toFixed(2)}s infinite` } })));
+    return React.createElement('span', { style: { position: 'absolute', inset: -20, pointerEvents: 'none' } },
+      React.createElement('span', { style: { position: 'absolute', inset: 30, borderRadius: 99, animation: 'rk-breathe 1.8s ease-in-out infinite' } }), bars);
+  }
+
+  renderVals() {
+    const s = this.state, p = this.props;
+    const theme = s.theme || p.theme || 'dark';
+    const sc = s.scale;
+    const home = s.screen === 'home';
+    const tones = { accent: ['var(--accent-soft)', 'var(--accent-ink)'], success: ['var(--success-soft)', 'var(--success)'], warning: ['var(--warning-soft)', 'var(--warning)'], danger: ['var(--danger-soft)', 'var(--danger)'] };
+
+    const PS = {
+      confirming: { spin: 1, title: "Connecting to Om's MacBook Pro…", body: 'Keep Rocky open on your laptop for a moment.' },
+      connected: { success: 1, title: "You're connected", body: "Paired with Om's MacBook Pro.", cta: 'Open calendar', ctaGo: () => this.goHome() },
+      expired: { icon: 'icon-timer-off', tone: 'warning', title: 'That code expired', body: 'Codes last 5 minutes. On your laptop tap Generate new code, then scan again.', cta: 'Scan again', ctaGo: () => this.goPair('scanner'), cta2: 'Enter code instead', cta2Go: () => this.goPair('code') },
+      wrong: { icon: 'icon-user-x', tone: 'danger', title: 'Different Google account', body: 'This phone is signed in as om.k.alt@gmail.com. Your laptop uses omkadam@gmail.com.', cta: 'Switch account', ctaGo: () => this.setState({ screen: 'signin' }), cta2: 'Try again', cta2Go: () => this.goPair('intro') },
+      offline: { icon: 'icon-wifi-off', tone: 'danger', title: "Can't reach your laptop", body: "Om's MacBook Pro is offline or Rocky isn't running. Open the lid, start Rocky, and try again.", cta: 'Try again', ctaGo: () => this.goPair('confirming'), cta2: 'Back', cta2Go: () => this.goPair('intro') },
+      already: { icon: 'icon-link', tone: 'accent', title: 'Already paired', body: "This phone is paired with Om's old iMac. Switch to Om's MacBook Pro? The iMac will be unpaired.", cta: 'Switch laptop', ctaGo: () => this.goPair('confirming'), cta2: 'Keep current laptop', cta2Go: () => this.goHome() },
+    };
+    const ps = PS[s.pair] || {}; const tn = tones[ps.tone || 'accent'];
+    const primer = s.pair === 'camPrimer' || s.pair === 'camDenied';
+    const denied = s.pair === 'camDenied';
+    const pv = {
+      scanner: s.pair === 'scanner', notScanner: s.pair !== 'scanner', intro: s.pair === 'intro', code: s.pair === 'code', primer, denied,
+      status: !!PS[s.pair], showBack: s.pair !== 'intro' && !!s.pair && s.pair !== 'connected' && s.pair !== 'confirming',
+      primerIcon: denied ? 'icon-camera-off' : 'icon-camera', primerBg: denied ? 'var(--danger-soft)' : 'var(--accent-soft)', primerFg: denied ? 'var(--danger)' : 'var(--accent-ink)',
+      primerTitle: denied ? 'Camera is blocked' : 'Rocky needs your camera',
+      primerBody: denied ? 'To scan the code, allow camera access for rocky.app. Or type the 6-character code instead.' : "Only to scan the pairing code on your laptop. Rocky doesn't take photos or keep video.",
+      primerCta: denied ? "I've allowed it" : 'Continue', primerAction: () => this.goPair('scanner'),
+      spin: !!ps.spin, success: !!ps.success, icon: ps.icon || '', toneBg: tn[0], toneFg: tn[1], title: ps.title, body: ps.body,
+      cta: ps.cta || '', ctaGo: ps.ctaGo, cta2: ps.cta2 || '', cta2Go: ps.cta2Go,
+    };
+    const code = s.code.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+    const codeBoxes = [0, 1, 2, 'sep', 3, 4, 5].map(i => i === 'sep' ? { sep: true, box: false } : { sep: false, box: true, ch: code[i] || '', border: i === code.length ? 'var(--accent)' : (code[i] ? 'var(--ink4)' : 'var(--line)') });
+
+    const sErr = { wrong: ['icon-user-x', "That account isn't set up", 'Use the Google account you signed in with on your laptop.'], net: ['icon-wifi-off', 'No connection', 'Check your Wi-Fi or data, then try again.'] }[s.signErr];
+
+    const days = [['Mon', 5], ['Tue', 6], ['Wed', 7], ['Thu', 8], ['Fri', 9], ['Sat', 10], ['Sun', 11]];
+    const hasEv = [1, 1, 1, 1, 1, 0, 1];
+    const strip = days.map(([l, n], i) => { const sel = i === s.day, today = i === 4;
+      return { l, n, aria: `${l} Oct ${n}${hasEv[i] ? ', has events' : ''}`, bg: sel ? 'var(--accent)' : (today ? 'var(--accent-soft)' : 'transparent'), fg: sel ? '#fff' : (today ? 'var(--accent-ink)' : 'var(--ink2)'),
+        dot: hasEv[i] ? (sel ? '#fff' : 'var(--ink3)') : 'transparent', go: () => this.setState({ day: i, view: 'day' }) }; });
+    const fullDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const dayTitle = s.view === 'week' ? 'Oct 5 – 11' : `${days[s.day][0] === 'Fri' ? 'Friday' : fullDays[s.day]}, Oct ${days[s.day][1]}`;
+
+    const blocks = this.blocks(s.applied);
+    const prM = { high: ['var(--danger)', 'High'], med: ['var(--warning)', 'Medium'], low: ['var(--ink3)', 'Low'] };
+    const px = v => v.toFixed(1) + 'px';
+    const tlBlocks = blocks.map(b => {
+      const lit = s.highlight && (b.moves || b.isNew) && !b.hidden; const edge = `var(--${b.k}-edge)`; const hgt = (b.e - b.s) / 60 * 56 - 3;
+      return { t: b.t, top: px(this.y(b.s) + 1), h: px(hgt), bg: `var(--${b.k}-bg)`, fg: `var(--${b.k}-fg)`, fixed: !!b.fixed,
+        border: b.fixed ? `1px solid ${edge}` : `1.5px dashed ${edge}`, bt: b.fixed ? `1px solid ${edge}` : `2px dashed ${edge}`,
+        op: b.hidden ? 0 : 1, tf: b.hidden ? 'scale(.96)' : 'none', shadow: lit ? '0 0 0 2px var(--accent), 0 10px 26px rgba(79,91,213,.35)' : 'none', z: lit ? 5 : 2,
+        tag: lit ? (b.isNew ? 'New' : (s.applied ? 'Moved' : 'Back')) : '', hasPr: !!b.pr, prColor: b.pr ? prM[b.pr][0] : '', prLabel: b.pr ? prM[b.pr][1] : '',
+        tall: hgt > 40, meta: this.rng(b.s, b.e) + (b.loc ? ' · ' + b.loc : '') + (b.travel ? ' · leave 3:15' : ''),
+        aria: `${b.t}, ${this.rng(b.s, b.e)}, ${b.fixed ? 'fixed' : 'flexible'}`, open: () => this.setState({ sheet: 'event', evt: b.id }) }; });
+    const ghosts = s.ghosts && s.applied ? [[1140, 1200, 'Gym was 7:00'], [1215, 1275, 'Reading was 8:15']].map(([a, b, l]) => ({ top: px(this.y(a) + 1), h: px((b - a) / 60 * 56 - 3), label: l, op: s.ghosts === 1 ? 1 : 0 })) : [];
+    const tl = { blocks: tlBlocks, ghosts, height: px(this.y(1380) + 20),
+      hours: Array.from({ length: 16 }, (_, i) => ({ top: px(i * 56 + 40), l: ((8 + i) % 12 || 12) + ((8 + i) < 12 ? ' AM' : ' PM') })),
+      travelTop: px(this.y(915) + 1), travelH: px(15 / 60 * 56 - 2), nowTop: px(this.y(642)) };
+
+    const wk = [
+      [['9:00', 'Biology Lecture', 'cls', 1], ['3:30', 'Part-time job', 'com', 1]],
+      [['10:30', 'Calculus I', 'cls', 1], ['1:00', 'Chem Lab', 'cls', 1], ['7:00', 'Study: Chem', 'stu', 0]],
+      [['9:00', 'Biology Lecture', 'cls', 1], ['3:30', 'Part-time job', 'com', 1]],
+      [['10:30', 'Calculus I', 'cls', 1], ['5:00', 'Bio Club', 'com', 1]],
+      null, [], [['2:00', 'Study: Chem report', 'stu', 0]],
+    ];
+    const agenda = days.map(([l, n], i) => {
+      const list = i === 4 ? blocks.filter(b => !b.hidden).sort((a, b) => a.s - b.s).map(b => [this.fmt(b.s), b.t, b.k, b.fixed]) : wk[i];
+      return { label: `${fullDays[i]}, Oct ${n}`, isToday: i === 4, fg: i === 4 ? 'var(--accent-ink)' : 'var(--ink1)', count: list.length ? list.length + ' items' : '', empty: !list.length, go: () => this.setState({ day: i, view: 'day' }),
+        items: list.slice(0, i === 4 ? 4 : 3).map(([time, t, k, f]) => ({ time, t, bg: `var(--${k}-bg)`, fg: `var(--${k}-fg)`, icon: f ? 'icon-lock' : '', border: f ? `1px solid var(--${k}-edge)` : '1px solid transparent', bt: f ? `1px solid var(--${k}-edge)` : `2px dashed var(--${k}-edge)` })) };
+    });
+
+    const lapM = { online: ['var(--success-soft)', 'var(--success)', 'Laptop online'], sleepy: ['var(--warning-soft)', 'var(--warning)', 'Reconnecting…'], offline: ['var(--danger-soft)', 'var(--danger)', 'Laptop offline'] }[s.laptop];
+    const lap = { bg: lapM[0], fg: lapM[1], label: lapM[2] };
+    let banner = { on: false };
+    if (!s.net) banner = { on: true, bg: 'var(--surface2)', fg: 'var(--ink2)', icon: 'icon-wifi-off', text: 'No internet. Showing your last sync from 10:12 AM.', cta: '' };
+    else if (s.laptop === 'offline') banner = { on: true, bg: 'var(--danger-soft)', fg: 'var(--danger)', icon: 'icon-cloud-off', text: 'Laptop offline since 10:12 AM. Calendar is from the last sync.', cta: 'Details' };
+    else if (s.update) banner = { on: true, bg: 'var(--accent-soft)', fg: 'var(--accent-ink)', icon: 'icon-refresh-cw', text: 'A new version of Rocky is ready.', cta: 'Reload' };
+
+    const ev0 = blocks.find(b => b.id === s.evt) || blocks[0];
+    const kindN = { cls: 'Class', com: 'Commitment', stu: 'Study', per: 'Personal', brk: 'Break' };
+    const evRows = [['icon-map-pin', 'Where', ev0.loc || '—'], ['icon-repeat', 'Repeats', ev0.rep || 'Does not repeat']];
+    if (ev0.travel) evRows.push(['icon-footprints', 'Travel', '15 min walk · leave 3:15']);
+    const ev = { t: ev0.t, range: this.rng(ev0.s, ev0.e), kind: kindN[ev0.k], edge: `var(--${ev0.k}-edge)`, lockIcon: ev0.fixed ? 'icon-lock' : 'icon-move', fixedLabel: ev0.fixed ? 'Fixed · Rocky never moves this' : 'Flexible · Rocky can move this',
+      chipBorder: ev0.fixed ? '1px solid var(--line)' : '1.5px dashed var(--ink4)', pr: ev0.pr ? prM[ev0.pr][1] : '', prColor: ev0.pr ? prM[ev0.pr][0] : '',
+      rows: evRows.map(([icon, k, v], i) => ({ icon, k, v, div: i ? '1px solid var(--line)' : '0' })),
+      note: ev0.fixed ? 'Rocky will ask before touching a fixed block.' : 'Editing happens by voice or on your laptop.' };
+
+    const clarDef = s.clar || { q: "Gym doesn't fit today. Move it to tomorrow?", opts: ['Yes, tomorrow', 'No, skip it'] };
+    const clar = { q: clarDef.q, opts: clarDef.opts.map((l, i) => ({ l, bg: i ? 'var(--surface2)' : 'var(--accent)', fg: i ? 'var(--ink1)' : '#fff', border: i ? 'var(--line)' : 'var(--accent)',
+      go: () => { this.setState({ sheet: null, clar: null }); this.flash(clarDef.kind === 'ctx' ? `Moved ${ev0.t} to Sat, ${l}.` : (i ? 'Okay, Gym is skipped today.' : 'Moved Gym to Sat, 9:00 AM.')); } })) };
+
+    const listening = s.voice === 'listening';
+    const talk = {
+      size: listening ? '88px' : '76px', bg: listening ? 'var(--accent-hover)' : 'var(--accent)', icon: listening && s.toggleMode ? 'icon-send-horizontal' : 'icon-mic',
+      aria: listening ? 'Release or tap to send' : 'Hold to talk to Rocky',
+      hint: listening ? (s.toggleMode ? 'Tap to send · tap outside to cancel' : 'Release to send') : (s.voice === 'working' ? '' : (s.laptop === 'offline' ? 'Hold to talk · will queue' : 'Hold to talk')),
+    };
+    const stageL = ['Sending', 'Laptop is listening', 'Thinking'];
+    const stages = stageL.map((l, i) => ({ l: i === 1 ? 'Listening' : l, bg: i < s.stage ? 'var(--success-soft)' : (i === s.stage ? 'var(--accent-soft)' : 'var(--surface2)'), fg: i < s.stage ? 'var(--success)' : (i === s.stage ? 'var(--accent-ink)' : 'var(--ink3)'), icon: i < s.stage ? 'icon-check' : (i === s.stage ? 'icon-loader' : 'icon-circle') }));
+
+    const tgl = (l, on, go, i) => ({ l, go, aria: on ? 'true' : 'false', track: on ? 'var(--accent)' : 'var(--ink4)', knob: on ? '21px' : '3px', div: i ? '1px solid var(--line)' : '0' });
+    const seg = (l, on, go) => ({ l, go, bg: on ? 'var(--accent)' : 'transparent', fg: on ? '#fff' : 'var(--ink2)' });
+
+    const btn = (label, on, go) => ({ label, go, bg: on ? '#4F5BD5' : '#15171E', fg: on ? '#fff' : '#B3B8C6' });
+    const pairStates = [['intro', 'Intro'], ['camPrimer', 'Camera primer'], ['camDenied', 'Camera denied'], ['scanner', 'Scanner'], ['code', 'Enter code'], ['confirming', 'Connecting'], ['connected', 'Connected'], ['expired', 'Expired'], ['wrong', 'Wrong account'], ['offline', 'Laptop offline'], ['already', 'Already paired']];
+    const dev = [
+      { label: 'Prototype A · pairing', items: [btn('Sign in', s.screen === 'signin' && !s.signErr, () => { this.clr(); this.setState({ screen: 'signin', signErr: null }); }), ...pairStates.map(([k, l]) => btn(l, s.screen === 'pair' && s.pair === k, () => this.goPair(k)))] },
+      { label: 'Sign-in errors', items: [btn('Wrong account', s.signErr === 'wrong', () => this.setState({ screen: 'signin', signErr: 'wrong' })), btn('No network', s.signErr === 'net', () => this.setState({ screen: 'signin', signErr: 'net' }))] },
+      { label: 'Prototype B · voice', items: [btn('Calendar', home && !s.sheet && s.view === 'day', () => this.goHome({ view: 'day', day: 4 })), btn('Week view', home && s.view === 'week', () => this.goHome({ view: 'week' })), btn('Empty day', home && s.day === 5 && s.view === 'day', () => this.goHome({ view: 'day', day: 5 })), btn('Run command', false, () => { this.goHome({ micAllowed: true, view: 'day', day: 4, applied: false }); this.setState({ voice: 'listening', transcript: '', toggleMode: true }); this.vclr(); this.typeOut(this.CMD); this.vlater(() => this.send(), 2600); }), btn('Clarify', s.sheet === 'clarify', () => this.goHome({ sheet: 'clarify', clar: null })), btn("Didn't catch", s.voice === 'error', () => this.goHome({ voice: 'error' })), btn('Mic primer', s.micPrimer, () => this.goHome({ micPrimer: true, micAllowed: false })), btn('Mic blocked', s.sheet === 'micBlocked', () => this.goHome({ sheet: 'micBlocked' }))] },
+      { label: 'Laptop', items: [btn('Online', s.laptop === 'online', () => this.setLaptop('online')), btn('Reconnecting', s.laptop === 'sleepy', () => this.setLaptop('sleepy')), btn('Offline', s.laptop === 'offline', () => this.setLaptop('offline')), btn('Offline screen', s.offlineFull, () => { this.goHome(); this.setState({ laptop: 'offline', offlineFull: true }); })] },
+      { label: 'System', items: [btn('Skeleton', s.skeleton, () => this.goHome({ skeleton: !s.skeleton, view: 'day', day: 4 })), btn('No network', !s.net, () => this.goHome({ net: !s.net })), btn('Update', s.update, () => this.goHome({ update: !s.update })), btn('Install hint', s.sheet === 'install', () => this.goHome({ sheet: 'install' })), btn('Event banner', s.notif, () => this.goHome({ notif: !s.notif })), btn('Session expired', s.expired, () => { this.goHome(); this.setState({ expired: true }); })] },
+      { label: 'Theme', items: [btn('Dark', theme === 'dark', () => this.setState({ theme: 'dark' })), btn('Light', theme === 'light', () => this.setState({ theme: 'light' }))] },
+    ];
+
+    const label = s.screen === 'signin' ? 'Sign in' : s.screen === 'pair' ? 'Pair · ' + s.pair : (s.sheet ? 'Sheet · ' + s.sheet : (s.voice !== 'idle' ? 'Voice · ' + s.voice : 'Calendar · ' + s.view));
+    const NOTE = {
+      signin: 'Google is the primary path. “Use email instead” expands inline so the screen stays one step.',
+      scanner: 'Tap inside the viewfinder to simulate a scan. Haptic success tick when the code is read.',
+      code: 'Type or tap Paste. Boxes auto-advance; the hidden field supports iOS one-time-code autofill.',
+      listening: s.toggleMode ? 'Tap mode: a quick tap starts listening hands-free; tap again to send.' : 'Hold mode: keep holding while you speak, release to send. Drag off the button to cancel.',
+      working: 'Stages advance as the laptop reports progress. Transcript is what the laptop heard, not the phone.',
+      result: 'Blocks glide to new slots behind the sheet; dashed ghosts mark old spots for 2 s.',
+    };
+    const noteNow = s.screen === 'signin' ? NOTE.signin : s.screen === 'pair' ? (NOTE[s.pair] || 'Pairing flow. All copy uses the real device names returned by the laptop.') : (s.sheet === 'result' ? NOTE.result : (NOTE[s.voice] || 'Read-only calendar. Tap a block for details; everything else happens by voice.'));
+
+    return {
+      theme, screenLabel: label, sbColor: s.screen === 'pair' && s.pair === 'scanner' ? '#fff' : 'var(--ink1)', homeBar: s.screen === 'pair' && s.pair === 'scanner' ? '#fff' : 'var(--ink1)',
+      frame: { w: Math.round(414 * sc) + 'px', h: Math.round(868 * sc) + 'px', t: `scale(${sc})` },
+      is: { signin: s.screen === 'signin', pair: s.screen === 'pair', home, emailOpen: s.emailOpen, emailClosed: !s.emailOpen,
+        dayView: s.view === 'day', weekView: s.view === 'week', skeleton: s.skeleton && s.view === 'day', emptyDay: !s.skeleton && s.day === 5, dayData: !s.skeleton && s.day !== 5 && s.view === 'day',
+        listening, ack: s.voice === 'ack', working: s.voice === 'working', error: s.voice === 'error', queued: s.queued > 0 && s.voice === 'idle', toast: !!s.toast,
+        scrim: listening || s.voice === 'working' || s.voice === 'ack', sheet: !!s.sheet, micPrimer: s.micPrimer, offlineFull: s.offlineFull, expired: s.expired, notif: s.notif,
+        hasQueue: s.queued > 0, noQueue: !s.queued },
+      signErr: sErr ? { on: true, icon: sErr[0], title: sErr[1], body: sErr[2] } : { on: false },
+      signIn: () => { this.setState({ signErr: null }); this.goPair('intro'); }, openEmail: () => this.setState({ emailOpen: true }),
+      pv, pairGo: { intro: () => this.goPair('intro'), code: () => this.goPair('code') }, startScan: () => this.goPair('camPrimer'), detect: () => { this.buzz(15); this.goPair('confirming'); },
+      torch: { icon: s.torch ? 'icon-flashlight' : 'icon-flashlight-off', bg: s.torch ? '#fff' : 'rgba(255,255,255,.14)', fg: s.torch ? '#15171D' : '#fff', label: s.torch ? 'Turn torch off' : 'Turn torch on', pressed: s.torch ? 'true' : 'false' },
+      toggleTorch: () => this.setState({ torch: !s.torch }),
+      code, codeBoxes, onCode: e => this.setState({ code: e.target.value }), pasteCode: () => this.setState({ code: 'K7P2QM' }), codeReadyOp: code.length === 6 ? 1 : 0.4,
+      submitCode: () => { if (code.length === 6) this.goPair('confirming'); },
+      bigSpin: this.spinEl(40), pop: this.popEl(), ping: this.pingEl(), scanLine: this.scanEl(), waveRing: this.waveRingEl(),
+      dayTitle, strip, views: ['Day', 'Week'].map(v => ({ label: v, bg: s.view === v.toLowerCase() ? 'var(--surface)' : 'transparent', fg: s.view === v.toLowerCase() ? 'var(--ink1)' : 'var(--ink3)', go: () => this.setState({ view: v.toLowerCase() }) })),
+      lap, banner, tl, tlRef: this.tlRef, agenda,
+      openSettings: () => this.setState({ sheet: 'settings' }), openOffline: () => s.laptop === 'offline' ? this.setState({ offlineFull: true }) : (s.update ? (this.setState({ update: false }), this.flash('Updated to the latest version.')) : this.setState({ sheet: 'settings' })),
+      closeOffline: () => this.setState({ offlineFull: false }),
+      talkDown: this.talkDown, talkUp: this.talkUp, noMenu: e => e.preventDefault(), talk, cancelVoice: this.cancelVoice,
+      transcriptText: s.transcript || 'Listening…', heardShort: s.transcript.length > 34 ? s.transcript.slice(0, 32) + '…' : s.transcript, stages,
+      queued: s.queued, cancelQueue: () => { this.setState({ queued: 0 }); this.flash('Command cancelled.'); },
+      retry: () => this.setState({ voice: 'idle' }), toast: s.toast,
+      sh: { event: s.sheet === 'event', result: s.sheet === 'result', clarify: s.sheet === 'clarify', micBlocked: s.sheet === 'micBlocked', settings: s.sheet === 'settings', install: s.sheet === 'install' },
+      ev, clar, latency: s.latency, undo: this.undo, closeSheet: this.closeSheet,
+      askMove: () => { this.vclr(); this.setState({ sheet: null, voice: 'listening', toggleMode: true, ctx: ev0.id, transcript: '', micAllowed: true }); this.typeOut('Move this to tomorrow morning'); },
+      speakAnswer: () => { this.setState({ sheet: null }); this.flash('Listening for your answer…'); },
+      toggles: [tgl('Speak replies', s.speak, () => this.setState({ speak: !s.speak }), 0), tgl('Show latency (debug)', s.latency, () => this.setState({ latency: !s.latency }), 1)],
+      speeds: ['0.8×', '1×', '1.2×'].map(l => seg(l, s.speed === l, () => this.setState({ speed: l }))),
+      themesSeg: [['Light', 'light'], ['Dark', 'dark'], ['System', 'system']].map(([l, v]) => seg(l, (s.themePick || 'dark') === v, () => this.setState({ themePick: v, theme: v === 'system' ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : v }))),
+      switchLaptop: () => this.goPair('already'), unpair: () => this.goPair('intro'), signOut: () => { this.clr(); this.setState({ screen: 'signin', sheet: null }); },
+      allowMic: () => this.setState({ micPrimer: false, micAllowed: true }), denyMic: () => this.setState({ micPrimer: false, sheet: 'micBlocked' }),
+      reSignIn: () => this.setState({ expired: false }),
+      dev, noteNow,
+      notes: [
+        { h: 'Gestures', items: [{ t: 'Talk button: hold to talk, release to send. A tap under 300 ms switches to hands-free; tap again to send.' }, { t: 'Drag off the button or tap the scrim to cancel.' }, { t: 'Swipe the week strip for next or previous week. Pull down on the timeline to resync.' }, { t: 'Blocks are read-only: tap opens a sheet, no dragging. Swipe a sheet down to dismiss.' }] },
+        { h: 'Haptics', items: [{ t: 'Press: light impact. Send: medium impact.' }, { t: 'Result: success pattern. Error or queued: warning pattern. Undo: light.' }] },
+        { h: 'Sounds', items: [{ t: 'Soft tick on start, rising chirp on send, both played locally from cached audio, so there is no network delay. Muted in silent mode.' }, { t: 'Spoken replies come from the laptop, only when Speak replies is on.' }] },
+        { h: 'Motion', items: [{ t: 'Button grows 76 → 88 px with a spring; orb breathes on a 1.8 s loop; a ring of bars follows mic level.' }, { t: '“On it” pings once for 600 ms. Blocks glide 700 ms; ghost outline holds 2 s, fades 600 ms.' }, { t: 'Reduced motion: no breathing or glide; blocks swap in place and keep a static outline.' }] },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

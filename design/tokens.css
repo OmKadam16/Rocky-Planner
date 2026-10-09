@@ -1,0 +1,82 @@
+/* Rocky design tokens. Source of truth: design/Rocky_Design_System.dc.html (Claude Design). */
+/* Fonts: Plus Jakarta Sans (UI, 400/500/600/700), JetBrains Mono (codes, commands, latency HUD). Self-host with @fontsource so the app works offline. */
+[data-theme="dark"]{
+  --bg:#0D0E13;
+  --surface:#15171E;
+  --surface2:#1C1F28;
+  --line:#2A2E3A;
+  --ink1:#EDEFF5;
+  --ink2:#B3B8C6;
+  --ink3:#868C9C;
+  --ink4:#5A6070;
+  --accent:#4F5BD5;
+  --accent-hover:#5D69E0;
+  --accent-ink:#A3AAF5;
+  --accent-soft:#222750;
+  --success:#46C08A;
+  --success-soft:#15302A;
+  --warning:#E8B04B;
+  --warning-soft:#33291A;
+  --danger:#F06A60;
+  --danger-soft:#3A1E1E;
+  --cls-bg:#232A55;
+  --cls-edge:#6B76E8;
+  --cls-fg:#DCE0FF;
+  --com-bg:#2F2545;
+  --com-edge:#A585E8;
+  --com-fg:#E8DDFF;
+  --stu-bg:#17322F;
+  --stu-edge:#43BFA8;
+  --stu-fg:#CFF5EC;
+  --per-bg:#382A1C;
+  --per-edge:#E59A52;
+  --per-fg:#FBE3CB;
+  --brk-bg:#1F222B;
+  --brk-edge:#6A7080;
+  --brk-fg:#C3C8D4;
+  --ddl-bg:#3A1E22;
+  --ddl-edge:#F06A60;
+  --ddl-fg:#FFD9D5;
+  --shadow:0 24px 60px rgba(0,0,0,.45)}
+[data-theme="light"]{
+  --bg:#F6F7F9;
+  --surface:#FFFFFF;
+  --surface2:#EFF1F5;
+  --line:#E2E5EC;
+  --ink1:#15171D;
+  --ink2:#3D4250;
+  --ink3:#636978;
+  --ink4:#9DA2AF;
+  --accent:#4F5BD5;
+  --accent-hover:#3E48B8;
+  --accent-ink:#3E48B8;
+  --accent-soft:#ECEEFC;
+  --success:#1E8C5A;
+  --success-soft:#E3F4EC;
+  --warning:#A86A00;
+  --warning-soft:#FBF1DE;
+  --danger:#C9372C;
+  --danger-soft:#FCE8E6;
+  --cls-bg:#E6E8FB;
+  --cls-edge:#4F5BD5;
+  --cls-fg:#262D7A;
+  --com-bg:#EFE7FB;
+  --com-edge:#8457D6;
+  --com-fg:#4A2A86;
+  --stu-bg:#E1F4F0;
+  --stu-edge:#1F9C86;
+  --stu-fg:#0E5A4D;
+  --per-bg:#FCEEDF;
+  --per-edge:#D7802F;
+  --per-fg:#7A4310;
+  --brk-bg:#EEF0F3;
+  --brk-edge:#8A909E;
+  --brk-fg:#3D4250;
+  --ddl-bg:#FCE8E6;
+  --ddl-edge:#C9372C;
+  --ddl-fg:#8A2019;
+  --shadow:0 24px 60px rgba(20,24,40,.16)}
+@keyframes rk-spin{to{transform:rotate(360deg)}}
+@keyframes rk-breathe{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(79,91,213,.45)}50%{transform:scale(1.08);box-shadow:0 0 0 12px rgba(79,91,213,0)}}
+@keyframes rk-wave{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}

@@ -1,0 +1,15 @@
+{
+  "name": "@rocky/brain",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@rocky/core": "*"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.15"
+  }
+}

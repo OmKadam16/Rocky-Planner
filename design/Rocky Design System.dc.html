@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/lucide-static@0.460.0/font/lucide.css">
+<style>
+html,body{margin:0;background:#0D0E13}
+*{box-sizing:border-box}
+a{color:var(--accent-ink,#A3AAF5);text-decoration:none}a:hover{text-decoration:underline}
+[class^="icon-"],[class*=" icon-"]{line-height:1;display:inline-block}
+[data-theme="dark"]{--bg:#0D0E13;--surface:#15171E;--surface2:#1C1F28;--line:#2A2E3A;--ink1:#EDEFF5;--ink2:#B3B8C6;--ink3:#868C9C;--ink4:#5A6070;--accent:#4F5BD5;--accent-hover:#5D69E0;--accent-ink:#A3AAF5;--accent-soft:#222750;--success:#46C08A;--success-soft:#15302A;--warning:#E8B04B;--warning-soft:#33291A;--danger:#F06A60;--danger-soft:#3A1E1E;--cls-bg:#232A55;--cls-edge:#6B76E8;--cls-fg:#DCE0FF;--com-bg:#2F2545;--com-edge:#A585E8;--com-fg:#E8DDFF;--stu-bg:#17322F;--stu-edge:#43BFA8;--stu-fg:#CFF5EC;--per-bg:#382A1C;--per-edge:#E59A52;--per-fg:#FBE3CB;--brk-bg:#1F222B;--brk-edge:#6A7080;--brk-fg:#C3C8D4;--ddl-bg:#3A1E22;--ddl-edge:#F06A60;--ddl-fg:#FFD9D5;--shadow:0 24px 60px rgba(0,0,0,.45)}
+[data-theme="light"]{--bg:#F6F7F9;--surface:#FFFFFF;--surface2:#EFF1F5;--line:#E2E5EC;--ink1:#15171D;--ink2:#3D4250;--ink3:#636978;--ink4:#9DA2AF;--accent:#4F5BD5;--accent-hover:#3E48B8;--accent-ink:#3E48B8;--accent-soft:#ECEEFC;--success:#1E8C5A;--success-soft:#E3F4EC;--warning:#A86A00;--warning-soft:#FBF1DE;--danger:#C9372C;--danger-soft:#FCE8E6;--cls-bg:#E6E8FB;--cls-edge:#4F5BD5;--cls-fg:#262D7A;--com-bg:#EFE7FB;--com-edge:#8457D6;--com-fg:#4A2A86;--stu-bg:#E1F4F0;--stu-edge:#1F9C86;--stu-fg:#0E5A4D;--per-bg:#FCEEDF;--per-edge:#D7802F;--per-fg:#7A4310;--brk-bg:#EEF0F3;--brk-edge:#8A909E;--brk-fg:#3D4250;--ddl-bg:#FCE8E6;--ddl-edge:#C9372C;--ddl-fg:#8A2019;--shadow:0 24px 60px rgba(20,24,40,.16)}
+@keyframes rk-spin{to{transform:rotate(360deg)}}
+@keyframes rk-breathe{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(79,91,213,.45)}50%{transform:scale(1.08);box-shadow:0 0 0 12px rgba(79,91,213,0)}}
+@keyframes rk-wave{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+</style>
+</helmet>
+<div data-theme="{{ theme }}" style="min-height:100vh;background:var(--bg);color:var(--ink1);font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:14px;font-variant-numeric:tabular-nums;padding:56px clamp(20px,5vw,72px) 96px">
+<div style="max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:72px">
+
+  <header style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px">
+    <div style="display:flex;align-items:center;gap:16px">
+      <div style="width:56px;height:56px;border-radius:17px;background:var(--accent);display:flex;align-items:flex-end;justify-content:center;gap:5px;padding-bottom:14px"><span style="width:5px;height:13px;border-radius:3px;background:#fff"></span><span style="width:5px;height:26px;border-radius:3px;background:#fff"></span><span style="width:5px;height:18px;border-radius:3px;background:#fff"></span></div>
+      <div><h1 style="margin:0;font-size:40px;font-weight:700;letter-spacing:-0.025em;line-height:1">Rocky</h1><p style="margin:6px 0 0;color:var(--ink2);font-size:16px">Tokens and components · v0.1</p></div>
+    </div>
+    <p style="margin:0;max-width:440px;font-size:14px;line-height:1.6;color:var(--ink2);text-wrap:pretty">Logomark: a rounded square holding three bars. Read it as a voice waveform or as blocks of a day. Use it on accent only; minimum size 20 px.</p>
+  </header>
+
+  <section data-screen-label="Color" style="display:flex;flex-direction:column;gap:20px">
+    <h2 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Color</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,540px),1fr));gap:20px">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div style="border-radius:16px;border:1px solid var(--line);overflow:hidden">
+          <div style="padding:12px 16px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);background:var(--surface)">{{ th.name }}</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:1px;background:var(--line)">
+            <sc-for list="{{ th.sw }}" as="w"><div style="background:var(--surface);padding:10px"><div style="height:44px;border-radius:10px;background:{{ w.hex }};border:1px solid rgba(128,128,128,.25)"></div><div style="font-size:12px;font-weight:600;margin-top:8px">{{ w.n }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink3)">{{ w.hex }}</div></div></sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)">Accent 50–900</span>
+      <div style="display:grid;grid-template-columns:repeat(10,minmax(0,1fr));border-radius:14px;overflow:hidden">
+        <sc-for list="{{ accent }}" as="a" hint-placeholder-count="10"><div style="background:{{ a.hex }};color:{{ a.fg }};padding:28px 10px 10px;font-size:12px;font-weight:600">{{ a.n }}<div style="font-family:'JetBrains Mono',monospace;font-weight:400;opacity:.85">{{ a.hex }}</div></div></sc-for>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)">Calendar · current theme</span>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">
+        <sc-for list="{{ calColors }}" as="c" hint-placeholder-count="6"><div style="padding:12px;border-radius:12px;background:{{ c.bg }};color:{{ c.fg }};border:{{ c.border }};border-top:{{ c.bt }};display:flex;flex-direction:column;gap:4px"><span style="display:flex;align-items:center;gap:6px;font-weight:600"><i class="{{ c.icon }}" style="font-size:14px"></i>{{ c.n }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;opacity:.85">--{{ c.k }}-bg / edge / fg</span></div></sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section data-screen-label="Type" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:40px">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <h2 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Type</h2>
+      <p style="margin:0;color:var(--ink2);line-height:1.6">Plus Jakarta Sans for UI with tabular numerals everywhere times appear. JetBrains Mono for codes, commands and the latency HUD.</p>
+      <div style="display:flex;flex-direction:column;border-top:1px solid var(--line)">
+        <sc-for list="{{ typeScale }}" as="t" hint-placeholder-count="6"><div style="display:grid;grid-template-columns:72px 1fr;align-items:baseline;gap:16px;padding:12px 0;border-bottom:1px solid var(--line)"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink3)">{{ t.spec }}</span><span style="font-size:{{ t.size }};font-weight:{{ t.w }};letter-spacing:{{ t.ls }};line-height:1.2">{{ t.sample }}</span></div></sc-for>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <h2 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Shape &amp; motion</h2>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div style="width:72px;height:72px;border-radius:8px;background:var(--surface2);border:1px solid var(--line);display:grid;place-items:center;font-size:12px;color:var(--ink3)">8</div>
+        <div style="width:72px;height:72px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);display:grid;place-items:center;font-size:12px;color:var(--ink3)">12</div>
+        <div style="width:72px;height:72px;border-radius:16px;background:var(--surface2);border:1px solid var(--line);display:grid;place-items:center;font-size:12px;color:var(--ink3)">16</div>
+        <div style="width:72px;height:72px;border-radius:999px;background:var(--surface2);border:1px solid var(--line);display:grid;place-items:center;font-size:12px;color:var(--ink3)">pill</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ motion }}" as="m" hint-placeholder-count="5"><div style="display:grid;grid-template-columns:140px 1fr;gap:16px;padding:12px 14px;border-radius:12px;background:var(--surface)"><span style="font-weight:600">{{ m.n }}</span><span style="color:var(--ink2);line-height:1.5">{{ m.d }}</span></div></sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section data-screen-label="Controls" style="display:flex;flex-direction:column;gap:24px">
+    <h2 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Buttons, inputs, chips</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+      <button style="height:44px;padding:0 18px;border-radius:12px;border:0;background:var(--accent);color:#fff;font:inherit;font-weight:600;display:flex;gap:8px;align-items:center;cursor:pointer" style-hover="background:var(--accent-hover)"><i class="icon-mic" style="font-size:16px"></i>Primary</button>
+      <button style="height:44px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);color:var(--ink1);font:inherit;font-weight:600;cursor:pointer">Secondary</button>
+      <button style="height:44px;padding:0 18px;border-radius:12px;border:0;background:transparent;color:var(--ink2);font:inherit;font-weight:600;cursor:pointer">Ghost</button>
+      <button style="height:44px;padding:0 18px;border-radius:12px;border:0;background:var(--danger);color:#fff;font:inherit;font-weight:600;cursor:pointer">Delete all</button>
+      <button style="height:44px;padding:0 18px;border-radius:12px;border:0;background:var(--accent);color:#fff;font:inherit;font-weight:600;cursor:pointer;outline:2px solid var(--accent-ink);outline-offset:2px">Focused</button>
+      <button disabled style="height:44px;padding:0 18px;border-radius:12px;border:0;background:var(--accent);color:#fff;font:inherit;font-weight:600;opacity:.4">Disabled</button>
+      <button style="height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:var(--ink1);font:inherit;font-size:12px;font-weight:600;cursor:pointer">Small</button>
+      <button aria-label="Mic" style="width:44px;height:44px;border-radius:99px;border:0;background:var(--accent);color:#fff;display:grid;place-items:center;cursor:pointer"><i class="icon-mic" style="font-size:18px"></i></button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px">
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Default</span><input value="Om Kadam" readonly style="height:44px;padding:0 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);color:var(--ink1);font:inherit;outline:none"></label>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Focus</span><input value="omkadam@gmail.com" readonly style="height:44px;padding:0 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--accent);box-shadow:0 0 0 3px var(--accent-soft);color:var(--ink1);font:inherit;outline:none"></label>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Error</span><input value="••••••••" readonly style="height:44px;padding:0 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--danger);color:var(--ink1);font:inherit;outline:none"><span style="font-size:12px;color:var(--danger);display:flex;gap:6px;align-items:center"><i class="icon-circle-alert" style="font-size:12px"></i>That password doesn't match this email.</span></label>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Password strength</span><input value="rocky-is-ready" readonly style="height:44px;padding:0 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);color:var(--ink1);font:inherit;outline:none"><span style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px"><span style="height:4px;border-radius:9px;background:var(--success)"></span><span style="height:4px;border-radius:9px;background:var(--success)"></span><span style="height:4px;border-radius:9px;background:var(--success)"></span><span style="height:4px;border-radius:9px;background:var(--line)"></span></span><span style="font-size:12px;color:var(--success)">Strong</span></label>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+      <span style="height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent-ink);font-weight:500;display:flex;align-items:center;gap:6px"><i class="icon-check" style="font-size:14px"></i>Morning person</span>
+      <span style="height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface2);color:var(--ink2);font-weight:500;display:flex;align-items:center;gap:6px"><i class="icon-plus" style="font-size:14px"></i>Night owl</span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:4px 8px;border-radius:8px;background:var(--danger-soft);color:var(--danger)"><i class="icon-alarm-clock" style="font-size:12px"></i>Tonight 11:59 PM</span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:4px 8px;border-radius:8px;background:var(--warning-soft);color:var(--warning)"><i class="icon-clock" style="font-size:12px"></i>Mon, Oct 12</span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:4px 8px;border-radius:8px;background:var(--surface2);color:var(--ink2)"><i class="icon-calendar" style="font-size:12px"></i>Wed, Oct 14</span>
+      <span style="font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--success-soft);color:var(--success)">Done</span>
+      <span style="font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent-ink)">In progress</span>
+      <span style="font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--surface2);color:var(--ink2)">To do</span>
+    </div>
+  </section>
+
+  <section data-screen-label="Status chips" style="display:flex;flex-direction:column;gap:20px">
+    <h2 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Status chips</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
+      <sc-for list="{{ statusChips }}" as="c" hint-placeholder-count="5"><div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:{{ c.bg }}"><sc-if value="{{ c.dot }}"><span style="width:8px;height:8px;border-radius:99px;background:{{ c.fg }};flex:none;animation:{{ c.anim }}"></span></sc-if><sc-if value="{{ c.phone }}"><i class="icon-smartphone" style="font-size:14px;color:{{ c.fg }}"></i></sc-if><div><div style="font-size:12px;font-weight:700;color:{{ c.fg }}">{{ c.t }}</div><div style="font-size:12px;color:var(--ink2)">{{ c.s }}</div></div></div></sc-for>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;background:var(--warning-soft);color:var(--ink1)"><i class="icon-cloud-off" style="font-size:18px;color:var(--warning)"></i><span style="flex:1;font-weight:600">Rocky's brain is offline. Commands from your phone are waiting.</span><span style="font-size:12px;color:var(--ink2)">2 queued</span><button style="height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink1);font:inherit;font-size:12px;font-weight:600;cursor:pointer">Start brain</button></div>
+  </section>
+
+  <section data-screen-label="Calendar blocks" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:40px">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <h2 style="margin:0 0 8px;font-size:28px;font-weight:700;letter-spacing:-0.02em">Calendar blocks</h2>
+      <sc-for list="{{ blockVariants }}" as="b" hint-placeholder-count="6">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="position:relative;height:{{ b.h }};border-radius:10px;background:{{ b.bg }};color:{{ b.fg }};border:{{ b.border }};border-top:{{ b.bt }};box-shadow:{{ b.shadow }};display:flex;align-items:center;gap:8px;padding:0 12px;opacity:{{ b.op }}">
+            <i class="{{ b.icon }}" style="font-size:14px"></i><span style="font-weight:600">{{ b.t }}</span><span style="flex:1"></span>
+            <sc-if value="{{ b.pr }}"><span style="display:flex;align-items:center;gap:5px;font-size:12px"><span style="width:7px;height:7px;border-radius:99px;background:{{ b.prc }}"></span>{{ b.pr }}</span></sc-if>
+            <span style="font-size:12px">{{ b.time }}</span>
+          </div>
+          <span style="font-size:12px;color:var(--ink3)">{{ b.note }}</span>
+        </div>
+      </sc-for>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="height:24px;border-radius:8px;background:repeating-linear-gradient(135deg, var(--line) 0 5px, transparent 5px 10px);display:flex;align-items:center;padding:0 12px;font-size:12px;color:var(--ink2);gap:6px"><i class="icon-footprints" style="font-size:12px"></i>15 min travel</div>
+        <span style="font-size:12px;color:var(--ink3)">Travel buffer · faint stripes, sits directly before the event</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="height:44px;border-radius:10px;border:1.5px dashed var(--ink2);display:flex;align-items:flex-end;justify-content:flex-end;padding:4px 10px"><span style="font-size:12px;font-weight:600;background:var(--bg);padding:1px 6px;border-radius:6px">Gym was 7:00</span></div>
+        <span style="font-size:12px;color:var(--ink3)">Ghost outline · shows the old spot for 2 s after a voice change, then fades</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <h2 style="margin:0 0 8px;font-size:28px;font-weight:700;letter-spacing:-0.02em">Fixed vs flexible</h2>
+      <div style="padding:18px;border-radius:16px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px">
+        <span style="display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600"><i class="icon-lock" style="font-size:16px"></i>Fixed</span>
+        <p style="margin:0;color:var(--ink2);line-height:1.6">Classes, work and commitments. Solid 1 px edge on all sides plus a lock icon. Not draggable; clicking a class opens a read-only popover with “Edit class”. Rocky never moves a fixed block. If a request needs one moved, Rocky asks instead.</p>
+      </div>
+      <div style="padding:18px;border-radius:16px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px">
+        <span style="display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600"><i class="icon-grip-vertical" style="font-size:16px"></i>Flexible</span>
+        <p style="margin:0;color:var(--ink2);line-height:1.6">Study, personal and breaks. 2 px dashed top edge plus a grip icon. Move and resize by dragging; snaps to 15 minutes. Priority shows as a dot with a text label (High / Med / Low), so color is never the only signal.</p>
+      </div>
+      <div style="padding:18px;border-radius:16px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:12px">
+        <span style="font-size:16px;font-weight:600">Unscheduled tray · no-fit state</span>
+        <div style="height:40px;border-radius:10px;background:var(--per-bg);color:var(--per-fg);border-top:2px dashed var(--per-edge);display:flex;align-items:center;gap:8px;padding:0 12px"><i class="icon-grip-vertical" style="font-size:14px"></i><span style="font-weight:600">Gym</span><span style="flex:1"></span><span style="font-size:12px">60 min</span></div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="flex:1;min-width:200px">Gym doesn't fit today. Move to tomorrow?</span><button style="height:32px;padding:0 14px;border-radius:8px;border:0;background:var(--accent);color:#fff;font:inherit;font-size:12px;font-weight:600;cursor:pointer">Yes</button><button style="height:32px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:var(--ink1);font:inherit;font-size:12px;font-weight:600;cursor:pointer">Pick time</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section data-screen-label="Voice" style="display:flex;flex-direction:column;gap:20px">
+    <h2 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Voice bar &amp; overlay states</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:16px">
+      <div style="display:flex;align-items:center;gap:10px;height:44px;padding:0 6px;border-radius:999px;background:var(--surface);border:1px solid var(--line);width:min(100%,460px)"><span style="width:32px;height:32px;border-radius:99px;background:var(--accent);color:#fff;display:grid;place-items:center"><i class="icon-mic" style="font-size:16px"></i></span><span style="flex:1;color:var(--ink3)">Say “Hey Rocky…” or press Space</span><span style="font-size:12px;color:var(--ink3);border:1px solid var(--line);border-radius:6px;padding:2px 8px;margin-right:6px">Space</span></div>
+      <div style="display:flex;align-items:center;gap:10px;height:44px;padding:0 6px;border-radius:999px;background:var(--surface);border:1px solid var(--accent);box-shadow:0 0 0 4px var(--accent-soft);width:min(100%,460px)"><span style="width:32px;height:32px;border-radius:99px;background:var(--accent);color:#fff;display:grid;place-items:center"><i class="icon-mic" style="font-size:16px"></i></span><span style="flex:1">I'm meeting a friend at 7, replan</span><span style="font-size:12px;color:var(--ink3);border:1px solid var(--line);border-radius:6px;padding:2px 8px;margin-right:6px">Space</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr));gap:16px">
+      <sc-for list="{{ voiceStates }}" as="v" hint-placeholder-count="9">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)">{{ v.label }}</span>
+          <div style="padding:16px 18px;border-radius:16px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:12px;min-height:120px">
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="width:40px;height:40px;border-radius:99px;background:{{ v.ibg }};color:{{ v.ifg }};display:grid;place-items:center;flex:none"><sc-if value="{{ v.anim }}">{{ v.anim }}</sc-if><sc-if value="{{ v.icon }}"><i class="{{ v.icon }}" style="font-size:18px"></i></sc-if></span>
+              <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;color:{{ v.ifg }}">{{ v.kicker }}</div><div style="font-size:16px;font-weight:600;margin-top:2px">{{ v.title }}</div></div>
+              <sc-if value="{{ v.meta }}"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink2)">{{ v.meta }}</span></sc-if>
+            </div>
+            <sc-if value="{{ v.body }}"><span style="font-size:14px;color:var(--ink2);line-height:1.5">{{ v.body }}</span></sc-if>
+            <sc-if value="{{ v.wave }}">{{ wave }}</sc-if>
+            <sc-if value="{{ v.buttons }}"><div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ v.buttons }}" as="vb"><button style="height:34px;padding:0 12px;border-radius:9px;border:1px solid var(--line);background:{{ vb.bg }};color:{{ vb.fg }};font:inherit;font-size:12px;font-weight:600;cursor:pointer;display:flex;gap:6px;align-items:center"><i class="{{ vb.icon }}" style="font-size:14px"></i>{{ vb.l }}</button></sc-for></div></sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink2);display:flex;gap:12px;padding:6px 10px;border-radius:8px;background:var(--surface2)"><span>STT 312 ms</span><span>AI 1,148 ms</span><span style="color:var(--success)">Total 1.61 s</span></span><span style="font-size:12px;color:var(--ink3)">Latency HUD · Settings → AI → Show latency. Total turns amber over 3 s, red over 6 s.</span></div>
+  </section>
+
+  <section data-screen-label="Feedback" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:40px">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <h2 style="margin:0 0 6px;font-size:28px;font-weight:700;letter-spacing:-0.02em">Toasts</h2>
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;background:var(--ink1);color:var(--bg);font-weight:600;align-self:flex-start;flex-wrap:wrap"><i class="icon-circle-check" style="font-size:16px"></i>Added Meet friend 7:00–8:30. Moved Gym to 8:30.<span style="color:var(--accent);background:var(--bg);padding:2px 8px;border-radius:6px;font-size:12px">Undo</span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;background:var(--ink1);color:var(--bg);font-weight:600;align-self:flex-start"><i class="icon-copy" style="font-size:16px"></i>Code copied</div>
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;background:var(--danger-soft);color:var(--danger);font-weight:600;align-self:flex-start;border:1px solid var(--danger)"><i class="icon-circle-x" style="font-size:16px"></i>Couldn't reach rocky.app. Retrying in 5 s.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <h2 style="margin:0 0 6px;font-size:28px;font-weight:700;letter-spacing:-0.02em">Confirm dialog</h2>
+      <div role="dialog" style="max-width:420px;padding:24px;border-radius:16px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px">
+        <span style="width:44px;height:44px;border-radius:12px;background:var(--danger-soft);color:var(--danger);display:grid;place-items:center"><i class="icon-unlink" style="font-size:20px"></i></span>
+        <div><div style="font-size:20px;font-weight:700">Unpair Om's iPhone 15?</div><p style="margin:6px 0 0;color:var(--ink2);line-height:1.6">It will stop showing your calendar and can't send voice commands until you pair it again.</p></div>
+        <div style="display:flex;justify-content:flex-end;gap:10px"><button style="height:40px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);color:var(--ink1);font:inherit;font-weight:600;cursor:pointer">Cancel</button><button style="height:40px;padding:0 16px;border-radius:10px;border:0;background:var(--danger);color:#fff;font:inherit;font-weight:600;cursor:pointer">Unpair</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section data-screen-label="Devices" style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Paired devices</h2>
+    <div style="border-radius:16px;background:var(--surface);border:1px solid var(--line);overflow:hidden">
+      <sc-for list="{{ devices }}" as="d" hint-placeholder-count="3">
+        <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;border-top:{{ d.div }};flex-wrap:wrap">
+          <span style="width:40px;height:40px;border-radius:12px;background:var(--surface2);display:grid;place-items:center;position:relative;flex:none"><i class="{{ d.icon }}" style="font-size:18px;color:var(--ink2)"></i><span style="position:absolute;right:-2px;bottom:-2px;width:12px;height:12px;border-radius:99px;background:{{ d.dot }};border:2px solid var(--surface)"></span></span>
+          <div style="flex:1;min-width:180px"><div style="font-weight:600">{{ d.n }}</div><div style="font-size:12px;color:var(--ink3)">{{ d.s }}</div></div>
+          <sc-for list="{{ d.actions }}" as="a"><button style="height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:transparent;color:{{ a.fg }};font:inherit;font-size:12px;font-weight:600;cursor:pointer">{{ a.l }}</button></sc-for>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;'dark'|'light'&quot;}}">
+class Component extends DCLogic {
+  spin() { return React.createElement('span', { style: { width: 16, height: 16, borderRadius: 99, border: '2px solid currentColor', borderTopColor: 'transparent', display: 'inline-block', animation: 'rk-spin .8s linear infinite' } }); }
+  breathe() { return React.createElement('span', { style: { width: 40, height: 40, borderRadius: 99, background: 'var(--accent)', color: '#fff', display: 'grid', placeItems: 'center', animation: 'rk-breathe 1.8s ease-in-out infinite' } }, React.createElement('i', { className: 'icon-mic', style: { fontSize: 18 } })); }
+  wave() { return React.createElement('span', { style: { display: 'flex', alignItems: 'center', gap: 3, height: 22 } }, Array.from({ length: 36 }, (_, i) => React.createElement('span', { key: i, style: { width: 3, height: 20, borderRadius: 2, background: 'var(--accent-ink)', animation: `rk-wave ${0.7 + (i % 5) * 0.12}s ease-in-out ${(i * 0.04).toFixed(2)}s infinite` } }))); }
+  renderVals() {
+    const theme = this.props.theme ?? 'dark';
+    const D = { bg: '#0D0E13', surface: '#15171E', 'surface-2': '#1C1F28', line: '#2A2E3A', 'ink-1': '#EDEFF5', 'ink-2': '#B3B8C6', 'ink-3': '#868C9C', 'ink-4': '#5A6070', accent: '#4F5BD5', 'accent-ink': '#A3AAF5', success: '#46C08A', warning: '#E8B04B', danger: '#F06A60' };
+    const L = { bg: '#F6F7F9', surface: '#FFFFFF', 'surface-2': '#EFF1F5', line: '#E2E5EC', 'ink-1': '#15171D', 'ink-2': '#3D4250', 'ink-3': '#636978', 'ink-4': '#9DA2AF', accent: '#4F5BD5', 'accent-ink': '#3E48B8', success: '#1E8C5A', warning: '#A86A00', danger: '#C9372C' };
+    const sw = o => Object.entries(o).map(([n, hex]) => ({ n, hex }));
+    const acc = [['50', '#EEF0FC'], ['100', '#DCE0F9'], ['200', '#BCC2F3'], ['300', '#959EEB'], ['400', '#7079E0'], ['500', '#4F5BD5'], ['600', '#3E48B8'], ['700', '#333B94'], ['800', '#2A3075'], ['900', '#1F2457']];
+    const cal = [['cls', 'Fixed class', 1], ['com', 'Fixed commitment', 1], ['stu', 'Flexible study', 0], ['per', 'Flexible personal', 0], ['brk', 'Break', 0], ['ddl', 'Deadline', 1]];
+    const bv = (k, t, time, fixed, note, extra = {}) => ({ k, t, time, note, bg: `var(--${k}-bg)`, fg: `var(--${k}-fg)`, h: '44px', icon: fixed ? 'icon-lock' : 'icon-grip-vertical',
+      border: fixed ? `1px solid var(--${k}-edge)` : '1px solid transparent', bt: fixed ? `1px solid var(--${k}-edge)` : `2px dashed var(--${k}-edge)`, shadow: 'none', op: 1, pr: '', prc: '', ...extra });
+    return {
+      theme, wave: this.wave(),
+      themes: [{ name: 'Dark · primary', sw: sw(D) }, { name: 'Light', sw: sw(L) }],
+      accent: acc.map(([n, hex], i) => ({ n, hex, fg: i < 4 ? '#1F2457' : '#fff' })),
+      calColors: cal.map(([k, n, f]) => ({ k, n, bg: `var(--${k}-bg)`, fg: `var(--${k}-fg)`, icon: k === 'ddl' ? 'icon-flag' : (f ? 'icon-lock' : 'icon-grip-vertical'), border: f ? `1px solid var(--${k}-edge)` : '1px solid transparent', bt: f ? `1px solid var(--${k}-edge)` : `2px dashed var(--${k}-edge)` })),
+      typeScale: [['40 / 700', '40px', 700, '-0.025em', 'Plan your day out loud.'], ['28 / 700', '28px', 700, '-0.02em', 'Connect your phone'], ['20 / 600', '20px', 600, '-0.01em', 'Replanned your evening'], ['16 / 600', '16px', 600, '0', 'Due soon · 3 assignments'], ['14 / 400', '14px', 400, '0', 'Biology Lecture · 9:00–9:50 AM'], ['12 / 600', '12px', 600, '0.02em', 'STT 312 ms · Brain ready']].map(([spec, size, w, ls, sample]) => ({ spec, size, w, ls, sample })),
+      motion: [
+        { n: 'Block glide', d: 'After a voice command, moved blocks slide to their new slot. 700 ms, cubic-bezier(.2,.8,.2,1). New blocks fade and scale in from 96%.' },
+        { n: 'Ghost outline', d: 'Dashed outline at the old position, labelled “was 7:00”. Holds 2 s, fades over 600 ms.' },
+        { n: 'Highlight', d: '2 px accent ring with soft glow on changed blocks for 6 s, plus a New / Moved tag.' },
+        { n: 'Orb breathe', d: 'Listening orb scales 1 → 1.08 with a fading halo, 1.8 s loop. Waveform bars follow mic level.' },
+        { n: 'Reduced motion', d: 'Blocks jump to place, ghost and ring stay as static outlines, orb stops breathing and shows a solid ring.' },
+      ],
+      statusChips: [
+        { t: 'Brain ready', s: 'qwen3.5 4B · this laptop', bg: 'var(--success-soft)', fg: 'var(--success)', dot: true, anim: 'none' },
+        { t: 'Model loading', s: 'qwen3.5 4B · 62%', bg: 'var(--warning-soft)', fg: 'var(--warning)', dot: true, anim: 'rk-breathe 1.8s ease-in-out infinite' },
+        { t: 'Brain not running', s: 'Run rocky-brain start', bg: 'var(--danger-soft)', fg: 'var(--danger)', dot: true, anim: 'none' },
+        { t: "Om's iPhone 15", s: 'Connected · now', bg: 'var(--surface2)', fg: 'var(--ink1)', phone: true },
+        { t: 'No phone paired', s: 'Pair in Settings', bg: 'var(--surface2)', fg: 'var(--ink3)', phone: true },
+      ],
+      blockVariants: [
+        bv('cls', 'Biology Lecture', '9:00–9:50 AM', 1, 'Fixed class'),
+        bv('com', 'Part-time job', '12:30–4:30 PM', 1, 'Fixed commitment'),
+        bv('stu', 'Study: Calculus problem set', '10:00–11:30 AM', 0, 'Flexible study · high priority', { pr: 'High', prc: 'var(--danger)' }),
+        bv('per', 'Gym', '8:30–9:30 PM', 0, 'Flexible personal · moved by voice (highlight)', { pr: 'Med', prc: 'var(--warning)', shadow: '0 0 0 2px var(--accent), 0 10px 28px rgba(79,91,213,.35)' }),
+        bv('brk', 'Lunch', '11:30–12:15 PM', 0, 'Break'),
+        bv('ddl', 'Problem Set 4 due', '11:59 PM', 1, 'Deadline · lives in the all-day strip', { h: '32px', icon: 'icon-flag' }),
+      ],
+      voiceStates: [
+        { label: 'Idle', ibg: 'var(--surface2)', ifg: 'var(--ink3)', icon: 'icon-mic', kicker: 'Ready', title: 'Say “Hey Rocky…”', body: 'Or press Space. Hold to talk if push-to-talk is on.' },
+        { label: 'Listening', ibg: 'transparent', ifg: 'var(--accent-ink)', anim: this.breathe(), kicker: 'Listening · laptop mic', title: "I'm meeting a friend at 7…", wave: true },
+        { label: 'Uploading', ibg: 'var(--accent-soft)', ifg: 'var(--accent-ink)', anim: this.spin(), kicker: "From Om's iPhone 15", title: 'Sending clip to your laptop', meta: '0.4 s' },
+        { label: 'Heard', ibg: 'var(--accent-soft)', ifg: 'var(--accent-ink)', icon: 'icon-quote', kicker: 'Heard', title: '“Move gym to tomorrow”' },
+        { label: 'Thinking', ibg: 'var(--accent-soft)', ifg: 'var(--accent-ink)', anim: this.spin(), kicker: 'Thinking', title: 'Replanning your evening', meta: '1.2 s', body: 'Classes, work and club meetings stay put.' },
+        { label: 'Done', ibg: 'var(--success-soft)', ifg: 'var(--success)', icon: 'icon-circle-check', kicker: 'Done', title: 'Added Meet friend 7:00–8:30', body: 'Moved Gym to 8:30, Chem lab report to 9:30.', buttons: [{ l: 'Undo', icon: 'icon-undo-2', bg: 'var(--surface2)', fg: 'var(--ink1)' }, { l: 'View calendar', icon: 'icon-calendar', bg: 'transparent', fg: 'var(--ink2)' }] },
+        { label: 'Needs clarification', ibg: 'var(--warning-soft)', ifg: 'var(--warning)', icon: 'icon-message-circle-question', kicker: 'Quick question', title: 'Which study block should move?', buttons: [{ l: 'Calculus', icon: 'icon-book-open', bg: 'var(--surface2)', fg: 'var(--ink1)' }, { l: 'Chem report', icon: 'icon-book-open', bg: 'var(--surface2)', fg: 'var(--ink1)' }, { l: 'Answer by voice', icon: 'icon-mic', bg: 'var(--accent)', fg: '#fff' }] },
+        { label: 'Error', ibg: 'var(--danger-soft)', ifg: 'var(--danger)', icon: 'icon-circle-x', kicker: "Didn't catch that", title: 'Try saying it again', body: 'The mic picked up mostly background noise.', buttons: [{ l: 'Retry', icon: 'icon-refresh-cw', bg: 'var(--surface2)', fg: 'var(--ink1)' }] },
+        { label: 'Brain offline', ibg: 'var(--danger-soft)', ifg: 'var(--danger)', icon: 'icon-cloud-off', kicker: 'Brain not running', title: 'Your command is waiting', body: 'It will run when Rocky Brain starts on your laptop.', buttons: [{ l: 'How to start it', icon: 'icon-terminal', bg: 'var(--surface2)', fg: 'var(--ink1)' }] },
+      ],
+      devices: [
+        { n: 'This laptop (Brain)', s: 'MacBook Pro · heartbeat 2 s ago · qwen3.5 4B', icon: 'icon-laptop', dot: 'var(--success)', div: '0', actions: [{ l: 'Rename', fg: 'var(--ink1)' }] },
+        { n: "Om's iPhone 15", s: 'Online · last command 10:42 AM', icon: 'icon-smartphone', dot: 'var(--success)', div: '1px solid var(--line)', actions: [{ l: 'Rename', fg: 'var(--ink1)' }, { l: 'Test', fg: 'var(--ink1)' }, { l: 'Unpair', fg: 'var(--danger)' }] },
+        { n: 'iPad (old)', s: 'Last seen Sep 28', icon: 'icon-tablet', dot: 'var(--ink4)', div: '1px solid var(--line)', actions: [{ l: 'Rename', fg: 'var(--ink1)' }, { l: 'Test', fg: 'var(--ink1)' }, { l: 'Unpair', fg: 'var(--danger)' }] },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "rocky",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit && tsc -p packages/core --noEmit",
+    "typecheck:web": "npm run typecheck -w @rocky/web",
+    "test": "vitest run",
+    "test:web": "npm test -w @rocky/web"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  }
+}

@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/lucide-static@0.460.0/font/lucide.css">
+<style>
+html,body{margin:0;height:100%;background:#050608}
+*{box-sizing:border-box}
+a{color:var(--accent-ink,#A3AAF5);text-decoration:none}a:hover{text-decoration:underline}
+[class^="icon-"],[class*=" icon-"]{line-height:1;display:inline-block}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent-ink);outline-offset:2px}
+[data-theme="dark"]{--bg:#0D0E13;--surface:#15171E;--surface2:#1C1F28;--line:#2A2E3A;--ink1:#EDEFF5;--ink2:#B3B8C6;--ink3:#868C9C;--ink4:#5A6070;--accent:#4F5BD5;--accent-hover:#5D69E0;--accent-ink:#A3AAF5;--accent-soft:#222750;--success:#46C08A;--success-soft:#15302A;--warning:#E8B04B;--warning-soft:#33291A;--danger:#F06A60;--danger-soft:#3A1E1E;--cls-bg:#232A55;--cls-edge:#6B76E8;--cls-fg:#DCE0FF;--com-bg:#2F2545;--com-edge:#A585E8;--com-fg:#E8DDFF;--stu-bg:#17322F;--stu-edge:#43BFA8;--stu-fg:#CFF5EC;--per-bg:#382A1C;--per-edge:#E59A52;--per-fg:#FBE3CB;--brk-bg:#1F222B;--brk-edge:#6A7080;--brk-fg:#C3C8D4;--ddl-bg:#3A1E22;--ddl-edge:#F06A60;--ddl-fg:#FFD9D5;--shadow:0 24px 60px rgba(0,0,0,.45)}
+[data-theme="light"]{--bg:#F6F7F9;--surface:#FFFFFF;--surface2:#EFF1F5;--line:#E2E5EC;--ink1:#15171D;--ink2:#3D4250;--ink3:#636978;--ink4:#9DA2AF;--accent:#4F5BD5;--accent-hover:#3E48B8;--accent-ink:#3E48B8;--accent-soft:#ECEEFC;--success:#1E8C5A;--success-soft:#E3F4EC;--warning:#A86A00;--warning-soft:#FBF1DE;--danger:#C9372C;--danger-soft:#FCE8E6;--cls-bg:#E6E8FB;--cls-edge:#4F5BD5;--cls-fg:#262D7A;--com-bg:#EFE7FB;--com-edge:#8457D6;--com-fg:#4A2A86;--stu-bg:#E1F4F0;--stu-edge:#1F9C86;--stu-fg:#0E5A4D;--per-bg:#FCEEDF;--per-edge:#D7802F;--per-fg:#7A4310;--brk-bg:#EEF0F3;--brk-edge:#8A909E;--brk-fg:#3D4250;--ddl-bg:#FCE8E6;--ddl-edge:#C9372C;--ddl-fg:#8A2019;--shadow:0 24px 60px rgba(20,24,40,.16)}
+@keyframes rk-spin{to{transform:rotate(360deg)}}
+@keyframes rk-breathe{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(79,91,213,.45)}50%{transform:scale(1.08);box-shadow:0 0 0 14px rgba(79,91,213,0)}}
+@keyframes rk-wave{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+@keyframes rk-pop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.1);opacity:1}100%{transform:scale(1)}}
+@keyframes rk-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="min-height:100vh;padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#050608;font-family:'Plus Jakarta Sans',system-ui,sans-serif">
+<div style="position:relative;width:{{ frame.w }};height:{{ frame.h }};border-radius:12px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);flex:none">
+<div data-theme="{{ theme }}" data-screen-label="{{ screenLabel }}" style="position:absolute;left:0;top:0;width:1440px;height:900px;transform:{{ frame.t }};transform-origin:0 0;background:var(--bg);color:var(--ink1);font-size:14px;font-variant-numeric:tabular-nums;overflow:hidden">
+
+<sc-if value="{{ is.signin }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:1fr 1fr;height:100%">
+  <div style="padding:56px 72px;display:flex;flex-direction:column;justify-content:space-between;background:radial-gradient(110% 70% at 0% 100%, var(--accent-soft) 0%, transparent 65%), var(--surface);border-right:1px solid var(--line)">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:32px;height:32px;border-radius:10px;background:var(--accent);display:flex;align-items:flex-end;justify-content:center;gap:3px;padding-bottom:8px"><span style="width:3px;height:8px;border-radius:2px;background:#fff"></span><span style="width:3px;height:15px;border-radius:2px;background:#fff"></span><span style="width:3px;height:10px;border-radius:2px;background:#fff"></span></div>
+      <span style="font-size:20px;font-weight:700;letter-spacing:-0.02em">Rocky</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:20px;max-width:500px">
+      <h1 style="margin:0;font-size:40px;line-height:1.1;font-weight:700;letter-spacing:-0.025em;text-wrap:pretty">Plan your day out loud.</h1>
+      <p style="margin:0;font-size:16px;line-height:1.6;color:var(--ink2);text-wrap:pretty">Tell Rocky what changed. It reshuffles the flexible parts of your day and leaves classes, work and club meetings where they are.</p>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 18px 10px 10px;border-radius:999px;background:var(--surface2);border:1px solid var(--line);align-self:flex-start">
+        <span style="width:32px;height:32px;border-radius:999px;background:var(--accent);color:#fff;display:grid;place-items:center"><i class="icon-mic" style="font-size:16px"></i></span>
+        <span style="font-size:14px;color:var(--ink1);white-space:nowrap">“I'm meeting a friend at 7, replan my day.”</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink3)"><i class="icon-shield-check" style="font-size:14px"></i>Rocky's AI runs on your laptop. Your reading history never leaves it.</div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:center">
+    <div style="width:400px;display:flex;flex-direction:column;gap:20px">
+      <div><h2 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Welcome back</h2><p style="margin:6px 0 0;color:var(--ink2);font-size:14px">Sign in to pick up where you left off.</p></div>
+      <button onClick="{{ signIn }}" style="height:44px;border-radius:12px;border:0;background:var(--accent);color:#fff;font:inherit;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer" style-hover="background:var(--accent-hover)"><span style="width:20px;height:20px;border-radius:999px;background:#fff;color:#4F5BD5;font-size:12px;font-weight:700;display:grid;place-items:center">G</span>Continue with Google</button>
+      <div style="display:flex;align-items:center;gap:12px;color:var(--ink3);font-size:12px"><span style="flex:1;height:1px;background:var(--line)"></span>or use email<span style="flex:1;height:1px;background:var(--line)"></span></div>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Email</span>
+        <input name="email" value="{{ f.email }}" onChange="{{ onField }}" style="height:44px;padding:0 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);color:var(--ink1);font:inherit;font-size:14px;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)"></label>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Password</span>
+        <div style="position:relative;display:flex">
+          <input name="password" type="{{ pw.type }}" value="{{ f.password }}" onChange="{{ onField }}" style="flex:1;height:44px;padding:0 44px 0 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);color:var(--ink1);font:inherit;font-size:14px;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)">
+          <button onClick="{{ pw.toggle }}" aria-label="{{ pw.label }}" style="position:absolute;right:6px;top:6px;width:32px;height:32px;border:0;border-radius:8px;background:transparent;color:var(--ink3);cursor:pointer;display:grid;place-items:center"><i class="{{ pw.icon }}" style="font-size:16px"></i></button>
+        </div></label>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:14px"><a href="#">Forgot password?</a><button onClick="{{ signIn }}" style="flex:none;white-space:nowrap;height:40px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);color:var(--ink1);font:inherit;font-weight:600;cursor:pointer" style-hover="border-color:var(--ink4)">Sign in</button></div>
+      <div style="height:1px;background:var(--line)"></div>
+      <div style="display:flex;justify-content:space-between;font-size:14px;color:var(--ink2)"><span>New to Rocky? <a href="#">Create an account</a></span></div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink3)"><i class="icon-lock" style="font-size:12px"></i>Your AI and your memory stay on your laptop</div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.wizard }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column">
+  <header style="display:grid;grid-template-columns:200px 1fr 200px;align-items:center;padding:20px 40px;border-bottom:1px solid var(--line);background:var(--surface)">
+    <div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:9px;background:var(--accent);display:flex;align-items:flex-end;justify-content:center;gap:3px;padding-bottom:7px"><span style="width:3px;height:7px;border-radius:2px;background:#fff"></span><span style="width:3px;height:13px;border-radius:2px;background:#fff"></span><span style="width:3px;height:9px;border-radius:2px;background:#fff"></span></div><span style="font-size:16px;font-weight:700">Rocky setup</span></div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:640px;width:100%;justify-self:center">
+      <sc-for list="{{ wiz.steps }}" as="ws" hint-placeholder-count="5">
+        <div style="display:flex;flex-direction:column;gap:8px"><span style="height:4px;border-radius:99px;background:{{ ws.bar }}"></span><span style="font-size:12px;font-weight:600;color:{{ ws.fg }}">{{ ws.label }}</span></div>
+      </sc-for>
+    </div>
+    <span style="justify-self:end;font-size:12px;color:var(--ink3)">Step {{ step }} of 5</span>
+  </header>
+  <main style="flex:1;min-height:0;display:flex;justify-content:center;padding:40px 40px 24px;overflow:hidden">
+
+    <sc-if value="{{ is.s1 }}">
+      <div style="width:640px;display:flex;flex-direction:column;gap:28px">
+        <div><h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Tell Rocky who you are</h1><p style="margin:8px 0 0;font-size:16px;color:var(--ink2)">Used for greetings and to label your classes.</p></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Full name</span><input name="fullName" value="{{ f.fullName }}" onChange="{{ onField }}" style="height:44px;padding:0 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);color:var(--ink1);font:inherit;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Display name</span><input name="displayName" value="{{ f.displayName }}" onChange="{{ onField }}" style="height:44px;padding:0 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);color:var(--ink1);font:inherit;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)"></label>
+          <label style="grid-column:1 / -1;display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">School</span><input name="school" value="{{ f.school }}" onChange="{{ onField }}" style="height:44px;padding:0 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);color:var(--ink1);font:inherit;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Program</span><input name="program" value="{{ f.program }}" onChange="{{ onField }}" style="height:44px;padding:0 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);color:var(--ink1);font:inherit;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Year</span><div style="height:44px;padding:0 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);display:flex;align-items:center;justify-content:space-between"><span>{{ f.year }}</span><i class="icon-chevron-down" style="font-size:16px;color:var(--ink3)"></i></div></label>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.s2 }}">
+      <div style="width:760px;display:flex;flex-direction:column;gap:24px">
+        <div><h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">How do you like to work?</h1><p style="margin:8px 0 0;font-size:16px;color:var(--ink2);text-wrap:pretty">Rocky plans around you. Morning people get study blocks early; if you need breaks, it leaves room for them.</p></div>
+        <sc-for list="{{ chipGroups }}" as="g" hint-placeholder-count="3">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <span style="font-size:12px;font-weight:600;color:var(--ink2)">{{ g.title }}</span>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <sc-for list="{{ g.items }}" as="c">
+                <button onClick="{{ c.toggle }}" aria-pressed="{{ c.pressed }}" style="height:36px;padding:0 14px;border-radius:999px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font:inherit;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px"><i class="{{ c.icon }}" style="font-size:14px"></i>{{ c.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Anything else worth knowing?</span><textarea name="notes" value="{{ f.notes }}" onChange="{{ onField }}" rows="3" style="padding:12px 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);color:var(--ink1);font:inherit;font-size:14px;line-height:1.5;resize:none;outline:none" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)"></textarea></label>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.s3 }}">
+      <div style="width:1120px;display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:40px">
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div><h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Add your classes</h1><p style="margin:8px 0 0;font-size:16px;color:var(--ink2)">They become fixed blocks. Rocky plans everything else around them.</p></div>
+          <sc-for list="{{ classes }}" as="k" hint-placeholder-count="3">
+            <div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto;gap:16px;align-items:center;padding:16px 18px;border-radius:14px;background:var(--surface);border:1px solid var(--line)">
+              <div style="min-width:0"><div style="font-size:16px;font-weight:600">{{ k.name }}</div><div style="font-size:12px;color:var(--ink3);margin-top:2px">{{ k.code }} · {{ k.prof }}</div></div>
+              <div><div style="display:flex;gap:4px"><sc-for list="{{ k.days }}" as="d"><span title="{{ d.full }}" style="width:24px;height:24px;border-radius:99px;font-size:12px;font-weight:600;display:grid;place-items:center;background:{{ d.bg }};color:{{ d.fg }}">{{ d.l }}</span></sc-for></div><div style="font-size:12px;color:var(--ink2);margin-top:6px">{{ k.time }} · {{ k.range }}</div></div>
+              <button aria-label="Edit class" style="width:32px;height:32px;border-radius:8px;border:0;background:transparent;color:var(--ink3);cursor:pointer"><i class="icon-pencil" style="font-size:16px"></i></button>
+            </div>
+          </sc-for>
+          <button style="height:48px;border-radius:14px;border:1px dashed var(--line);background:transparent;color:var(--ink2);font:inherit;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer" style-hover="border-color:var(--accent);color:var(--accent-ink)"><i class="icon-plus" style="font-size:16px"></i>Add class</button>
+        </div>
+        <div style="padding:20px;border-radius:16px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:14px;align-self:start">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:16px;font-weight:600">Your week</span><span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink3)"><i class="icon-lock" style="font-size:12px"></i>Fixed</span></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);padding-left:36px;font-size:12px;color:var(--ink3);font-weight:600"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span></div>
+          <div style="position:relative;height:270px;margin-left:36px;border-top:1px solid var(--line)">
+            <sc-for list="{{ previewHours }}" as="ph"><div style="position:absolute;left:-36px;right:0;top:{{ ph.top }};border-top:1px solid var(--line);font-size:12px;color:var(--ink4)"><span style="position:relative;top:-8px;background:var(--surface);padding-right:6px">{{ ph.l }}</span></div></sc-for>
+            <sc-for list="{{ preview }}" as="pv"><div style="position:absolute;left:{{ pv.left }};width:calc(20% - 6px);top:{{ pv.top }};height:{{ pv.h }};border-radius:8px;background:var(--cls-bg);border:1px solid var(--cls-edge);color:var(--cls-fg);font-size:12px;font-weight:600;padding:4px 6px;overflow:hidden;display:flex;gap:4px"><i class="icon-lock" style="font-size:10px;margin-top:2px"></i>{{ pv.label }}</div></sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.s4 }}">
+      <div style="width:820px;display:flex;flex-direction:column;gap:22px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px">
+          <div><h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Start Rocky's brain on this laptop</h1><p style="margin:8px 0 0;font-size:16px;color:var(--ink2)">The AI and speech recognition run here, offline. Nothing you say is sent to a server.</p></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Model size</span>
+            <div style="display:flex;padding:3px;border-radius:10px;background:var(--surface2);border:1px solid var(--line)"><sc-for list="{{ models }}" as="m"><button onClick="{{ m.pick }}" style="flex:none;white-space:nowrap;height:30px;padding:0 14px;border-radius:8px;border:0;background:{{ m.bg }};color:{{ m.fg }};font:inherit;font-size:12px;font-weight:600;cursor:pointer">{{ m.label }}</button></sc-for></div>
+          </div>
+        </div>
+        <div style="border-radius:16px;background:var(--surface);border:1px solid var(--line);overflow:hidden">
+          <sc-for list="{{ brainRows }}" as="r" hint-placeholder-count="4">
+            <div style="display:flex;gap:14px;padding:18px 20px;border-top:{{ r.divider }}">
+              <span style="width:24px;height:24px;display:grid;place-items:center;color:{{ r.color }};flex:none">
+                <sc-if value="{{ r.checking }}">{{ spin }}</sc-if>
+                <sc-if value="{{ r.notChecking }}"><i class="{{ r.icon }}" style="font-size:20px"></i></sc-if>
+              </span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:16px;font-weight:600">{{ r.label }}</span><span style="font-size:12px;font-weight:600;color:{{ r.color }}">{{ r.stateLabel }}</span></div>
+                <span style="font-size:14px;color:var(--ink2)">{{ r.sub }}</span>
+                <sc-if value="{{ r.showCmd }}">
+                  <div style="display:flex;gap:8px;align-items:center">
+                    <code style="flex:1;font-family:'JetBrains Mono',monospace;font-size:14px;padding:10px 14px;border-radius:10px;background:var(--bg);border:1px solid var(--line);color:var(--ink1)">$ rocky-brain start</code>
+                    <button style="height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);color:var(--ink1);font:inherit;font-weight:600;display:flex;gap:6px;align-items:center;cursor:pointer"><i class="icon-copy" style="font-size:14px"></i>Copy</button>
+                    <button onClick="{{ checkAgain }}" style="height:40px;padding:0 14px;border-radius:10px;border:0;background:var(--accent);color:#fff;font:inherit;font-weight:600;display:flex;gap:6px;align-items:center;cursor:pointer"><i class="icon-refresh-cw" style="font-size:14px"></i>Check again</button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ r.showAllow }}"><button onClick="{{ allowMic }}" style="align-self:flex-start;height:40px;padding:0 16px;border-radius:10px;border:0;background:var(--accent);color:#fff;font:inherit;font-weight:600;display:flex;gap:6px;align-items:center;cursor:pointer"><i class="icon-mic" style="font-size:14px"></i>Allow microphone</button></sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;padding:16px 20px;border-radius:16px;background:var(--surface2);border:1px solid var(--line)">
+          <button onClick="{{ testVoice.run }}" style="flex:none;white-space:nowrap;height:40px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink1);font:inherit;font-weight:600;display:flex;gap:8px;align-items:center;cursor:pointer;opacity:{{ testVoice.op }}"><i class="icon-audio-lines" style="font-size:16px"></i>Test voice</button>
+          <span style="flex:1;font-size:14px;color:var(--ink2)">{{ testVoice.text }}</span>
+          <sc-if value="{{ testVoice.done }}"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink2);display:flex;gap:12px"><span>STT 284 ms</span><span>AI 912 ms</span><span style="color:var(--success)">Total 1.20 s</span></span></sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.s5a }}">
+      <div style="width:1120px;display:grid;grid-template-columns:minmax(0,1fr) 460px;gap:72px;align-items:center">
+        <div style="display:flex;flex-direction:column;gap:28px">
+          <div><span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--accent-ink);background:var(--accent-soft);padding:4px 10px;border-radius:99px">1a · Split layout</span>
+          <h1 style="margin:14px 0 0;font-size:40px;line-height:1.1;font-weight:700;letter-spacing:-0.025em">Connect your phone</h1>
+          <p style="margin:12px 0 0;font-size:16px;line-height:1.6;color:var(--ink2);max-width:480px;text-wrap:pretty">Your phone shows your calendar and works as a remote mic. Rocky's brain stays on this laptop.</p></div>
+          <ol style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px">
+            <sc-for list="{{ pr.steps }}" as="st" hint-placeholder-count="3">
+              <li style="display:flex;gap:16px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:{{ st.rowBg }}">
+                <span style="width:32px;height:32px;border-radius:99px;display:grid;place-items:center;flex:none;font-size:14px;font-weight:700;background:{{ st.cBg }};color:{{ st.cFg }};border:1.5px solid {{ st.cBorder }}"><sc-if value="{{ st.done }}"><i class="icon-check" style="font-size:16px"></i></sc-if><sc-if value="{{ st.notDone }}">{{ st.n }}</sc-if></span>
+                <span style="font-size:16px;line-height:1.5;padding-top:4px;color:{{ st.fg }};font-weight:{{ st.fw }}">{{ st.text }}</span>
+              </li>
+            </sc-for>
+          </ol>
+          <div style="display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-radius:14px;background:{{ pr.toneBg }};color:{{ pr.toneFg }}">
+            <i class="{{ pr.icon }}" style="font-size:20px;margin-top:1px"></i>
+            <div style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font-size:16px;font-weight:600">{{ pr.title }}</span><span style="font-size:14px;line-height:1.5;color:var(--ink2);text-wrap:pretty">{{ pr.sub }}</span>
+              <sc-if value="{{ pr.showTest }}"><span style="margin-top:6px;display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink1)"><i class="icon-smartphone" style="font-size:14px"></i>{{ pr.testText }}</span></sc-if>
+            </div>
+          </div>
+        </div>
+        <div style="padding:24px;border-radius:20px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-size:16px;font-weight:600">Scan with the Rocky app</div><div style="font-size:12px;color:var(--ink3);margin-top:2px">Signed in as omkadam@gmail.com</div></div>
+            <div style="position:relative;width:52px;height:52px" title="Time left">
+              <svg width="52" height="52" viewBox="0 0 52 52" style="transform:rotate(-90deg)"><circle cx="26" cy="26" r="22" fill="none" stroke="var(--line)" stroke-width="4"></circle><circle cx="26" cy="26" r="22" fill="none" stroke="{{ ring.color }}" stroke-width="4" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="{{ ring.off }}" style="transition:stroke-dashoffset 1s linear"></circle></svg>
+              <span style="position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:700">{{ ring.label }}</span>
+            </div>
+          </div>
+          <button onClick="{{ scan }}" aria-label="QR code. Click to simulate a scan" style="position:relative;align-self:center;width:300px;height:300px;padding:18px;border-radius:16px;background:#fff;border:0;cursor:pointer">
+            {{ qr }}
+            <sc-if value="{{ pr.overlay }}">
+              <span style="position:absolute;inset:0;border-radius:16px;background:var(--surface);opacity:.96;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;color:var(--ink1)">
+                <sc-if value="{{ pr.oSpin }}"><span style="width:56px;height:56px;border-radius:99px;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center"><i class="icon-smartphone" style="font-size:26px"></i></span></sc-if>
+                <sc-if value="{{ pr.oSuccess }}">{{ pop }}</sc-if>
+                <sc-if value="{{ pr.oIconOn }}"><span style="width:56px;height:56px;border-radius:99px;background:{{ pr.toneBg }};color:{{ pr.toneFg }};display:grid;place-items:center"><i class="{{ pr.oIcon }}" style="font-size:26px"></i></span></sc-if>
+                <span style="font-size:20px;font-weight:700">{{ pr.oTitle }}</span>
+                <span style="font-size:14px;color:var(--ink2);display:flex;align-items:center;gap:8px">{{ pr.oSub }}</span>
+              </span>
+            </sc-if>
+          </button>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:center">
+            <span style="font-size:12px;color:var(--ink3)">Camera not working? Enter this code on your phone</span>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:500;letter-spacing:.08em;opacity:{{ pr.codeOp }}">{{ code }}</span>
+              <button onClick="{{ copyCode }}" style="height:32px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:var(--ink1);font:inherit;font-size:12px;font-weight:600;display:flex;gap:6px;align-items:center;cursor:pointer"><i class="{{ copy.icon }}" style="font-size:14px"></i>{{ copy.label }}</button></div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:center">
+            <sc-if value="{{ pr.hasAction }}"><button onClick="{{ pr.action }}" style="height:44px;padding:0 18px;border-radius:12px;border:0;background:var(--accent);color:#fff;font:inherit;font-weight:600;display:flex;gap:8px;align-items:center;cursor:pointer" style-hover="background:var(--accent-hover)"><i class="icon-refresh-cw" style="font-size:16px"></i>{{ pr.actionLabel }}</button></sc-if>
+            <sc-if value="{{ pr.noAction }}"><button onClick="{{ newCode }}" style="flex:none;white-space:nowrap;height:36px;padding:0 12px;border-radius:10px;border:0;background:transparent;color:var(--ink2);font:inherit;font-weight:600;display:flex;gap:6px;align-items:center;cursor:pointer"><i class="icon-refresh-cw" style="font-size:14px"></i>Generate new code</button></sc-if>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.s5b }}">
+      <div style="width:860px;display:flex;flex-direction:column;align-items:center;gap:28px">
+        <div style="text-align:center"><span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--accent-ink);background:var(--accent-soft);padding:4px 10px;border-radius:99px">1b · Centered card</span>
+          <h1 style="margin:14px 0 0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Connect your phone</h1>
+          <p style="margin:8px 0 0;font-size:16px;color:var(--ink2)">Calendar and remote mic on your phone. The brain stays here.</p></div>
+        <div style="display:flex;align-items:center;gap:12px;width:100%">
+          <sc-for list="{{ pr.steps }}" as="st" hint-placeholder-count="3">
+            <div style="flex:1;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;border:1px solid {{ st.cBorder }};background:{{ st.rowBg }}">
+              <span style="width:28px;height:28px;border-radius:99px;display:grid;place-items:center;flex:none;font-size:12px;font-weight:700;background:{{ st.cBg }};color:{{ st.cFg }}"><sc-if value="{{ st.done }}"><i class="icon-check" style="font-size:14px"></i></sc-if><sc-if value="{{ st.notDone }}">{{ st.n }}</sc-if></span>
+              <span style="font-size:12px;line-height:1.4;color:{{ st.fg }};font-weight:{{ st.fw }}">{{ st.text }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="width:100%;display:grid;grid-template-columns:300px minmax(0,1fr);gap:32px;padding:28px;border-radius:20px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)">
+          <button onClick="{{ scan }}" aria-label="QR code. Click to simulate a scan" style="position:relative;width:300px;height:300px;padding:18px;border-radius:16px;background:#fff;border:0;cursor:pointer">
+            {{ qr }}
+            <sc-if value="{{ pr.overlay }}">
+              <span style="position:absolute;inset:0;border-radius:16px;background:var(--surface2);opacity:.96;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--ink1)">
+                <sc-if value="{{ pr.oSpin }}"><span style="width:56px;height:56px;border-radius:99px;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center"><i class="icon-smartphone" style="font-size:26px"></i></span></sc-if>
+                <sc-if value="{{ pr.oSuccess }}">{{ pop }}</sc-if>
+                <sc-if value="{{ pr.oIconOn }}"><span style="width:56px;height:56px;border-radius:99px;background:{{ pr.toneBg }};color:{{ pr.toneFg }};display:grid;place-items:center"><i class="{{ pr.oIcon }}" style="font-size:26px"></i></span></sc-if>
+                <span style="font-size:16px;font-weight:700">{{ pr.oTitle }}</span>
+              </span>
+            </sc-if>
+          </button>
+          <div style="display:flex;flex-direction:column;gap:18px;justify-content:center">
+            <div style="display:flex;align-items:center;gap:10px"><span style="width:10px;height:10px;border-radius:99px;background:{{ pr.toneFg }}"></span><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:{{ pr.toneFg }}">{{ pr.badge }}</span><span style="flex:1"></span><span style="font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:6px"><i class="icon-timer" style="font-size:14px"></i>{{ ring.label }} left</span></div>
+            <div><div style="font-size:20px;font-weight:700">{{ pr.title }}</div><p style="margin:6px 0 0;font-size:14px;line-height:1.6;color:var(--ink2);text-wrap:pretty">{{ pr.sub }}</p></div>
+            <sc-if value="{{ pr.showTest }}"><span style="display:flex;align-items:center;gap:8px;font-size:14px;padding:10px 12px;border-radius:10px;background:var(--surface2)"><i class="icon-smartphone" style="font-size:14px"></i>{{ pr.testText }}</span></sc-if>
+            <div style="height:4px;border-radius:99px;background:var(--line);overflow:hidden"><span style="display:block;height:100%;width:{{ ring.pct }};background:{{ ring.color }};transition:width 1s linear"></span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--surface2)"><span style="font-size:12px;color:var(--ink3)">Code</span><span style="font-family:'JetBrains Mono',monospace;font-size:20px;letter-spacing:.08em;flex:1;opacity:{{ pr.codeOp }}">{{ code }}</span><button onClick="{{ copyCode }}" style="height:32px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink1);font:inherit;font-size:12px;font-weight:600;display:flex;gap:6px;align-items:center;cursor:pointer"><i class="{{ copy.icon }}" style="font-size:14px"></i>{{ copy.label }}</button></div>
+            <div style="display:flex;gap:10px">
+              <sc-if value="{{ pr.hasAction }}"><button onClick="{{ pr.action }}" style="height:44px;padding:0 18px;border-radius:12px;border:0;background:var(--accent);color:#fff;font:inherit;font-weight:600;cursor:pointer">{{ pr.actionLabel }}</button></sc-if>
+              <sc-if value="{{ pr.noAction }}"><button onClick="{{ newCode }}" style="flex:none;white-space:nowrap;height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink2);font:inherit;font-weight:600;cursor:pointer">Generate new code</button></sc-if>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </main>
+  <footer style="display:flex;align-items:center;gap:12px;padding:16px 40px;border-top:1px solid var(--line);background:var(--surface)">
+    <button onClick="{{ wiz.back }}" style="height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink1);font:inherit;font-weight:600;display:flex;gap:8px;align-items:center;cursor:pointer;visibility:{{ wiz.backVis }}"><i class="icon-arrow-left" style="font-size:16px"></i>Back</button>
+    <span style="flex:1;font-size:12px;color:var(--ink3);text-align:center">{{ wiz.hint }}</span>
+    <sc-if value="{{ wiz.canSkip }}"><button onClick="{{ wiz.skip }}" style="height:44px;padding:0 16px;border-radius:12px;border:0;background:transparent;color:var(--ink2);font:inherit;font-weight:600;cursor:pointer">Skip for now</button></sc-if>
+    <button onClick="{{ wiz.next }}" style="height:44px;padding:0 20px;border-radius:12px;border:0;background:var(--accent);color:#fff;font:inherit;font-weight:600;display:flex;gap:8px;align-items:center;cursor:pointer;opacity:{{ wiz.nextOp }}" style-hover="background:var(--accent-hover)">{{ wiz.nextLabel }}<i class="icon-arrow-right" style="font-size:16px"></i></button>
+  </footer>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.app }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;height:100%">
+  <aside style="width:{{ side.w }};flex:none;display:flex;flex-direction:column;gap:2px;padding:18px 12px;background:var(--surface);border-right:1px solid var(--line);transition:width .25s ease;overflow:hidden">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 8px 18px;height:46px">
+      <div style="width:28px;height:28px;border-radius:9px;background:var(--accent);display:flex;align-items:flex-end;justify-content:center;gap:3px;padding-bottom:7px;flex:none"><span style="width:3px;height:7px;border-radius:2px;background:#fff"></span><span style="width:3px;height:13px;border-radius:2px;background:#fff"></span><span style="width:3px;height:9px;border-radius:2px;background:#fff"></span></div>
+      <sc-if value="{{ side.open }}"><span style="font-size:20px;font-weight:700;letter-spacing:-0.02em">Rocky</span></sc-if>
+    </div>
+    <sc-for list="{{ nav }}" as="n" hint-placeholder-count="7">
+      <button onClick="{{ n.go }}" title="{{ n.label }}" style="display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border-radius:10px;border:0;background:{{ n.bg }};color:{{ n.fg }};font:inherit;font-size:14px;font-weight:{{ n.fw }};cursor:pointer;text-align:left;flex:none" style-hover="color:var(--ink1)"><i class="{{ n.icon }}" style="font-size:18px;flex:none"></i><sc-if value="{{ side.open }}"><span style="white-space:nowrap">{{ n.label }}</span></sc-if></button>
+    </sc-for>
+    <span style="flex:1"></span>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div title="Brain ready" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--success-soft)"><span style="width:8px;height:8px;border-radius:99px;background:var(--success);flex:none;box-shadow:0 0 0 3px var(--success-soft)"></span><sc-if value="{{ side.open }}"><div style="min-width:0"><div style="font-size:12px;font-weight:700;color:var(--success)">Brain ready</div><div style="font-size:12px;color:var(--ink2);white-space:nowrap">qwen3.5 {{ model }} · this laptop</div></div></sc-if></div>
+      <div title="{{ phone.title }}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--surface2)"><i class="icon-smartphone" style="font-size:14px;color:{{ phone.color }};flex:none"></i><sc-if value="{{ side.open }}"><div style="min-width:0"><div style="font-size:12px;font-weight:700;color:{{ phone.color }}">{{ phone.title }}</div><div style="font-size:12px;color:var(--ink2);white-space:nowrap">{{ phone.sub }}</div></div></sc-if></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 6px 0;border-top:1px solid var(--line);margin-top:6px"><span style="width:32px;height:32px;border-radius:99px;background:var(--accent-soft);color:var(--accent-ink);font-size:12px;font-weight:700;display:grid;place-items:center;flex:none">OK</span><sc-if value="{{ side.open }}"><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600">Om Kadam</div><div style="font-size:12px;color:var(--ink3)">Cypress College</div></div><i class="icon-chevrons-up-down" style="font-size:14px;color:var(--ink3)"></i></sc-if></div>
+    </div>
+  </aside>
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;position:relative">
+    <header style="height:68px;flex:none;display:flex;align-items:center;gap:16px;padding:0 24px;border-bottom:1px solid var(--line)">
+      <button onClick="{{ side.toggle }}" aria-label="Toggle sidebar" style="width:32px;height:32px;border-radius:8px;border:0;background:transparent;color:var(--ink3);cursor:pointer;display:grid;place-items:center" style-hover="background:var(--surface2)"><i class="icon-panel-left" style="font-size:18px"></i></button>
+      <span style="font-size:20px;font-weight:700;letter-spacing:-0.01em">{{ pageTitle }}</span>
+      <span style="flex:1"></span>
+      <div style="display:flex;align-items:center;gap:8px;height:40px;padding:0 12px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);width:220px;color:var(--ink3)"><i class="icon-search" style="font-size:16px"></i><span style="flex:1;font-size:14px">Search</span><span style="font-size:12px;border:1px solid var(--line);border-radius:6px;padding:1px 6px">⌘K</span></div>
+      <div style="display:flex;align-items:center;gap:10px;height:44px;padding:0 6px;border-radius:999px;background:var(--surface);border:1px solid {{ vb.border }};width:460px;box-shadow:{{ vb.shadow }};transition:border-color .2s,box-shadow .2s">
+        <button onClick="{{ runVoice }}" aria-label="Start voice command" style="width:32px;height:32px;border-radius:999px;border:0;background:var(--accent);color:#fff;display:grid;place-items:center;cursor:pointer;flex:none"><i class="icon-mic" style="font-size:16px"></i></button>
+        <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;color:{{ vb.color }}">{{ vb.text }}</span>
+        <span style="font-size:12px;color:var(--ink3);border:1px solid var(--line);border-radius:6px;padding:2px 8px;margin-right:6px">Space</span>
+      </div>
+    </header>
+
+    <sc-if value="{{ is.dash }}">
+    <div style="flex:1;min-height:0;padding:20px 28px 24px;display:flex;flex-direction:column;gap:16px">
+      <div><div style="font-size:12px;color:var(--ink3);font-weight:700;letter-spacing:.06em;text-transform:uppercase">Friday, October 9</div><h1 style="margin:4px 0 0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Good morning, Om</h1></div>
+      <div style="flex:1;min-height:0;display:grid;grid-template-columns:340px minmax(0,1fr) minmax(0,1fr);gap:16px">
+        <section style="background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:4px;min-height:0">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:16px;font-weight:600">Today</span><button onClick="{{ goCal }}" style="border:0;background:transparent;color:var(--accent-ink);font:inherit;font-size:12px;font-weight:600;cursor:pointer">Open calendar</button></div>
+          <sc-for list="{{ dash.today }}" as="r" hint-placeholder-count="8">
+            <div style="display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:{{ r.rowBg }};box-shadow:{{ r.ring }}">
+              <span style="font-size:12px;color:var(--ink3)">{{ r.time }}</span>
+              <div style="display:flex;align-items:center;gap:10px;min-width:0"><span style="width:10px;height:10px;border-radius:3px;background:{{ r.edge }};flex:none"></span><div style="min-width:0"><div style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.t }}</div><div style="font-size:12px;color:var(--ink3)">{{ r.range }}</div></div></div>
+              <sc-if value="{{ r.isNow }}"><span style="font-size:12px;font-weight:700;color:#fff;background:var(--accent);padding:2px 8px;border-radius:99px">Now</span></sc-if>
+              <sc-if value="{{ r.notNow }}"><i class="{{ r.icon }}" title="{{ r.iconTitle }}" style="font-size:14px;color:var(--ink3)"></i></sc-if>
+            </div>
+          </sc-for>
+        </section>
+        <div style="display:flex;flex-direction:column;gap:16px;min-height:0">
+          <section style="background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)">Next up · in 1h 48m</span><span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2)"><i class="icon-lock" style="font-size:12px"></i>Fixed</span></div>
+            <div style="font-size:20px;font-weight:700">Part-time job</div>
+            <div style="font-size:14px;color:var(--ink2)">12:30–4:30 PM · Campus Bookstore</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);padding:8px 10px;border-radius:10px;background:var(--surface2);align-self:flex-start"><i class="icon-footprints" style="font-size:14px"></i>Leave by 12:15 · 15 min walk</div>
+          </section>
+          <section style="background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:16px;font-weight:600">Due soon</span><span style="font-size:12px;color:var(--ink3)">3 assignments</span></div>
+            <sc-for list="{{ dash.asg }}" as="a" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-top:{{ a.divider }}">
+                <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.t }}</div><div style="font-size:12px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.cls }}</div></div>
+                <span style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:4px 8px;border-radius:8px;background:{{ a.ubg }};color:{{ a.ufg }};white-space:nowrap"><i class="{{ a.uicon }}" style="font-size:12px"></i>{{ a.due }}</span>
+                <button onClick="{{ a.cycle }}" title="Change status" style="height:28px;padding:0 8px;border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:{{ a.sfg }};font:inherit;font-size:12px;font-weight:600;display:flex;gap:4px;align-items:center;cursor:pointer;white-space:nowrap;width:104px;justify-content:space-between">{{ a.status }}<i class="icon-chevron-down" style="font-size:12px"></i></button>
+              </div>
+            </sc-for>
+          </section>
+          <section style="flex:1;min-height:0;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:16px;font-weight:600">Today's tasks</span><span style="font-size:12px;color:var(--ink3)">{{ dash.taskCount }}</span></div>
+            <sc-for list="{{ tasks }}" as="t" hint-placeholder-count="4">
+              <button onClick="{{ t.toggle }}" style="display:flex;align-items:center;gap:10px;padding:6px 0;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer">
+                <span style="width:18px;height:18px;border-radius:6px;border:1.5px solid {{ t.boxBorder }};background:{{ t.boxBg }};display:grid;place-items:center;color:#fff;flex:none"><i class="{{ t.check }}" style="font-size:12px"></i></span>
+                <span style="flex:1;font-size:14px;text-decoration:{{ t.deco }};color:{{ t.fg }}">{{ t.t }}</span>
+                <span style="font-size:12px;color:var(--ink3)">{{ t.cls }}</span>
+              </button>
+            </sc-for>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:6px;height:38px;padding:0 10px;border-radius:10px;border:1px dashed var(--line)"><i class="icon-plus" style="font-size:14px;color:var(--ink3)"></i><input name="newTask" value="{{ f.newTask }}" onChange="{{ onField }}" onKeyDown="{{ addTask }}" placeholder="Add a task, press Enter" style="flex:1;border:0;background:transparent;color:var(--ink1);font:inherit;font-size:14px;outline:none"></div>
+          </section>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;min-height:0">
+          <section style="background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:16px;font-weight:600">This week</span><span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink3)"><span style="width:6px;height:6px;border-radius:99px;background:var(--danger)"></span>Deadline</span></div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">
+              <sc-for list="{{ week }}" as="w" hint-placeholder-count="7">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 0;border-radius:10px;background:{{ w.bg }}">
+                  <span style="font-size:12px;color:{{ w.fg }};font-weight:600">{{ w.d }}</span><span style="font-size:16px;font-weight:700;color:{{ w.fg2 }}">{{ w.n }}</span>
+                  <div style="display:flex;flex-direction:column-reverse;gap:2px;height:44px;width:20px"><sc-for list="{{ w.bars }}" as="wb"><span style="height:4px;border-radius:2px;background:{{ wb.c }}"></span></sc-for></div>
+                  <div style="display:flex;gap:3px;height:6px"><sc-for list="{{ w.dl }}" as="wd"><span style="width:6px;height:6px;border-radius:99px;background:var(--danger)"></span></sc-for></div>
+                </div>
+              </sc-for>
+            </div>
+          </section>
+          <section style="flex:1;min-height:0;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:2px;overflow:hidden">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:16px;font-weight:600">Recent voice commands</span><span style="font-size:12px;color:var(--accent-ink);font-weight:600">Activity</span></div>
+            <sc-for list="{{ hist }}" as="h" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-top:{{ h.divider }}">
+                <span title="{{ h.srcLabel }}" style="width:28px;height:28px;border-radius:8px;background:var(--surface2);color:var(--ink2);display:grid;place-items:center;flex:none"><i class="{{ h.icon }}" style="font-size:14px"></i></span>
+                <div style="flex:1;min-width:0"><div style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">“{{ h.heard }}”</div><div style="font-size:12px;color:var(--ink3)">{{ h.time }} · {{ h.result }}</div></div>
+                <span style="font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px;background:{{ h.sbg }};color:{{ h.sfg }}">{{ h.status }}</span>
+                <sc-if value="{{ h.canUndo }}"><button onClick="{{ undo }}" style="border:0;background:transparent;color:var(--accent-ink);font:inherit;font-size:12px;font-weight:700;cursor:pointer">Undo</button></sc-if>
+              </div>
+            </sc-for>
+          </section>
+          <section style="background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:16px;font-weight:600">Memory</span><span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--success)"><span style="width:6px;height:6px;border-radius:99px;background:var(--success)"></span>Recording on</span></div>
+            <button style="display:flex;align-items:center;gap:10px;height:44px;padding:0 6px 0 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);color:var(--ink2);font:inherit;font-size:14px;cursor:pointer;text-align:left" style-hover="border-color:var(--accent)"><i class="icon-history" style="font-size:16px"></i><span style="flex:1">What was I reading on Wednesday?</span><span style="width:32px;height:32px;border-radius:99px;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center"><i class="icon-mic" style="font-size:14px"></i></span></button>
+            <span style="font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:6px"><i class="icon-lock" style="font-size:12px"></i>Only on this laptop. Nothing is uploaded.</span>
+          </section>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ is.cal }}">
+    <div style="flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px">
+      <div style="display:flex;flex-direction:column;min-width:0;padding:14px 24px 16px;gap:10px">
+        <div style="display:flex;align-items:center;gap:12px;height:40px">
+          <div style="display:flex;padding:3px;border-radius:10px;background:var(--surface2);border:1px solid var(--line)"><sc-for list="{{ calViews }}" as="cv"><button onClick="{{ cv.go }}" style="height:30px;padding:0 14px;border-radius:8px;border:0;background:{{ cv.bg }};color:{{ cv.fg }};font:inherit;font-size:12px;font-weight:600;cursor:pointer">{{ cv.label }}</button></sc-for></div>
+          <div style="display:flex;gap:4px"><button aria-label="Previous day" style="width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink2);cursor:pointer;display:grid;place-items:center"><i class="icon-chevron-left" style="font-size:16px"></i></button><button aria-label="Next day" style="width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink2);cursor:pointer;display:grid;place-items:center"><i class="icon-chevron-right" style="font-size:16px"></i></button></div>
+          <button style="height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink1);font:inherit;font-size:12px;font-weight:600;cursor:pointer">Today</button>
+          <span style="font-size:20px;font-weight:700;display:flex;align-items:center;gap:6px">Friday, October 9<i class="icon-chevron-down" style="font-size:16px;color:var(--ink3)"></i></span>
+          <span style="flex:1"></span>
+          <button style="height:32px;padding:0 12px;border-radius:8px;border:0;background:var(--accent);color:#fff;font:inherit;font-size:12px;font-weight:600;display:flex;gap:6px;align-items:center;cursor:pointer"><i class="icon-plus" style="font-size:14px"></i>New event</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-left:64px;padding:8px 12px;border-radius:10px;background:var(--ddl-bg);color:var(--ddl-fg);border:1px solid var(--ddl-edge)"><i class="icon-flag" style="font-size:14px"></i><span style="font-size:14px;font-weight:600">Due tonight: Problem Set 4</span><span style="font-size:12px">MATH 150 · 11:59 PM</span></div>
+        <div style="position:relative;height:664px;margin-top:6px">
+          <sc-for list="{{ cal.hours }}" as="hh"><div style="position:absolute;left:0;right:0;top:{{ hh.top }};display:flex;align-items:flex-start"><span style="width:56px;font-size:12px;color:var(--ink3);text-align:right;padding-right:10px;position:relative;top:-8px">{{ hh.l }}</span><span style="flex:1;border-top:1px solid var(--line)"></span></div></sc-for>
+          <div style="position:absolute;left:64px;right:0;top:0;bottom:0">
+            <div style="position:absolute;left:8px;right:12px;top:{{ cal.travelTop }};height:{{ cal.travelH }};border-radius:8px;background:repeating-linear-gradient(135deg, var(--line) 0 5px, transparent 5px 10px);display:flex;align-items:center;padding:0 12px;font-size:12px;color:var(--ink2);gap:6px"><i class="icon-footprints" style="font-size:12px"></i>15 min travel</div>
+            <sc-for list="{{ cal.blocks }}" as="b" hint-placeholder-count="9">
+              <div title="{{ b.aria }}" style="position:absolute;left:8px;right:12px;top:{{ b.top }};height:{{ b.h }};border-radius:10px;background:{{ b.bg }};color:{{ b.fg }};border:{{ b.border }};border-top:{{ b.bt }};opacity:{{ b.op }};transform:{{ b.tf }};box-shadow:{{ b.shadow }};display:flex;align-items:center;gap:8px;padding:0 12px;cursor:{{ b.cursor }};z-index:{{ b.z }};transition:top .7s cubic-bezier(.2,.8,.2,1),height .7s cubic-bezier(.2,.8,.2,1),opacity .45s ease,transform .45s ease,box-shadow .4s ease;overflow:hidden">
+                <i class="{{ b.icon }}" style="font-size:14px;flex:none;opacity:.85"></i>
+                <span style="font-size:14px;font-weight:600;white-space:nowrap">{{ b.t }}</span>
+                <span style="font-size:12px;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ b.sub }}</span>
+                <span style="flex:1"></span>
+                <sc-if value="{{ b.tag }}"><span style="font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--accent);color:#fff">{{ b.tag }}</span></sc-if>
+                <sc-if value="{{ b.hasPr }}"><span style="display:flex;align-items:center;gap:5px;font-size:12px"><span style="width:7px;height:7px;border-radius:99px;background:{{ b.prColor }}"></span>{{ b.prLabel }}</span></sc-if>
+                <span style="font-size:12px;white-space:nowrap;min-width:108px;text-align:right">{{ b.range }}</span>
+              </div>
+            </sc-for>
+            <sc-for list="{{ cal.ghosts }}" as="gh"><div style="position:absolute;left:8px;right:12px;top:{{ gh.top }};height:{{ gh.h }};border-radius:10px;border:1.5px dashed var(--ink2);opacity:{{ gh.op }};transition:opacity .6s ease;z-index:6;pointer-events:none;display:flex;align-items:flex-end;justify-content:flex-end;padding:4px 10px"><span style="font-size:12px;font-weight:600;color:var(--ink1);background:var(--bg);padding:1px 6px;border-radius:6px">{{ gh.label }}</span></div></sc-for>
+            <div style="position:absolute;left:0;right:0;top:{{ cal.nowTop }};height:2px;background:var(--danger);z-index:8"><span style="position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:99px;background:var(--danger)"></span></div>
+          </div>
+          <span style="position:absolute;left:0;width:56px;text-align:right;padding-right:10px;top:{{ cal.nowLabelTop }};font-size:12px;font-weight:700;color:var(--danger);background:var(--bg)">10:42</span>
+        </div>
+      </div>
+      <aside style="border-left:1px solid var(--line);padding:20px;display:flex;flex-direction:column;gap:22px;background:var(--surface);min-height:0">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <span style="font-size:16px;font-weight:600;margin-bottom:6px">Friday's tasks</span>
+          <sc-for list="{{ tasks }}" as="t" hint-placeholder-count="4">
+            <button onClick="{{ t.toggle }}" style="display:flex;align-items:center;gap:10px;padding:6px 0;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer"><span style="width:18px;height:18px;border-radius:6px;border:1.5px solid {{ t.boxBorder }};background:{{ t.boxBg }};display:grid;place-items:center;color:#fff;flex:none"><i class="{{ t.check }}" style="font-size:12px"></i></span><span style="flex:1;font-size:14px;text-decoration:{{ t.deco }};color:{{ t.fg }}">{{ t.t }}</span></button>
+          </sc-for>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span style="font-size:16px;font-weight:600">Unscheduled</span>
+          <div style="padding:14px;border-radius:12px;border:1px dashed var(--line);font-size:14px;color:var(--ink3);display:flex;align-items:center;gap:8px"><i class="icon-inbox" style="font-size:16px"></i>Everything fit today.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:14px;background:var(--surface2)">
+          <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)">How blocks work</span>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="width:36px;height:22px;border-radius:6px;background:var(--cls-bg);border:1px solid var(--cls-edge);display:grid;place-items:center;color:var(--cls-fg);flex:none"><i class="icon-lock" style="font-size:12px"></i></span><span style="font-size:12px;line-height:1.5;color:var(--ink2)"><b style="color:var(--ink1)">Fixed.</b> Solid edge and a lock. Rocky never moves these. Classes, work, club meetings.</span></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="width:36px;height:22px;border-radius:6px;background:var(--stu-bg);border-top:2px dashed var(--stu-edge);display:grid;place-items:center;color:var(--stu-fg);flex:none"><i class="icon-grip-vertical" style="font-size:12px"></i></span><span style="font-size:12px;line-height:1.5;color:var(--ink2)"><b style="color:var(--ink1)">Flexible.</b> Dashed top edge and a grip. Drag or resize; snaps to 15 min. Rocky can move these.</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;font-size:12px;color:var(--ink2)">
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:var(--cls-edge)"></span>Class</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:var(--com-edge)"></span>Commitment</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:var(--stu-edge)"></span>Study</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:var(--per-edge)"></span>Personal</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:var(--brk-edge)"></span>Break</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:var(--ddl-edge)"></span>Deadline</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ is.voiceOn }}">
+      <div role="status" style="position:absolute;left:{{ vc.left }};right:{{ vc.right }};top:{{ vc.top }};bottom:{{ vc.bottom }};transform:{{ vc.tf }};width:{{ vc.w }};background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px 20px;z-index:30;display:flex;flex-direction:column;gap:14px">
+        <sc-if value="{{ is.listening }}">
+          <div style="display:flex;align-items:center;gap:16px">{{ orb }}<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;color:var(--accent-ink);letter-spacing:.06em;text-transform:uppercase">Listening · laptop mic</div><div style="font-size:20px;font-weight:600;margin-top:4px;min-height:28px">{{ v.transcript }}</div></div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between">{{ wave }}<span style="font-size:12px;color:var(--ink3)">Esc to cancel</span></div>
+        </sc-if>
+        <sc-if value="{{ is.heard }}">
+          <div style="display:flex;align-items:center;gap:14px"><span style="width:44px;height:44px;border-radius:99px;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center"><i class="icon-quote" style="font-size:18px"></i></span><div><div style="font-size:12px;font-weight:700;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase">Heard</div><div style="font-size:20px;font-weight:600;margin-top:4px">“{{ v.transcript }}”</div></div></div>
+        </sc-if>
+        <sc-if value="{{ is.thinking }}">
+          <div style="display:flex;align-items:center;gap:14px"><span style="width:44px;height:44px;border-radius:99px;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center">{{ spin }}</span><div style="flex:1"><div style="font-size:16px;font-weight:600">Replanning your evening</div><div style="font-size:12px;color:var(--ink3);margin-top:2px">Classes, work and club meetings stay put.</div></div><span style="font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--ink2)">{{ v.elapsed }}</span></div>
+        </sc-if>
+        <sc-if value="{{ is.done }}">
+          <div style="display:flex;align-items:center;gap:10px"><i class="icon-circle-check" style="font-size:20px;color:var(--success)"></i><span style="font-size:16px;font-weight:600">Replanned your evening</span><span style="flex:1"></span><button onClick="{{ dismiss }}" aria-label="Dismiss" style="width:28px;height:28px;border-radius:8px;border:0;background:transparent;color:var(--ink3);cursor:pointer;display:grid;place-items:center"><i class="icon-x" style="font-size:16px"></i></button></div>
+          <div style="font-size:12px;color:var(--ink3);margin-top:-8px">“I'm meeting a friend at 7, replan my day”</div>
+          <div style="display:flex;flex-direction:column;gap:2px;border-radius:12px;background:var(--surface2);padding:6px 12px">
+            <div style="display:grid;grid-template-columns:72px 1fr auto;align-items:center;gap:10px;padding:6px 0"><span style="font-size:12px;font-weight:700;color:var(--success);display:flex;gap:4px;align-items:center"><i class="icon-plus" style="font-size:12px"></i>Added</span><span style="font-size:14px;font-weight:600">Meet friend</span><span style="font-size:14px">7:00–8:30 PM</span></div>
+            <div style="display:grid;grid-template-columns:72px 1fr auto;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span style="font-size:12px;font-weight:700;color:var(--accent-ink);display:flex;gap:4px;align-items:center"><i class="icon-move-right" style="font-size:12px"></i>Moved</span><span style="font-size:14px;font-weight:600">Gym</span><span style="font-size:14px"><span style="color:var(--ink3);text-decoration:line-through">7:00</span> → 8:30 PM</span></div>
+            <div style="display:grid;grid-template-columns:72px 1fr auto;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span style="font-size:12px;font-weight:700;color:var(--accent-ink);display:flex;gap:4px;align-items:center"><i class="icon-move-right" style="font-size:12px"></i>Moved</span><span style="font-size:14px;font-weight:600">Chem lab report</span><span style="font-size:14px"><span style="color:var(--ink3);text-decoration:line-through">8:15</span> → 9:30 PM</span></div>
+            <div style="display:grid;grid-template-columns:72px 1fr;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span style="font-size:12px;font-weight:700;color:var(--ink3);display:flex;gap:4px;align-items:center"><i class="icon-lock" style="font-size:12px"></i>Kept</span><span style="font-size:14px;color:var(--ink2)">Part-time job, Bio Club meeting</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <sc-if value="{{ showHUD }}"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink2);display:flex;gap:12px;padding:6px 10px;border-radius:8px;background:var(--surface2)"><span>STT 312 ms</span><span>AI 1,148 ms</span><span style="color:var(--success)">Total 1.61 s</span></span></sc-if>
+            <span style="flex:1"></span>
+            <button onClick="{{ undo }}" style="height:40px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);color:var(--ink1);font:inherit;font-weight:600;display:flex;gap:8px;align-items:center;cursor:pointer" style-hover="border-color:var(--accent)"><i class="icon-undo-2" style="font-size:16px"></i>Undo</button>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+    <sc-if value="{{ is.toast }}">
+      <div role="status" style="position:absolute;left:50%;bottom:24px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:12px;background:var(--ink1);color:var(--bg);font-size:14px;font-weight:600;box-shadow:var(--shadow);z-index:40;white-space:nowrap"><i class="icon-info" style="font-size:16px"></i>{{ toast }}</div>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;justify-content:center;max-width:1440px;font-size:12px;color:#9AA0AE">
+  <span style="font-weight:700;color:#D6D9E0">Prototype</span>
+  <sc-for list="{{ dev }}" as="g" hint-placeholder-count="4">
+    <div style="display:flex;align-items:center;gap:4px"><span style="margin-right:4px">{{ g.label }}</span>
+      <sc-for list="{{ g.items }}" as="it"><button onClick="{{ it.go }}" style="flex:none;white-space:nowrap;height:26px;padding:0 10px;border-radius:7px;border:1px solid #2A2E3A;background:{{ it.bg }};color:{{ it.fg }};font:inherit;font-size:12px;cursor:pointer">{{ it.label }}</button></sc-for>
+    </div>
+  </sc-for>
+  <span>Click the QR to simulate a scan · Space in the app to talk</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;'dark'|'light'&quot;},&quot;pairingLayout&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;1a&quot;,&quot;1b&quot;],&quot;default&quot;:&quot;1a&quot;,&quot;tsType&quot;:&quot;'1a'|'1b'&quot;},&quot;showLatencyHUD&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  T = []; VT = [];
+  CMD = "I'm meeting a friend at 7, replan my day";
+  CODES = ['K7P-2QM', 'R4X-9TB', 'M2H-6WD'];
+  state = {
+    scale: 0.7, theme: null, layout: null,
+    screen: 'signin', step: 1, page: 'dashboard', collapsed: false, showPw: false,
+    f: { email: 'omkadam@gmail.com', password: 'rocky-is-ready', fullName: 'Om Kadam', displayName: 'Om', school: 'Cypress College', program: 'Biological Sciences', year: '2nd year', notes: 'I work at the campus bookstore most afternoons and focus best before noon.', newTask: '' },
+    chips: { 'Morning person': 1, 'Needs short breaks': 1, 'Gym': 1, 'Soccer': 1, 'Pomodoro': 1, 'Practice problems': 1 },
+    brain: { app: 'checking', model: 'checking', stt: 'checking', mic: 'checking' },
+    model: '4B', test: 'idle',
+    pair: 'waiting', secs: 300, codeIdx: 0, copied: false, pairTest: false, phonePaired: false,
+    voice: 'idle', transcript: '', elapsed: 0, applied: false, ghosts: 0, highlight: false, toast: null,
+    tasks: [
+      { t: 'Email Prof. Lin about office hours', cls: 'MATH 150', done: false },
+      { t: 'Print lab safety form', cls: 'CHEM 111L', done: false },
+      { t: 'Pick up groceries', cls: '', done: false },
+      { t: 'Return library book', cls: '', done: true },
+    ],
+    asg: [
+      { t: 'Problem Set 4', cls: 'Calculus I · MATH 150', due: 'Tonight 11:59 PM', urg: 'danger', status: 'In progress' },
+      { t: 'Lab Report 3', cls: 'Chem Lab · CHEM 111L', due: 'Mon, Oct 12', urg: 'warning', status: 'To do' },
+      { t: 'Reading quiz: Ch. 7', cls: 'Biology Lecture · BIOL 101', due: 'Wed, Oct 14', urg: 'neutral', status: 'To do' },
+    ],
+    history: [
+      { heard: 'Remind me to email Professor Lin', result: 'Added a task', time: '9:12 AM', src: 'phone', status: 'Done' },
+      { heard: "What's due this week?", result: 'Listed 3 assignments', time: '8:47 AM', src: 'laptop', status: 'Answered' },
+      { heard: 'Move chem study to Sunday afternoon', result: 'Moved to Sun 2:00 PM', time: 'Thu', src: 'laptop', status: 'Done' },
+      { heard: 'Add gym tonight at 7', result: 'Added Gym 7:00–8:00 PM', time: 'Thu', src: 'phone', status: 'Done' },
+    ],
+  };
+
+  componentDidMount() {
+    this.fit(); window.addEventListener('resize', this.fit); window.addEventListener('keydown', this.onKey);
+    this.iv = setInterval(this.onTick, 1000);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this.fit); window.removeEventListener('keydown', this.onKey); clearInterval(this.iv); clearInterval(this.el); this.clearT(); this.clearVT(); }
+  fit = () => { const s = Math.min((window.innerWidth - 32) / 1440, (window.innerHeight - 96) / 900, 1); this.setState({ scale: Math.max(0.3, s) }); };
+  later(fn, ms) { this.T.push(setTimeout(fn, ms)); }
+  vlater(fn, ms) { this.VT.push(setTimeout(fn, ms)); }
+  clearT() { this.T.forEach(clearTimeout); this.T = []; }
+  clearVT() { this.VT.forEach(clearTimeout); this.VT = []; clearInterval(this.el); }
+
+  onKey = (e) => {
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea') return;
+    if (this.state.screen !== 'app') return;
+    if (e.code === 'Space') { e.preventDefault(); this.runVoice(); }
+    if (e.key === 'Escape' && this.state.voice !== 'idle') { this.clearVT(); this.setState({ voice: 'idle' }); }
+  };
+  onTick = () => {
+    const s = this.state;
+    if (s.screen === 'wizard' && s.step === 5 && s.pair === 'waiting') {
+      if (s.secs <= 1) this.setState({ secs: 0, pair: 'expired' }); else this.setState({ secs: s.secs - 1 });
+    }
+  };
+  onField = (e) => { const { name, value } = e.target; this.setState(s => ({ f: { ...s.f, [name]: value } })); };
+  addTask = (e) => {
+    if (e.key !== 'Enter') return; const v = this.state.f.newTask.trim(); if (!v) return;
+    this.setState(s => ({ tasks: [...s.tasks.filter(t => !t.done), { t: v, cls: '', done: false }, ...s.tasks.filter(t => t.done)], f: { ...s.f, newTask: '' } }));
+  };
+  flash(msg) { clearTimeout(this.tt); this.setState({ toast: msg }); this.tt = setTimeout(() => this.setState({ toast: null }), 2600); }
+
+  goStep(n) {
+    this.clearT();
+    this.setState({ screen: 'wizard', step: n });
+    if (n === 4) this.startBrain();
+    if (n === 5) this.resetPair();
+  }
+  startBrain() {
+    this.setState({ brain: { app: 'checking', model: 'checking', stt: 'checking', mic: 'checking' }, test: 'idle' });
+    this.later(() => this.setB({ app: 'action' }), 900);
+  }
+  setB(o) { this.setState(s => ({ brain: { ...s.brain, ...o } })); }
+  checkAgain = () => {
+    this.setB({ app: 'checking' });
+    this.later(() => this.setB({ app: 'ready' }), 800);
+    this.later(() => this.setB({ model: 'ready' }), 1600);
+    this.later(() => this.setB({ stt: 'ready' }), 2200);
+    this.later(() => this.setB({ mic: 'action' }), 2700);
+  };
+  allowMic = () => { this.setB({ mic: 'checking' }); this.later(() => this.setB({ mic: 'ready' }), 600); };
+  pickModel(m) {
+    if (m === this.state.model) return;
+    this.setState({ model: m });
+    if (this.state.brain.model === 'ready') { this.setB({ model: 'checking' }); this.later(() => this.setB({ model: 'ready' }), 1000); }
+  }
+  resetPair(nextCode) {
+    this.clearT();
+    this.setState(s => ({ pair: 'waiting', secs: 300, copied: false, pairTest: false, codeIdx: nextCode ? (s.codeIdx + 1) % 3 : s.codeIdx }));
+  }
+  setPair(p) {
+    this.clearT();
+    this.setState({ screen: 'wizard', step: 5, pair: p, pairTest: false, secs: p === 'expired' ? 0 : (this.state.secs || 300) });
+    if (p === 'confirming') this.later(() => this.toConnected(), 2200);
+    if (p === 'connected') this.toConnected();
+  }
+  toConnected() { this.setState({ pair: 'connected', phonePaired: true }); this.later(() => this.setState({ pairTest: true }), 2600); }
+  scan = () => { if (this.state.pair === 'waiting') this.setPair('confirming'); };
+
+  enterApp(page) { this.clearT(); this.setState({ screen: 'app', page: page || 'dashboard' }); }
+
+  runVoice = () => {
+    const s = this.state;
+    if (['listening', 'heard', 'thinking'].includes(s.voice)) return;
+    this.clearVT(); clearTimeout(this.tt);
+    this.setState({ voice: 'listening', transcript: '', applied: false, ghosts: 0, highlight: false, toast: null });
+    const words = this.CMD.split(' ');
+    words.forEach((w, i) => this.vlater(() => this.setState({ transcript: words.slice(0, i + 1).join(' ') }), 350 + i * 220));
+    const t1 = 350 + words.length * 220 + 450, t2 = t1 + 800, t3 = t2 + 1500, t4 = t3 + 450;
+    this.vlater(() => this.setState({ voice: 'heard' }), t1);
+    this.vlater(() => { this.setState({ voice: 'thinking', elapsed: 0 }); this.el = setInterval(() => this.setState(x => ({ elapsed: x.elapsed + 100 })), 100); }, t2);
+    this.vlater(() => { clearInterval(this.el); this.setState({ page: 'calendar' }); }, t3);
+    this.vlater(() => this.setState(x => ({ voice: 'done', applied: true, highlight: true, ghosts: 1,
+      history: [{ heard: this.CMD, result: 'Added 1, moved 2', time: '10:42 AM', src: 'laptop', status: 'Done', cmd: true }, ...x.history.filter(h => !h.cmd)] })), t4);
+    this.vlater(() => this.setState({ ghosts: 2 }), t4 + 2000);
+    this.vlater(() => this.setState({ ghosts: 0 }), t4 + 2700);
+    this.vlater(() => this.setState({ highlight: false }), t4 + 6000);
+  };
+  undo = () => {
+    if (!this.state.applied) return;
+    this.clearVT();
+    this.setState(x => ({ applied: false, ghosts: 0, highlight: true, voice: 'idle', history: x.history.map(h => h.cmd ? { ...h, status: 'Undone' } : h) }));
+    this.flash('Undone. Your evening is back to the original plan.');
+    this.vlater(() => this.setState({ highlight: false }), 1600);
+  };
+
+  fmt(m, ap) { const h = Math.floor(m / 60), mm = m % 60; return (h % 12 || 12) + ':' + String(mm).padStart(2, '0') + (ap ? (h >= 12 ? ' PM' : ' AM') : ''); }
+  rng(a, b) { return this.fmt(a) + '–' + this.fmt(b, true); }
+  blocks(A) {
+    return [
+      { id: 'bio', t: 'Biology Lecture', sub: 'BIOL 101 · Science 214', k: 'cls', s: 540, e: 590, fixed: true },
+      { id: 'calc', t: 'Study: Calculus problem set', sub: 'MATH 150', k: 'stu', s: 600, e: 690, pr: 'high' },
+      { id: 'lunch', t: 'Lunch', sub: '', k: 'brk', s: 690, e: 735 },
+      { id: 'job', t: 'Part-time job', sub: 'Campus Bookstore', k: 'com', s: 750, e: 990, fixed: true },
+      { id: 'club', t: 'Bio Club meeting', sub: 'Room 112', k: 'com', s: 1020, e: 1080, fixed: true },
+      { id: 'dinner', t: 'Dinner', sub: '', k: 'brk', s: 1095, e: 1140 },
+      { id: 'friend', t: 'Meet friend', sub: 'Coffee at The Grind', k: 'per', s: 1140, e: 1230, fixed: true, hidden: !A, isNew: true },
+      { id: 'gym', t: 'Gym', sub: 'Rec Center', k: 'per', s: A ? 1230 : 1140, e: A ? 1290 : 1200, pr: 'med', moves: true },
+      { id: 'chem', t: 'Chem lab report', sub: 'CHEM 111L · due Mon', k: 'stu', s: A ? 1290 : 1215, e: A ? 1365 : 1290, pr: 'high', moves: true },
+    ];
+  }
+
+  spinEl() { return React.createElement('span', { style: { width: 16, height: 16, borderRadius: 99, border: '2px solid currentColor', borderTopColor: 'transparent', display: 'inline-block', animation: 'rk-spin .8s linear infinite' } }); }
+  orbEl() { return React.createElement('span', { style: { width: 52, height: 52, borderRadius: 99, background: 'var(--accent)', color: '#fff', display: 'grid', placeItems: 'center', flex: 'none', animation: 'rk-breathe 1.8s ease-in-out infinite' } }, React.createElement('i', { className: 'icon-mic', style: { fontSize: 22 } })); }
+  waveEl() {
+    const bars = Array.from({ length: 32 }, (_, i) => React.createElement('span', { key: i, style: { width: 3, height: 22, borderRadius: 2, background: 'var(--accent-ink)', transformOrigin: 'center', animation: `rk-wave ${0.7 + (i % 5) * 0.12}s ease-in-out ${(i * 0.04).toFixed(2)}s infinite` } }));
+    return React.createElement('span', { style: { display: 'flex', alignItems: 'center', gap: 3, height: 24 } }, bars);
+  }
+  popEl() { return React.createElement('span', { style: { width: 64, height: 64, borderRadius: 99, background: 'var(--success)', color: '#fff', display: 'grid', placeItems: 'center', animation: 'rk-pop .55s cubic-bezier(.2,.9,.3,1.3) both' } }, React.createElement('i', { className: 'icon-check', style: { fontSize: 30 } })); }
+  qrEl(idx) {
+    if (this._qr && this._qrIdx === idx) return this._qr;
+    const N = 29; let seed = 97 + idx * 7919; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const rects = []; const inF = (x, y) => (x < 8 && y < 8) || (x > N - 9 && y < 8) || (x < 8 && y > N - 9);
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { if (!inF(x, y) && rnd() > 0.5) rects.push(React.createElement('rect', { key: x + '-' + y, x, y, width: 1.02, height: 1.02 })); }
+    [[0, 0], [N - 7, 0], [0, N - 7]].forEach(([fx, fy], i) => {
+      rects.push(React.createElement('rect', { key: 'a' + i, x: fx, y: fy, width: 7, height: 7 }));
+      rects.push(React.createElement('rect', { key: 'b' + i, x: fx + 1, y: fy + 1, width: 5, height: 5, fill: '#fff' }));
+      rects.push(React.createElement('rect', { key: 'c' + i, x: fx + 2, y: fy + 2, width: 3, height: 3 }));
+    });
+    this._qrIdx = idx;
+    this._qr = React.createElement('svg', { viewBox: `0 0 ${N} ${N}`, width: '100%', height: '100%', fill: '#15171D', shapeRendering: 'crispEdges', style: { display: 'block' } }, rects);
+    return this._qr;
+  }
+
+  renderVals() {
+    const s = this.state, p = this.props;
+    const theme = s.theme || p.theme || 'dark';
+    const layout = s.layout || p.pairingLayout || '1a';
+    const showHUD = p.showLatencyHUD ?? true;
+    const sc = s.scale;
+    const inApp = s.screen === 'app';
+
+    const wizLabels = ['Profile', 'About you', 'Classes', 'Brain', 'Phone'];
+    const wizSteps = wizLabels.map((l, i) => ({ label: l, bar: i + 1 <= s.step ? 'var(--accent)' : 'var(--line)', fg: i + 1 === s.step ? 'var(--ink1)' : (i + 1 < s.step ? 'var(--ink2)' : 'var(--ink3)') }));
+    const connected = s.pair === 'connected';
+    const wiz = {
+      steps: wizSteps,
+      back: () => s.step > 1 ? this.goStep(s.step - 1) : this.setState({ screen: 'signin' }),
+      backVis: 'visible',
+      next: () => { if (s.step < 5) this.goStep(s.step + 1); else if (connected) this.enterApp(); },
+      skip: () => s.step === 5 ? (this.setState({ phonePaired: false }), this.enterApp()) : this.goStep(s.step + 1),
+      canSkip: s.step === 2 || s.step === 5,
+      nextLabel: s.step === 5 ? 'Go to dashboard' : 'Continue',
+      nextOp: s.step === 5 && !connected ? 0.4 : 1,
+      hint: s.step === 5 ? 'You can pair a phone later in Settings → Devices' : (s.step === 4 ? 'Runs fully offline once set up' : ''),
+    };
+
+    const groups = [
+      { title: 'Traits', items: ['Morning person', 'Night owl', 'Needs short breaks', 'Easily distracted', 'Likes a set routine', 'Works best under pressure'] },
+      { title: 'Hobbies', items: ['Gym', 'Soccer', 'Gaming', 'Cooking', 'Music', 'Reading', 'Hiking'] },
+      { title: 'Study style', items: ['Pomodoro', 'Long deep blocks', 'Study with friends', 'Flashcards', 'Practice problems', 'Quiet library'] },
+    ];
+    const chipGroups = groups.map(g => ({ title: g.title, items: g.items.map(l => {
+      const on = !!s.chips[l];
+      return { label: l, pressed: on ? 'true' : 'false', icon: on ? 'icon-check' : 'icon-plus', bg: on ? 'var(--accent-soft)' : 'var(--surface2)', fg: on ? 'var(--accent-ink)' : 'var(--ink2)', border: on ? 'var(--accent)' : 'var(--line)',
+        toggle: () => this.setState(x => ({ chips: { ...x.chips, [l]: !x.chips[l] } })) };
+    }) }));
+
+    const DL = ['M', 'T', 'W', 'T', 'F', 'S', 'S'], DF = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const cls = [
+      { name: 'Biology Lecture', code: 'BIOL 101', prof: 'Dr. Ramirez', days: [1, 0, 1, 0, 1, 0, 0], time: '9:00–9:50 AM', range: 'Aug 24 – Dec 18' },
+      { name: 'Calculus I', code: 'MATH 150', prof: 'Prof. Lin', days: [0, 1, 0, 1, 0, 0, 0], time: '10:30–11:45 AM', range: 'Aug 24 – Dec 18' },
+      { name: 'Chem Lab', code: 'CHEM 111L', prof: 'Dr. Okafor', days: [0, 1, 0, 0, 0, 0, 0], time: '1:00–3:50 PM', range: 'Aug 25 – Dec 15' },
+    ];
+    const classes = cls.map(c => ({ ...c, days: c.days.map((d, i) => ({ l: DL[i], full: DF[i] + (d ? ' (meets)' : ''), bg: d ? 'var(--accent)' : 'var(--surface2)', fg: d ? '#fff' : 'var(--ink3)' })) }));
+    const PH = 30, P0 = 480;
+    const pv = (col, a, b, label) => ({ left: `calc(${col * 20}% + 3px)`, top: ((a - P0) / 60 * PH) + 'px', h: ((b - a) / 60 * PH) + 'px', label });
+    const preview = [pv(0, 540, 590, 'Bio'), pv(2, 540, 590, 'Bio'), pv(4, 540, 590, 'Bio'), pv(1, 630, 705, 'Calc'), pv(3, 630, 705, 'Calc'), pv(1, 780, 950, 'Chem Lab')];
+    const previewHours = [8, 10, 12, 14, 16].map(h => ({ top: ((h * 60 - P0) / 60 * PH) + 'px', l: (h % 12 || 12) + (h < 12 ? 'a' : 'p') }));
+
+    const B = s.brain;
+    const rowDefs = [
+      { key: 'app', label: 'Rocky Brain app running', ok: 'Running on this laptop · localhost:7391', act: "Rocky Brain isn't running. Open Terminal and start it:" },
+      { key: 'model', label: 'Language model ready (qwen3.5)', ok: `qwen3.5 ${s.model} loaded · ${s.model === '4B' ? '2.6' : '1.4'} GB · 3.1 s warm-up`, act: '' },
+      { key: 'stt', label: 'Speech recognition ready (Whisper)', ok: 'whisper-small.en · on-device', act: '' },
+      { key: 'mic', label: 'Microphone allowed', ok: 'MacBook Pro Microphone', act: 'Rocky needs the mic to hear "Hey Rocky".' },
+    ];
+    const meta = { checking: ['Checking…', 'var(--ink3)', ''], ready: ['Ready', 'var(--success)', 'icon-circle-check'], action: ['Needs action', 'var(--warning)', 'icon-circle-alert'], failed: ['Failed', 'var(--danger)', 'icon-circle-x'] };
+    const brainRows = rowDefs.map((r, i) => { const st = B[r.key]; const m = meta[st];
+      return { label: r.label, stateLabel: m[0], color: m[1], icon: m[2], checking: st === 'checking', notChecking: st !== 'checking', divider: i ? '1px solid var(--line)' : '0',
+        sub: st === 'ready' ? r.ok : st === 'action' ? r.act : (r.key === 'model' && B.app !== 'ready' ? 'Waiting for the Brain app' : 'Checking…'),
+        showCmd: st === 'action' && r.key === 'app', showAllow: st === 'action' && r.key === 'mic' }; });
+    const allReady = Object.values(B).every(v => v === 'ready');
+    const testVoice = {
+      op: allReady ? 1 : 0.45, done: s.test === 'done',
+      text: s.test === 'running' ? 'Say "What\'s due this week?"… listening' : s.test === 'done' ? '“What\'s due this week?” → Problem Set 4 tonight, Lab Report 3 Monday.' : (allReady ? 'Runs a sample command so you can check speed.' : 'Available once everything is ready.'),
+      run: () => { if (!allReady) return; this.setState({ test: 'running' }); this.later(() => this.setState({ test: 'done' }), 1500); },
+    };
+    const models = ['4B', '2B'].map(m => ({ label: m === '4B' ? '4B · smarter' : '2B · faster', bg: s.model === m ? 'var(--surface)' : 'transparent', fg: s.model === m ? 'var(--ink1)' : 'var(--ink3)', pick: () => this.pickModel(m) }));
+
+    const tones = { accent: ['var(--accent-soft)', 'var(--accent-ink)'], success: ['var(--success-soft)', 'var(--success)'], warning: ['var(--warning-soft)', 'var(--warning)'], danger: ['var(--danger-soft)', 'var(--danger)'] };
+    const PS = {
+      waiting: { tone: 'accent', badge: 'Waiting', icon: 'icon-scan-line', title: 'Waiting for your phone', sub: 'Scan this code with the Rocky app. It expires in 5 minutes.', at: 2 },
+      confirming: { tone: 'accent', badge: 'Scanned', icon: 'icon-smartphone', title: "Found Om's iPhone 15", sub: 'Tap Confirm on your phone to finish pairing.', at: 2, overlay: 1, oSpin: 1, oTitle: "Om's iPhone 15", oSub: 'Waiting for you to confirm…' },
+      connected: { tone: 'success', badge: 'Connected', icon: 'icon-circle-check', title: "You're connected", sub: "Om's iPhone 15 is paired. Test it: say something on your phone.", at: 4, overlay: 1, oSuccess: 1, oTitle: 'Connected', oSub: "Om's iPhone 15" },
+      expired: { tone: 'warning', badge: 'Expired', icon: 'icon-timer-off', title: 'This code expired', sub: 'Codes last 5 minutes so nobody else can use them. Make a new one to keep going.', at: 2, overlay: 1, oIcon: 'icon-timer-off', oTitle: 'Code expired', oSub: 'Generate a new one below', action: 'Generate new code' },
+      wrong: { tone: 'danger', badge: 'Wrong account', icon: 'icon-user-x', title: 'That phone is on a different account', sub: 'The phone is signed in as om.k.alt@gmail.com. Sign in there with omkadam@gmail.com, then scan again.', at: 1, overlay: 1, oIcon: 'icon-user-x', oTitle: 'Different Google account', oSub: 'om.k.alt@gmail.com', action: 'Try again' },
+      error: { tone: 'danger', badge: 'Offline', icon: 'icon-wifi-off', title: "Can't reach rocky.app", sub: "This laptop seems offline. The brain is fine; pairing just needs the internet for a moment.", at: 2, overlay: 1, oIcon: 'icon-wifi-off', oTitle: "You're offline", oSub: 'Check Wi-Fi, then retry', action: 'Retry' },
+    };
+    const ps = PS[s.pair]; const tn = tones[ps.tone];
+    const stepTexts = ['Open rocky.app on your phone and sign in with the same Google account', "Tap Scan, point the camera here", "You're connected"];
+    const bad = ps.tone === 'danger' || ps.tone === 'warning';
+    const pr = {
+      ...ps, toneBg: tn[0], toneFg: tn[1], overlay: !!ps.overlay, oSpin: !!ps.oSpin, oSuccess: !!ps.oSuccess, oIconOn: !!ps.oIcon,
+      hasAction: !!ps.action, noAction: !ps.action && s.pair !== 'connected', actionLabel: ps.action,
+      action: () => this.resetPair(s.pair === 'expired'),
+      codeOp: s.pair === 'waiting' ? 1 : 0.35,
+      showTest: s.pair === 'connected', testText: s.pairTest ? 'Heard from your phone: “what\'s next today?” · 0.9 s' : 'Listening for your phone…',
+      steps: stepTexts.map((t, i) => { const n = i + 1; const done = n < ps.at || (n === 3 && s.pair === 'connected'); const active = n === ps.at && !done;
+        const errActive = active && bad;
+        return { n, text: t, done, notDone: !done,
+          cBg: done ? 'var(--accent)' : (active ? (errActive ? tn[0] : 'var(--accent-soft)') : 'transparent'),
+          cFg: done ? '#fff' : (active ? (errActive ? tn[1] : 'var(--accent-ink)') : 'var(--ink3)'),
+          cBorder: done ? 'var(--accent)' : (active ? (errActive ? tn[1] : 'var(--accent)') : 'var(--line)'),
+          rowBg: active ? 'var(--surface)' : 'transparent', fg: done || active ? 'var(--ink1)' : 'var(--ink3)', fw: active ? 600 : 500 }; }),
+    };
+    const C = 138.2, frac = s.secs / 300;
+    const ring = { off: (C * (1 - frac)).toFixed(1), color: s.secs < 60 ? 'var(--warning)' : 'var(--accent)', label: Math.floor(s.secs / 60) + ':' + String(s.secs % 60).padStart(2, '0'), pct: (frac * 100).toFixed(1) + '%' };
+
+    const navDefs = [['dashboard', 'Dashboard', 'icon-layout-dashboard'], ['calendar', 'Calendar', 'icon-calendar'], ['classes', 'Classes', 'icon-graduation-cap'], ['tasks', 'Tasks', 'icon-list-checks'], ['memory', 'Memory', 'icon-history'], ['activity', 'Activity', 'icon-activity'], ['settings', 'Settings', 'icon-settings']];
+    const nav = navDefs.map(([id, label, icon]) => { const on = s.page === id;
+      return { label, icon, bg: on ? 'var(--accent-soft)' : 'transparent', fg: on ? 'var(--accent-ink)' : 'var(--ink2)', fw: on ? 600 : 500,
+        go: () => (id === 'dashboard' || id === 'calendar') ? this.setState({ page: id }) : this.flash(label + " isn't part of this prototype yet.") }; });
+
+    const blocks = this.blocks(s.applied);
+    const HR = 44, S0 = 480, px = v => v.toFixed(1) + 'px';
+    const prMeta = { high: ['var(--danger)', 'High'], med: ['var(--warning)', 'Med'], low: ['var(--ink3)', 'Low'] };
+    const ring2 = '0 0 0 2px var(--accent), 0 10px 28px rgba(79,91,213,.35)';
+    const calBlocks = blocks.map(b => {
+      const lit = s.highlight && (b.moves || b.isNew) && !b.hidden;
+      const edge = `var(--${b.k}-edge)`;
+      return { t: b.t, sub: b.sub, range: this.rng(b.s, b.e), top: px((b.s - S0) / 60 * HR + 1), h: px((b.e - b.s) / 60 * HR - 3),
+        bg: `var(--${b.k}-bg)`, fg: `var(--${b.k}-fg)`, border: b.fixed ? `1px solid ${edge}` : '1px solid transparent', bt: b.fixed ? `1px solid ${edge}` : `2px dashed ${edge}`,
+        op: b.hidden ? 0 : 1, tf: b.hidden ? 'scale(.96)' : 'none', shadow: lit ? ring2 : 'none', z: lit ? 5 : 2,
+        icon: b.fixed ? 'icon-lock' : 'icon-grip-vertical', cursor: b.fixed ? 'default' : 'grab',
+        hasPr: !!b.pr, prColor: b.pr ? prMeta[b.pr][0] : '', prLabel: b.pr ? prMeta[b.pr][1] : '',
+        tag: lit ? (b.isNew ? 'New' : (s.applied ? 'Moved' : 'Restored')) : '',
+        aria: `${b.t}, ${this.rng(b.s, b.e)}, ${b.fixed ? 'fixed, Rocky will not move this' : 'flexible'}` };
+    });
+    const ghosts = s.ghosts && s.applied ? [[1140, 1200, 'Gym was 7:00'], [1215, 1290, 'Chem lab report was 8:15']].map(([a, b, l]) => ({ top: px((a - S0) / 60 * HR + 1), h: px((b - a) / 60 * HR - 3), label: l, op: s.ghosts === 1 ? 1 : 0 })) : [];
+    const NOW = 642;
+    const cal = {
+      blocks: calBlocks, ghosts,
+      hours: Array.from({ length: 16 }, (_, i) => ({ top: px(i * HR), l: ((8 + i) % 12 || 12) + ((8 + i) < 12 ? ' AM' : ' PM') })),
+      travelTop: px((735 - S0) / 60 * HR + 1), travelH: px(15 / 60 * HR - 2),
+      nowTop: px((NOW - S0) / 60 * HR), nowLabelTop: px((NOW - S0) / 60 * HR - 8),
+    };
+    const calViews = ['Month', 'Week', 'Day'].map(v => ({ label: v, bg: v === 'Day' ? 'var(--surface)' : 'transparent', fg: v === 'Day' ? 'var(--ink1)' : 'var(--ink3)', go: () => v !== 'Day' && this.flash(v + ' view is in the component library, not this prototype.') }));
+
+    const today = blocks.filter(b => !b.hidden).sort((a, b) => a.s - b.s).map(b => {
+      const now = NOW >= b.s && NOW < b.e; const lit = s.highlight && (b.moves || b.isNew);
+      return { t: b.t, time: this.fmt(b.s, true), range: this.rng(b.s, b.e), edge: `var(--${b.k}-edge)`, isNow: now, notNow: !now,
+        rowBg: now ? 'var(--accent-soft)' : 'transparent', ring: lit ? 'inset 0 0 0 1.5px var(--accent)' : 'none',
+        icon: b.fixed ? 'icon-lock' : 'icon-grip-vertical', iconTitle: b.fixed ? 'Fixed' : 'Flexible' }; });
+    const urg = { danger: ['var(--danger-soft)', 'var(--danger)', 'icon-alarm-clock'], warning: ['var(--warning-soft)', 'var(--warning)', 'icon-clock'], neutral: ['var(--surface2)', 'var(--ink2)', 'icon-calendar'] };
+    const ST = ['To do', 'In progress', 'Done'];
+    const asg = s.asg.map((a, i) => ({ ...a, divider: i ? '1px solid var(--line)' : '0', ubg: urg[a.urg][0], ufg: urg[a.urg][1], uicon: urg[a.urg][2],
+      sfg: a.status === 'Done' ? 'var(--success)' : a.status === 'In progress' ? 'var(--accent-ink)' : 'var(--ink2)',
+      cycle: () => this.setState(x => ({ asg: x.asg.map((y, j) => j === i ? { ...y, status: ST[(ST.indexOf(y.status) + 1) % 3] } : y) })) }));
+    const tasks = s.tasks.map((t, i) => ({ ...t, boxBg: t.done ? 'var(--accent)' : 'transparent', boxBorder: t.done ? 'var(--accent)' : 'var(--ink4)', check: t.done ? 'icon-check' : '', deco: t.done ? 'line-through' : 'none', fg: t.done ? 'var(--ink3)' : 'var(--ink1)',
+      toggle: () => this.setState(x => ({ tasks: x.tasks.map((y, j) => j === i ? { ...y, done: !y.done } : y) })) }));
+    const open = s.tasks.filter(t => !t.done).length;
+    const W = [['Mon', 5, 4, 0], ['Tue', 6, 5, 1], ['Wed', 7, 4, 0], ['Thu', 8, 6, 1], ['Fri', 9, s.applied ? 9 : 8, 1], ['Sat', 10, 2, 0], ['Sun', 11, 1, 1]];
+    const week = W.map(([d, n, c, dl]) => { const t = d === 'Fri';
+      return { d, n, bg: t ? 'var(--accent-soft)' : 'transparent', fg: t ? 'var(--accent-ink)' : 'var(--ink3)', fg2: t ? 'var(--accent-ink)' : 'var(--ink1)',
+        bars: Array.from({ length: c }, () => ({ c: t ? 'var(--accent)' : 'var(--ink4)' })), dl: Array.from({ length: dl }, () => ({})) }; });
+    const sChip = { Done: ['var(--success-soft)', 'var(--success)'], Answered: ['var(--accent-soft)', 'var(--accent-ink)'], Undone: ['var(--surface2)', 'var(--ink3)'] };
+    const hist = s.history.slice(0, 5).map((h, i) => ({ ...h, divider: i ? '1px solid var(--line)' : '0', icon: h.src === 'phone' ? 'icon-smartphone' : 'icon-laptop', srcLabel: h.src === 'phone' ? 'From phone' : 'Laptop mic',
+      sbg: sChip[h.status][0], sfg: sChip[h.status][1], canUndo: !!h.cmd && s.applied }));
+
+    const listening = s.voice === 'listening';
+    const vb = { text: listening ? (s.transcript || 'Listening…') : (s.voice === 'thinking' ? 'Thinking…' : 'Say “Hey Rocky…” or press Space'), color: listening ? 'var(--ink1)' : 'var(--ink3)',
+      border: listening ? 'var(--accent)' : 'var(--line)', shadow: listening ? '0 0 0 4px var(--accent-soft)' : 'none' };
+
+    const btn = (label, on, go) => ({ label, go, bg: on ? '#4F5BD5' : '#15171E', fg: on ? '#fff' : '#B3B8C6' });
+    const scr = s.screen === 'signin' ? 'signin' : s.screen === 'wizard' ? (s.step === 4 ? 'brain' : s.step === 5 ? 'pair' : 'wizard') : s.page;
+    const dev = [
+      { label: 'Screen', items: [btn('Sign in', scr === 'signin', () => { this.clearT(); this.setState({ screen: 'signin' }); }), btn('Wizard', scr === 'wizard', () => this.goStep(1)), btn('Brain', scr === 'brain', () => this.goStep(4)), btn('Pairing', scr === 'pair', () => this.goStep(5)), btn('Dashboard', scr === 'dashboard', () => this.enterApp('dashboard')), btn('Calendar', scr === 'calendar', () => this.enterApp('calendar'))] },
+      { label: 'Pairing', items: [['waiting', 'Waiting'], ['confirming', 'Scanned'], ['connected', 'Connected'], ['expired', 'Expired'], ['wrong', 'Wrong account'], ['error', 'Offline']].map(([k, l]) => btn(l, scr === 'pair' && s.pair === k, () => k === 'waiting' ? (this.goStep(5)) : this.setPair(k))) },
+      { label: 'Layout', items: [btn('1a', layout === '1a', () => this.setState({ layout: '1a' })), btn('1b', layout === '1b', () => this.setState({ layout: '1b' }))] },
+      { label: 'Theme', items: [btn('Dark', theme === 'dark', () => this.setState({ theme: 'dark' })), btn('Light', theme === 'light', () => this.setState({ theme: 'light' }))] },
+      { label: 'Voice', items: [btn('Run command', false, () => { if (!inApp) this.enterApp('dashboard'); setTimeout(this.runVoice, 50); })] },
+    ];
+
+    return {
+      theme, step: s.step, model: s.model, code: this.CODES[s.codeIdx], showHUD, toast: s.toast,
+      screenLabel: scr,
+      frame: { w: Math.round(1440 * sc) + 'px', h: Math.round(900 * sc) + 'px', t: `scale(${sc})` },
+      is: { signin: s.screen === 'signin', wizard: s.screen === 'wizard', app: inApp,
+        s1: s.step === 1, s2: s.step === 2, s3: s.step === 3, s4: s.step === 4, s5a: s.step === 5 && layout === '1a', s5b: s.step === 5 && layout === '1b',
+        dash: s.page === 'dashboard', cal: s.page === 'calendar',
+        voiceOn: s.voice !== 'idle', listening, heard: s.voice === 'heard', thinking: s.voice === 'thinking', done: s.voice === 'done', toast: !!s.toast },
+      f: s.f, onField: this.onField, addTask: this.addTask,
+      pw: { type: s.showPw ? 'text' : 'password', icon: s.showPw ? 'icon-eye-off' : 'icon-eye', label: s.showPw ? 'Hide password' : 'Show password', toggle: () => this.setState({ showPw: !s.showPw }) },
+      signIn: () => this.goStep(1),
+      wiz, chipGroups, classes, preview, previewHours, brainRows, testVoice, models,
+      checkAgain: this.checkAgain, allowMic: this.allowMic,
+      pr, ring, scan: this.scan, newCode: () => this.resetPair(true),
+      copy: { icon: s.copied ? 'icon-check' : 'icon-copy', label: s.copied ? 'Copied' : 'Copy' },
+      copyCode: () => { this.setState({ copied: true }); this.later(() => this.setState({ copied: false }), 1500); },
+      qr: this.qrEl(s.codeIdx), pop: this.popEl(), spin: this.spinEl(), orb: this.orbEl(), wave: this.waveEl(),
+      side: { w: s.collapsed ? '72px' : '240px', open: !s.collapsed, toggle: () => this.setState({ collapsed: !s.collapsed }) },
+      nav, phone: s.phonePaired ? { title: "Om's iPhone 15", sub: 'Connected · now', color: 'var(--ink1)' } : { title: 'No phone paired', sub: 'Pair in Settings', color: 'var(--ink3)' },
+      pageTitle: s.page === 'calendar' ? 'Calendar' : 'Dashboard',
+      goCal: () => this.setState({ page: 'calendar' }),
+      dash: { today, asg, taskCount: open + ' open' }, tasks, week, hist,
+      cal, calViews, vb, runVoice: this.runVoice, undo: this.undo, dismiss: () => this.setState({ voice: 'idle' }),
+      vc: s.page === 'calendar' && inApp ? { left: 'auto', right: '16px', top: '84px', bottom: 'auto', tf: 'none', w: '300px' } : { left: '50%', right: 'auto', top: 'auto', bottom: '24px', tf: 'translateX(-50%)', w: '580px' },
+      v: { transcript: s.transcript, elapsed: (s.elapsed / 1000).toFixed(1) + ' s' },
+      dev,
+    };
+  }
+}
+</script>
+</body>
+</html>
