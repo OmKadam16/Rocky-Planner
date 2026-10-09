@@ -87,7 +87,7 @@ const ERROR_META: Record<
   },
 };
 
-export function RemotePage() {
+export function RemotePairFlow({ onPaired }: { onPaired: () => void }) {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const demo = isSupabaseConfigured() ? false : isDemoPairingEnabled();
@@ -621,12 +621,18 @@ export function RemotePage() {
             works as a mic.
           </p>
           <div className="mt-2 w-full rounded-2xl border border-line bg-surface p-4 text-left">
-            <p className="text-sm font-semibold">Calendar + talk button land next (B3).</p>
+            <p className="text-sm font-semibold">Calendar + talk button live here now.</p>
             <p className="mt-1 text-sm leading-relaxed text-ink2">
-              This build covers pairing only. The phone calendar (read-only
-              day/week), offline banner and voice button reuse these tokens.
+              Open the calendar to see your day and talk to Rocky.
             </p>
           </div>
+          <button
+            type="button"
+            onClick={onPaired}
+            className="inline-flex h-14 w-full items-center justify-center rounded-2xl bg-accent text-[16px] font-bold text-white"
+          >
+            Open calendar
+          </button>
           <div className="grid w-full grid-cols-2 gap-2">
             <button
               type="button"

@@ -2,7 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { SessionProvider, RequireAuth } from './lib/auth';
 import { AppShell } from './components/AppShell';
 import { PairPage } from './pages/PairPage';
-import { RemotePage } from './pages/RemotePage';
+import { RemoteGate } from './pages/RemoteGate';
 import { LoginPage } from './pages/LoginPage';
 
 function Placeholder({ title }: { title: string }) {
@@ -31,7 +31,7 @@ export function App() {
             path="/remote"
             element={
               <RequireAuth>
-                <RemotePage />
+                <RemoteGate />
               </RequireAuth>
             }
           />
