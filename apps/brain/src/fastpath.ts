@@ -1,4 +1,4 @@
-import { makeIntent, type Intent } from "@rocky/core";
+import { makeIntent, type Intent, type IntentInput } from "@rocky/core";
 import { parseTimeText, resolveDayText } from "@rocky/core";
 
 // Regex fast path: common commands skip the LLM entirely (<1 s after STT).
@@ -46,7 +46,7 @@ function splitDayAndTime(dest: string): { dayText: string | null; timeText: stri
 export function tryFastPath(utterance: string, today: string): FastPathResult | null {
   const text = clean(utterance);
   if (!text) return null;
-  const hit = (intent: Intent): FastPathResult => ({ intent: makeIntent(intent), source: "fast_path" });
+  const hit = (intent: IntentInput): FastPathResult => ({ intent: makeIntent(intent), source: "fast_path" });
 
   // Undo.
   if (/^(undo|undo that|never ?mind)$/.test(text)) return hit({ intent: "undo" });
@@ -124,7 +124,7 @@ export function tryFastPath(utterance: string, today: string): FastPathResult | 
     title: string,
     dayText: string | null,
     timeRaw: string,
-    mk: (intent: Intent) => FastPathResult,
+    mk: (intent: IntentInput) => FastPathResult,
   ): FastPathResult | null {
     const cleanTitle = title.trim();
     if (!cleanTitle) return null;
