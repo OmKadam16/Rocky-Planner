@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { isSupabaseConfigured, readPhoneDevice } from '../lib/supabase';
+import { resolveRemoteScreen } from '../lib/auth';
 import { demoReadPaired, isDemoPairingEnabled } from '../lib/demoOnly.pairingFallback';
 import { RemotePairFlow } from './RemotePairFlow';
 import { PhoneHome } from '../components/phone/PhoneHome';
@@ -41,7 +42,8 @@ export function RemoteGate() {
     );
   }
 
-  if (paired) {
+  // Screen decision lives in resolveRemoteScreen (tested) — never in storage.
+  if (resolveRemoteScreen(paired) === 'home') {
     return <PhoneHome onUnpaired={() => setPaired(false)} />;
   }
   return <RemotePairFlow onPaired={() => setPaired(true)} />;

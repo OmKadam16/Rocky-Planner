@@ -102,6 +102,27 @@ export function parseNextParam(raw: string | null, fallback = '/dashboard'): str
   return fallback;
 }
 
+/**
+ * Which sign-in screen a path needs. /remote* uses the mobile sign-in
+ * (/remote/login) so ?pair= survives; everything else uses desktop /login.
+ * After sign-out the same rule returns the user to the right screen.
+ */
+export function loginRouteFor(pathname: string): '/remote/login' | '/login' {
+  return pathname.startsWith('/remote') ? '/remote/login' : '/login';
+}
+
+/** Full post-sign-out target for the current location (session already cleared). */
+export function postSignOutTarget(pathname: string, search: string): string {
+  const full = pathname + search;
+  return `${loginRouteFor(pathname)}?next=${encodeURIComponent(full)}`;
+}
+
+/** /remote gate decision (RemoteGate renders on this, never on storage). */
+export function resolveRemoteScreen(paired: boolean | null): 'loading' | 'home' | 'pair' {
+  if (paired === null) return 'loading';
+  return paired ? 'home' : 'pair';
+}
+
 // ---------------------------------------------------------------------------
 // Session context.
 // ---------------------------------------------------------------------------
@@ -168,7 +189,11 @@ export function useSession(): SessionState {
   return useContext(SessionContext);
 }
 
-/** Gate: requires a session, else /login?next=<full path incl. query>. */
+/**
+ * Gate: requires a session, else the sign-in screen with ?next=<full path>.
+ * /remote* goes to the MOBILE sign-in (/remote/login) so ?pair= survives;
+ * everything else goes to the desktop split /login.
+ */
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { session, loading } = useSession();
   const loc = useLocation();
@@ -183,7 +208,11 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     );
   }
   if (!session) {
-    return <Navigate to={buildLoginRedirect(loc.pathname + loc.search)} replace />;
+    const full = loc.pathname + loc.search;
+    const base = loginRouteFor(loc.pathname);
+    const dest =
+      base === '/login' ? buildLoginRedirect(full) : `${base}?next=${encodeURIComponent(full)}`;
+    return <Navigate to={dest} replace />;
   }
   return <>{children}</>;
 }

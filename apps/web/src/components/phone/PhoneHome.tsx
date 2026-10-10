@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CalendarX2, MoreVertical, Sprout } from 'lucide-react';
 import { addDays, weekdayOf } from '@rocky/core';
 import {
@@ -15,6 +15,7 @@ import {
 } from '../../lib/remote';
 import { useShowLatency } from '../../lib/prefs';
 import { DayTimeline } from './DayTimeline';
+import { PX_PER_HOUR } from './blocks';
 import { EventSheet } from './EventSheet';
 import { SettingsSheet } from './SettingsSheet';
 import { TalkButton, type TalkLatency } from './TalkButton';
@@ -62,6 +63,23 @@ export function PhoneHome({ onUnpaired }: { onUnpaired: () => void }) {
   );
   const next = selected === today ? nextUp(dayList, nowMin) : null;
   const { weekday, md } = prettyDate(selected);
+
+  // Auto-scroll the day timeline to now (today) or the first event, once per
+  // selected date. The pb-40 below keeps the last blocks clear of the
+  // fixed talk dock.
+  const timelineRef = useRef<HTMLDivElement | null>(null);
+  const scrolledKey = useRef<string | null>(null);
+  useEffect(() => {
+    if (view !== 'day' || dayList.length === 0) return;
+    const key = `${selected}:${dayList.length}`;
+    if (scrolledKey.current === key) return;
+    scrolledKey.current = key;
+    const el = timelineRef.current;
+    if (!el) return;
+    const anchorMin = selected === today ? nowMin : dayList[0]!.startMin;
+    const y = el.getBoundingClientRect().top + window.scrollY + (anchorMin / 60) * PX_PER_HOUR;
+    window.scrollTo({ top: Math.max(0, y - window.innerHeight * 0.3), behavior: 'smooth' });
+  }, [view, selected, dayList, nowMin, today]);
 
   const chip =
     presence.status === 'online'
@@ -214,7 +232,7 @@ export function PhoneHome({ onUnpaired }: { onUnpaired: () => void }) {
             {dayList.length === 0 ? (
               <EmptyDay onSeed={isSeedEnabled() ? seed : null} seedBusy={seedBusy} seedError={seedError} />
             ) : (
-              <div className="overflow-x-hidden">
+              <div ref={timelineRef} className="overflow-x-hidden">
                 <DayTimeline
                   occurrences={dayList}
                   isToday={selected === today}

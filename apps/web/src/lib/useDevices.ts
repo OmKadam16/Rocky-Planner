@@ -6,6 +6,7 @@
 
 import { useEffect, useState } from 'react';
 import { getSupabase, isSupabaseConfigured, readPhoneDevice } from './supabase';
+import { subscribeChannel } from './realtime';
 import { demoReadPaired, isDemoPairingEnabled } from './demoOnly.pairingFallback';
 
 export interface PhonePairState {
@@ -50,12 +51,11 @@ export function usePhonePaired(enabled = true): PhonePairState {
     };
     void refresh();
     const tick = window.setInterval(refresh, 15_000);
-    const channel = sb
-      .channel('shell-phone-pair')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'devices' }, () =>
+    const channel = subscribeChannel(sb, 'shell-phone-pair', (ch) =>
+      ch.on('postgres_changes', { event: '*', schema: 'public', table: 'devices' }, () =>
         void refresh(),
-      )
-      .subscribe();
+      ),
+    );
     return () => {
       alive = false;
       window.clearInterval(tick);

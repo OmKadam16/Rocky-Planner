@@ -26,6 +26,7 @@ import {
   type LaptopPairStatus,
 } from '../../lib/pairing';
 import { detectPairClaim } from '../../lib/pairClaim';
+import { subscribeChannel } from '../../lib/realtime';
 import {
   demoHeartbeat,
   demoPublishLaptopPair,
@@ -112,7 +113,15 @@ const STATUS_META: Record<
   },
 };
 
-export function DevicesPage() {
+export function DevicesPage({
+  embedded,
+  onConnected,
+}: {
+  /** Wizard step 5: no page chrome; the wizard footer owns navigation. */
+  embedded?: boolean;
+  /** Called once when the phone connects (wizard enables Continue). */
+  onConnected?: () => void;
+} = {}) {
   const demo = isSupabaseConfigured() ? false : isDemoPairingEnabled();
   const realRelay = !demo && isSupabaseConfigured();
   const [params] = useSearchParams();
@@ -335,19 +344,15 @@ export function DevicesPage() {
 
     pollId = window.setInterval(() => void check(), 2000);
     void check();
-    const channel = sb
-      .channel('pair-claim')
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'devices' },
-        () => void check(),
-      )
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'devices' },
-        () => void check(),
-      )
-      .subscribe();
+    const channel = subscribeChannel(sb, 'pair-claim', (ch) =>
+      ch
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'devices' }, () =>
+          void check(),
+        )
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'devices' }, () =>
+          void check(),
+        ),
+    );
     return () => {
       alive = false;
       if (pollId) window.clearInterval(pollId);
@@ -378,14 +383,11 @@ export function DevicesPage() {
     };
     const pollId = window.setInterval(() => void check(), 5000);
     void check();
-    const channel = sb
-      .channel('pair-heard')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'commands' },
-        () => void check(),
-      )
-      .subscribe();
+    const channel = subscribeChannel(sb, 'pair-heard', (ch) =>
+      ch.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'commands' }, () =>
+        void check(),
+      ),
+    );
     return () => {
       alive = false;
       window.clearInterval(pollId);
@@ -409,6 +411,11 @@ export function DevicesPage() {
     timers.current.push(t);
     return () => window.clearTimeout(t);
   }, [fromOnboarding, status, navigate]);
+
+  // Wizard embedding: report the connection so the footer can enable Continue.
+  useEffect(() => {
+    if (embedded && status === 'connected') onConnected?.();
+  }, [embedded, status, onConnected]);
 
   const unpair = useCallback(async () => {
     setUnpairError(null);
@@ -447,7 +454,7 @@ export function DevicesPage() {
         : 'var(--accent)';
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-8 md:px-8 md:py-12">
+    <div className={embedded ? 'w-full px-4 py-8 md:px-8' : 'mx-auto w-full max-w-6xl px-4 py-8 md:px-8 md:py-12'}>
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_420px]">
         {/* Left: steps + status */}
         <div className="flex flex-col gap-7">

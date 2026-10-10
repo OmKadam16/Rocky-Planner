@@ -14,6 +14,7 @@ import {
   isSupabaseConfigured,
   readLaptopLastSeen,
 } from './supabase';
+import { subscribeChannel } from './realtime';
 
 // ---------------------------------------------------------------------------
 // Dates (local time zone; core does the DST-correct math).
@@ -109,14 +110,11 @@ export function useLaptopPresence(enabled: boolean): LaptopPresenceState {
 
     void refresh();
     const tick = window.setInterval(refresh, 5000);
-    const channel = sb
-      .channel('remote-laptop-presence')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'devices' },
-        () => void refresh(),
-      )
-      .subscribe();
+    const channel = subscribeChannel(sb, 'remote-laptop-presence', (ch) =>
+      ch.on('postgres_changes', { event: '*', schema: 'public', table: 'devices' }, () =>
+        void refresh(),
+      ),
+    );
     return () => {
       alive = false;
       window.clearInterval(tick);
@@ -205,15 +203,15 @@ export function useOccurrences(from: string, to: string, enabled: boolean): Cale
         setError(e instanceof Error ? e.message : 'Could not load events.');
         setLoading(false);
       });
-    const channel = sb
-      .channel('remote-calendar')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () =>
-        setNonce((n) => n + 1),
-      )
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'event_exceptions' }, () =>
-        setNonce((n) => n + 1),
-      )
-      .subscribe();
+    const channel = subscribeChannel(sb, 'remote-calendar', (ch) =>
+      ch
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () =>
+          setNonce((n) => n + 1),
+        )
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'event_exceptions' }, () =>
+          setNonce((n) => n + 1),
+        ),
+    );
     return () => {
       alive = false;
       void sb.removeChannel(channel);

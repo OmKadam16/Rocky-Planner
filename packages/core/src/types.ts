@@ -28,6 +28,8 @@ export interface Profile {
   wake_min: number;
   sleep_min: number;
   timezone: string | null;
+  /** Set when the /setup wizard finishes (or is skipped). NULL = not onboarded. */
+  onboarded_at: string | null;
   created_at: string;
 }
 

@@ -2,8 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   buildLoginRedirect,
   isValidEmail,
+  loginRouteFor,
   mapAuthError,
   parseNextParam,
+  postSignOutTarget,
+  resolveRemoteScreen,
 } from './auth';
 
 describe('buildLoginRedirect (preserves full path incl. query)', () => {
@@ -72,5 +75,39 @@ describe('isValidEmail', () => {
     expect(isValidEmail('nope')).toBe(false);
     expect(isValidEmail('a@b')).toBe(false);
     expect(isValidEmail('')).toBe(false);
+  });
+});
+
+describe('loginRouteFor (desktop vs mobile sign-in)', () => {
+  it('sends /remote paths to the mobile sign-in', () => {
+    expect(loginRouteFor('/remote')).toBe('/remote/login');
+    expect(loginRouteFor('/remote/login')).toBe('/remote/login');
+  });
+
+  it('sends everything else to desktop /login', () => {
+    expect(loginRouteFor('/dashboard')).toBe('/login');
+    expect(loginRouteFor('/setup')).toBe('/login');
+    expect(loginRouteFor('/')).toBe('/login');
+  });
+});
+
+describe('postSignOutTarget (sign-out returns to the right screen)', () => {
+  it('keeps the phone on the mobile sign-in with ?pair intact', () => {
+    expect(postSignOutTarget('/remote', '?pair=K7P2QM')).toBe(
+      '/remote/login?next=%2Fremote%3Fpair%3DK7P2QM',
+    );
+    expect(postSignOutTarget('/remote', '')).toBe('/remote/login?next=%2Fremote');
+  });
+
+  it('sends laptop sign-outs to desktop /login', () => {
+    expect(postSignOutTarget('/dashboard', '')).toBe('/login?next=%2Fdashboard');
+  });
+});
+
+describe('resolveRemoteScreen (pair vs home gating)', () => {
+  it('loads, then picks home or pair', () => {
+    expect(resolveRemoteScreen(null)).toBe('loading');
+    expect(resolveRemoteScreen(true)).toBe('home');
+    expect(resolveRemoteScreen(false)).toBe('pair');
   });
 });

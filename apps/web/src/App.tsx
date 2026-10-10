@@ -6,6 +6,8 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router';
 import { SessionProvider, RequireAuth } from './lib/auth';
 import { ROOT_REDIRECT, pairRedirectTarget } from './lib/routes';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { OnboardGate } from './components/OnboardGate';
 import { AppShell } from './components/AppShell';
 import { DashboardPage } from './pages/DashboardPage';
 import { CalendarPage } from './pages/CalendarPage';
@@ -22,6 +24,8 @@ import { PrivacyPage } from './pages/settings/PrivacyPage';
 import { AppearancePage } from './pages/settings/AppearancePage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { RemoteGate } from './pages/RemoteGate';
+import { RemoteLoginPage } from './pages/RemoteLoginPage';
+import { SetupPage } from './pages/SetupPage';
 import { LoginPage } from './pages/LoginPage';
 
 function PairRedirect() {
@@ -40,11 +44,22 @@ function ShelledOutlet() {
 export function App() {
   return (
     <BrowserRouter>
-      <SessionProvider>
-        <Routes>
-          {/* Public: sign in / create account. ?next preserves the target,
-              including /remote?pair=<CODE> query strings. */}
-          <Route path="/login" element={<LoginPage />} />
+      <ErrorBoundary>
+        <SessionProvider>
+          <Routes>
+            {/* Public: desktop split sign-in. ?next preserves the target. */}
+            <Route path="/login" element={<LoginPage />} />
+            {/* Public: mobile sign-in. ?next preserves /remote?pair=<CODE>. */}
+            <Route path="/remote/login" element={<RemoteLoginPage />} />
+            {/* First-run onboarding (session required, no onboard gate). */}
+            <Route
+              path="/setup"
+              element={
+                <RequireAuth>
+                  <SetupPage />
+                </RequireAuth>
+              }
+            />
           {/* Phone PWA — calendar only + talk button. No laptop chrome.
               Requires the same account as the laptop. */}
           <Route
@@ -60,7 +75,9 @@ export function App() {
           <Route
             element={
               <RequireAuth>
-                <ShelledOutlet />
+                <OnboardGate>
+                  <ShelledOutlet />
+                </OnboardGate>
               </RequireAuth>
             }
           >
@@ -82,8 +99,9 @@ export function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Route>
           <Route path="/" element={<Navigate to={ROOT_REDIRECT} replace />} />
-        </Routes>
-      </SessionProvider>
+          </Routes>
+        </SessionProvider>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }
