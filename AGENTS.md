@@ -3,7 +3,7 @@
 Rocky is a voice-first student planner + private "memory". Laptop runs the AI locally; phone is a voice remote that shows only the calendar; Supabase is the login + relay + calendar store. Built from scratch (Clarity, an earlier app by the same author, is only a feature checklist; copy nothing from it).
 
 ## Hard rules
-- **No cloud AI APIs.** All AI is local: Ollama (`ROCKY_LLM`, default `qwen3.5:4b`, fallback `qwen3.5:2b`, `think:false`, temperature 0.1) and faster-whisper. No OpenAI/Gemini/ElevenLabs calls.
+- **No cloud AI APIs.** All AI is local: Ollama (`ROCKY_LLM`, default `qwen3.5:2b`, `think:false`, temperature 0.1) and faster-whisper. No OpenAI/Gemini/ElevenLabs calls.
 - **The LLM only returns intent JSON** enforced by the JSON schema in `packages/core/src/intentSchema.ts` (Ollama `format`). It never does date math, conflict resolution or rescheduling. `packages/core/src/scheduler` does, as pure TypeScript with Vitest tests.
 - **Fixed events never move.** Classes and fixed commitments (`fixed = true`) are immovable. Only flexible events get rearranged.
 - **Recurring series:** a voice command edits one occurrence (a `move` or `skip` row in `event_exceptions`) unless the user says "every" or "all".
@@ -22,10 +22,9 @@ Rocky is a voice-first student planner + private "memory". Laptop runs the AI lo
 ## Layout
 `packages/core` (types, schema, scheduler, recurrence, data API) | `apps/web` (Vite + React + TS + Tailwind v4: laptop app + `/remote` phone view) | `apps/brain` (laptop Node process: relay, STT, LLM, fast path, memory) | `apps/extension` (Chrome MV3 capture) | `supabase/migrations`.
 
-## Ownership (avoid merge conflicts)
-- Claude Code (deep logic): `packages/core/**` (recurrence, scheduler, intent schema, data API), `apps/brain/**`, `supabase/migrations/**`.
-- OpenCode (UI and small changes): `apps/web/**`, `apps/extension/**`, styling, copy, small fixes anywhere when asked.
-- Shared contracts above need both agents.
+## Ownership (no merge conflicts: one builder, one auditor)
+- OpenCode (builds everything): `packages/core/**`, `apps/brain/**`, `supabase/migrations/**`, `apps/web/**`, `apps/extension/**`, docs. One branch per phase, never commit to `main`.
+- Claude Code (audits): reviews and tests each phase after it is pushed. It does not write product code; contract changes are proposed by OpenCode in the phase report and applied only after Om approves.
 
 ## Commands
 - install: `npm install` | typecheck: `npx tsc --noEmit` | test: `npx vitest run` (and `npm test` in apps/web)
