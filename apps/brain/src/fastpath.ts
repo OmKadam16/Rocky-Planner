@@ -48,8 +48,11 @@ export function tryFastPath(utterance: string, today: string): FastPathResult | 
   if (!text) return null;
   const hit = (intent: IntentInput): FastPathResult => ({ intent: makeIntent(intent), source: "fast_path" });
 
-  // Undo.
-  if (/^(undo|undo that|never ?mind)$/.test(text)) return hit({ intent: "undo" });
+  // Undo. "cancel that" et al refer to the last action, never to an event
+  // literally named "that" — they must not reach cancel_event.
+  if (/^(undo|undo that|never ?mind|cancel that|scratch that|forget that|take that back)$/.test(text)) {
+    return hit({ intent: "undo" });
+  }
 
   // Memory controls.
   if (/^pause memory$/.test(text)) return hit({ intent: "pause_memory" });

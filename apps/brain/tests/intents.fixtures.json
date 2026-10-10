@@ -96,6 +96,42 @@
     {
       "utterance": "Cancel the meeting on Monday",
       "expect": { "intent": "cancel_event", "targetDayText": "Monday" }
+    },
+    {
+      "utterance": "I'm meeting a friend at 7",
+      "expect": { "intent": "add_event", "timeText": "7" }
+    },
+    {
+      "utterance": "Move gym to 8",
+      "expect": { "intent": "move_event", "target": "gym", "timeText": "8" }
+    },
+    {
+      "utterance": "gym tomorrow at 8",
+      "expect": { "intent": "add_event", "title": "gym", "dayText": "tomorrow", "timeText": "8" }
+    },
+    {
+      "utterance": "dinner tomorrow at 7",
+      "expect": { "intent": "add_event", "title": "dinner", "dayText": "tomorrow", "timeText": "7" }
+    },
+    {
+      "utterance": "cancel that",
+      "expect": { "intent": "undo" }
+    },
+    {
+      "utterance": "scratch that",
+      "expect": { "intent": "undo" }
+    },
+    {
+      "utterance": "never mind",
+      "expect": { "intent": "undo" }
+    },
+    {
+      "utterance": "forget that",
+      "expect": { "intent": "undo" }
+    },
+    {
+      "utterance": "take that back",
+      "expect": { "intent": "undo" }
     }
   ]
 }

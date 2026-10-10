@@ -18,6 +18,13 @@ describe("tryFastPath: query/undo", () => {
     expect(tryFastPath("undo that", MON)).toMatchObject({ intent: { intent: "undo" } });
     expect(tryFastPath("undo", MON)).toMatchObject({ intent: { intent: "undo" } });
   });
+  it("treats cancel-that phrasing as undo, never cancel_event", () => {
+    for (const words of ["cancel that", "scratch that", "never mind", "forget that", "take that back"]) {
+      const hit = tryFastPath(words, MON);
+      expect(hit).toMatchObject({ intent: { intent: "undo" } });
+      expect(hit?.intent.intent).not.toBe("cancel_event");
+    }
+  });
 });
 
 describe("tryFastPath: cancel/move with times", () => {

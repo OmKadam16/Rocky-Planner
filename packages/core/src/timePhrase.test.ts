@@ -67,6 +67,63 @@ describe("parseTimeText: ranges", () => {
   });
 });
 
+describe("parseTimeText: bare hours relative to now", () => {
+  const afternoon = { nowMin: 900, isToday: true, eveningHint: false };
+  const morning = { nowMin: 360, isToday: true, eveningHint: false };
+  const future = { isToday: false, eveningHint: false };
+  const futureEvening = { isToday: false, eveningHint: true };
+  it("picks the next occurrence at or after now when the day is today", () => {
+    expect(parseTimeText("7", afternoon)).toEqual({ kind: "clock", startMin: 1140, endMin: null });
+    expect(parseTimeText("7", morning)).toEqual({ kind: "clock", startMin: 420, endMin: null });
+    expect(parseTimeText("7", { nowMin: 1200, isToday: true, eveningHint: false })).toBeNull();
+  });
+  it("keeps 1-6 PM on future days, and hears evening events in 7-11", () => {
+    expect(parseTimeText("8", future)).toEqual({ kind: "clock", startMin: 480, endMin: null });
+    expect(parseTimeText("3", future)).toEqual({ kind: "clock", startMin: 900, endMin: null });
+    expect(parseTimeText("7", futureEvening)).toEqual({ kind: "clock", startMin: 1140, endMin: null });
+    expect(parseTimeText("8", futureEvening)).toEqual({ kind: "clock", startMin: 1200, endMin: null });
+  });
+  it("lets explicit markers beat the clock", () => {
+    expect(parseTimeText("7 am", afternoon)).toEqual({ kind: "clock", startMin: 420, endMin: null });
+    expect(parseTimeText("7 pm", morning)).toEqual({ kind: "clock", startMin: 1140, endMin: null });
+  });
+});
+
+describe("parseTimeText: range re-resolution (never null for plain X to Y)", () => {
+  it("lifts the end into the start's half of the day", () => {
+    expect(parseTimeText("5 to 7")).toEqual({ kind: "clock", startMin: 1020, endMin: 1140 });
+    expect(parseTimeText("9 to 11")).toEqual({ kind: "clock", startMin: 540, endMin: 660 });
+    expect(parseTimeText("11 to 1")).toEqual({ kind: "clock", startMin: 660, endMin: 780 });
+    expect(parseTimeText("9 pm to 11")).toEqual({ kind: "clock", startMin: 1260, endMin: 1380 });
+  });
+  it("'7 to 9' follows rule 1 for the start and keeps the end with it", () => {
+    expect(parseTimeText("7 to 9", { nowMin: 900, isToday: true, eveningHint: false })).toEqual({
+      kind: "clock",
+      startMin: 1140,
+      endMin: 1260,
+    });
+    expect(parseTimeText("7 to 9", { nowMin: 360, isToday: true, eveningHint: false })).toEqual({
+      kind: "clock",
+      startMin: 420,
+      endMin: 540,
+    });
+  });
+  it("still rejects genuinely backwards spans", () => {
+    expect(parseTimeText("5 to 3")).toBeNull();
+  });
+});
+
+describe("parseTimeText: day-part defaults (flagged, reply says so)", () => {
+  it("defaults only when no clock time is spoken", () => {
+    expect(parseTimeText("tonight")).toEqual({ kind: "clock", startMin: 1140, endMin: null, defaulted: true });
+    expect(parseTimeText("this afternoon")).toEqual({ kind: "clock", startMin: 840, endMin: null, defaulted: true });
+    expect(parseTimeText("this morning")).toEqual({ kind: "clock", startMin: 540, endMin: null, defaulted: true });
+    expect(parseTimeText("in the evening")).toEqual({ kind: "clock", startMin: 1080, endMin: null, defaulted: true });
+    expect(parseTimeText("7 tonight")).toEqual({ kind: "clock", startMin: 1140, endMin: null });
+    expect(parseTimeText("sometime 5-ish")).toBeNull();
+  });
+});
+
 describe("parseTimeText: after <event> (live failure: invented Thursday)", () => {
   it("returns an anchor reference, never a guessed time", () => {
     expect(parseTimeText("after dinner")).toEqual({ kind: "after", target: "dinner" });

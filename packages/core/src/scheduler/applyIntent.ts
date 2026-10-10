@@ -1,6 +1,6 @@
 import { speakTime, type LocalNow } from "../dates";
 import type { Intent } from "../intentSchema";
-import { parseTimeText, looksLikeExplicitRange, resolveDayText } from "../timePhrase";
+import { parseTimeText, hasEveningHint, isBarePronoun, looksLikeExplicitRange, resolveDayText, type TimeContext } from "../timePhrase";
 import { baseOccurrence, occurrenceKey, sortOccurrences } from "../recurrence/expandEvents";
 import type { EventKind, EventRow, Occurrence } from "../types";
 import { applyDiff, diffApplies, emptyDiff, invertDiff, isEmptyDiff } from "./diff";
@@ -154,6 +154,18 @@ function dayOrAsk(dayText: string | null, today: string, fallback: string | null
 }
 
 /**
+ * Context for bare-hour resolution: whether the target day is today (next
+ * occurrence at/after now) and whether the words name an evening event.
+ */
+function timeContext(ctx: Ctx, date: string): TimeContext {
+  return {
+    nowMin: ctx.now.minute,
+    isToday: date === ctx.now.date,
+    eveningHint: hasEveningHint(ctx.intent.title ?? ctx.intent.target ?? ""),
+  };
+}
+
+/**
  * Resolves start/end from the verbatim `timeText`. Returns an error question,
  * the slot, or null when no time was spoken (caller auto-places).
  * "after <event>" resolves to the end of that event on `date`.
@@ -161,9 +173,10 @@ function dayOrAsk(dayText: string | null, today: string, fallback: string | null
 function explicitTimes(
   intent: Intent,
   fallbackDuration: number,
-): { start: number; end: number } | { question: string } | null {
+  tctx: TimeContext,
+): { start: number; end: number; defaulted?: boolean } | { question: string } | null {
   if (!intent.timeText) return null;
-  const parsed = parseTimeText(intent.timeText);
+  const parsed = parseTimeText(intent.timeText, tctx);
   if (!parsed) {
     // "11 pm to 1 am" is a real range that crosses midnight; "sometime" is not a time at all.
     if (looksLikeExplicitRange(intent.timeText)) {
@@ -175,7 +188,15 @@ function explicitTimes(
   const duration = intent.durationMin ?? fallbackDuration;
   const end = parsed.endMin ?? parsed.startMin + duration;
   if (end > 1440) return { question: "That runs past midnight. Want it shorter or earlier?" };
-  return { start: parsed.startMin, end };
+  return parsed.defaulted
+    ? { start: parsed.startMin, end, defaulted: true }
+    : { start: parsed.startMin, end };
+}
+
+/** Appends the flagged-default note so the user can correct the guess. */
+function withDefaultNote(result: ApplyResult, def: boolean | undefined, startMin: number): ApplyResult {
+  if (!def) return result;
+  return { ...result, reply: `${result.reply} I put it at ${speakTime(startMin)}; say a different time to change it.` };
 }
 
 /**
@@ -215,7 +236,9 @@ function addEvent(ctx: Ctx): ApplyResult {
   if (date < now.date) return ask(ctx, "That day is in the past. Which day did you mean?");
 
   const fixed = intent.fixed ?? false;
-  const times = explicitTimes(intent, DEFAULT_DURATION);
+  // A lone pronoun is never a name — asking beats creating an event called "that".
+  if (isBarePronoun(title)) return ask(ctx, "What should I call it?");
+  const times = explicitTimes(intent, DEFAULT_DURATION, timeContext(ctx, date));
   if (times && "question" in times) return ask(ctx, times.question);
   const duration = times ? times.end - times.start : (intent.durationMin ?? DEFAULT_DURATION);
   const travel = intent.travelMin ?? 0;
@@ -266,7 +289,8 @@ function addEvent(ctx: Ctx): ApplyResult {
   if (clash) return ask(ctx, clashQuestion(clash));
 
   const s = settle(ctx, [...state.occurrences, occ], occ);
-  return commit(ctx, { changes: [{ op: "add", scope: "occurrence", after: occ }, ...s.moves], unscheduled: s.unscheduled });
+  const added = commit(ctx, { changes: [{ op: "add", scope: "occurrence", after: occ }, ...s.moves], unscheduled: s.unscheduled });
+  return withDefaultNote(added, times && "start" in times ? times.defaulted : undefined, occ.startMin);
 }
 
 /**
@@ -299,6 +323,8 @@ function findForEdit(ctx: Ctx, verb: string): { occ: Occurrence } | { result: Ap
   const { intent, now, state } = ctx;
   const target = intent.target ?? intent.title;
   if (!target) return { result: ask(ctx, `What should I ${verb}?`) };
+  // A lone pronoun never fuzzy-matches: it asks, so "cancel that" can't kill a random event.
+  if (isBarePronoun(target)) return { result: ask(ctx, "Which event did you mean?") };
   const dayWord = verb === "cancel" ? (intent.targetDayText ?? intent.dayText) : intent.targetDayText;
   const date = dayWord ? resolveDayText(dayWord, now.date) : null;
   if (dayWord && !date) return { result: ask(ctx, "Which day?") };
@@ -326,7 +352,7 @@ function moveEvent(ctx: Ctx): ApplyResult {
 
   if (intent.scope === "all" && occ.recurring) return moveSeries(ctx, occ, date);
 
-  const times = explicitTimes(intent, intent.durationMin ?? duration);
+  const times = explicitTimes(intent, intent.durationMin ?? duration, timeContext(ctx, date));
   if (times && "question" in times) return ask(ctx, times.question);
 
   const others = state.occurrences.filter((o) => !sameKey(o, occ));
@@ -360,7 +386,8 @@ function moveEvent(ctx: Ctx): ApplyResult {
     return say(ctx, `${occ.title} is already at ${speakTime(occ.startMin)}.`);
   }
   const s = settle(ctx, [...others, after], after);
-  return commit(ctx, { changes: [{ op: "move", scope: "occurrence", before: occ, after }, ...s.moves], unscheduled: s.unscheduled });
+  const moved = commit(ctx, { changes: [{ op: "move", scope: "occurrence", before: occ, after }, ...s.moves], unscheduled: s.unscheduled });
+  return withDefaultNote(moved, times && "start" in times ? times.defaulted : undefined, after.startMin);
 }
 
 /** "Move gym to 8 every day": changes the series time. Days stay the same; nothing else is rearranged. */
@@ -368,7 +395,7 @@ function moveSeries(ctx: Ctx, occ: Occurrence, date: string): ApplyResult {
   const { intent, state } = ctx;
   if (date !== occ.date) return ask(ctx, `I can only change the time of every ${occ.title}. Change its days in the calendar.`);
   const duration = occ.event.end_min - occ.event.start_min;
-  const times = explicitTimes(intent, intent.durationMin ?? duration);
+  const times = explicitTimes(intent, intent.durationMin ?? duration, timeContext(ctx, date));
   if (!times) return ask(ctx, `What time should every ${occ.title} start?`);
   if ("question" in times) return ask(ctx, times.question);
 
@@ -380,7 +407,8 @@ function moveSeries(ctx: Ctx, occ: Occurrence, date: string): ApplyResult {
   }
   const rep = state.occurrences.find((o) => o.eventId === occ.eventId && !o.moved) ?? occ;
   const after: Occurrence = { ...rep, startMin: times.start, endMin: times.end, event };
-  return commit(ctx, { changes: [{ op: "move", scope: "series", before: rep, after }], unscheduled: [] });
+  const series = commit(ctx, { changes: [{ op: "move", scope: "series", before: rep, after }], unscheduled: [] });
+  return withDefaultNote(series, "start" in times ? times.defaulted : undefined, after.startMin);
 }
 
 function cancelEvent(ctx: Ctx): ApplyResult {

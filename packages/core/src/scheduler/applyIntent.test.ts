@@ -140,6 +140,20 @@ describe("add_event", () => {
     expect(r.diff.changes).toHaveLength(0);
   });
 
+  it("flags day-part defaults in the reply", () => {
+    const r = run(demoDay(), { intent: "add_event", title: "Walk", timeText: "tonight" });
+    expect(find(r.state, "Walk")).toMatchObject({ startMin: h(19), endMin: h(20) });
+    expect(r.reply).toMatch(/I put it at 7 pm; say a different time to change it/);
+  });
+
+  it("never creates an event named after a pronoun", () => {
+    for (const title of ["that", "it", "this"]) {
+      const r = run(demoDay(), { intent: "add_event", title, timeText: "7 pm" });
+      expect(r.clarify).toBe("What should I call it?");
+      expect(r.diff.changes).toHaveLength(0);
+    }
+  });
+
   it("allows an event ending exactly at midnight but not past it", () => {
     const ok = run(stateOf([]), { intent: "add_event", title: "Night read", timeText: "11 pm", durationMin: 60 });
     expect(ok.state.occurrences[0]).toMatchObject({ startMin: h(23), endMin: 1440 });
@@ -231,6 +245,17 @@ describe("move_event", () => {
   it("says when it can't find the target", () => {
     const r = run(demoDay(), { intent: "move_event", target: "piano lesson", timeText: "5 pm" });
     expect(r.clarify).toBe("I couldn't find piano lesson. Which event did you mean?");
+  });
+
+  it("asks which event a pronoun means instead of matching one", () => {
+    for (const target of ["that", "it", "this"]) {
+      const moved = run(demoDay(), { intent: "move_event", target, timeText: "5 pm" });
+      expect(moved.clarify).toBe("Which event did you mean?");
+      expect(moved.diff.changes).toHaveLength(0);
+      const cancelled = run(demoDay(), { intent: "cancel_event", target });
+      expect(cancelled.clarify).toBe("Which event did you mean?");
+      expect(cancelled.diff.changes).toHaveLength(0);
+    }
   });
 });
 
