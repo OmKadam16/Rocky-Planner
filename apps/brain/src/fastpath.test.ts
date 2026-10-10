@@ -69,6 +69,9 @@ describe("tryFastPath: shift_day", () => {
     expect(tryFastPath("running 10 min late", MON)).toMatchObject({
       intent: { intent: "shift_day", shiftMin: 10 },
     });
+    expect(tryFastPath("shift my day later by 30", MON)).toMatchObject({
+      intent: { intent: "shift_day", shiftMin: 30 },
+    });
   });
 });
 
@@ -76,6 +79,9 @@ describe("tryFastPath: memory + fallthrough", () => {
   it("handles pause/forget/memory_search", () => {
     expect(tryFastPath("pause memory", MON)).toMatchObject({ intent: { intent: "pause_memory" } });
     expect(tryFastPath("forget last hour", MON)).toMatchObject({
+      intent: { intent: "forget", memory: { text: null, day: null, range: "last_hour" } },
+    });
+    expect(tryFastPath("forget the last hour", MON)).toMatchObject({
       intent: { intent: "forget", memory: { text: null, day: null, range: "last_hour" } },
     });
     expect(tryFastPath("what was i reading on wednesday", MON)).toMatchObject({

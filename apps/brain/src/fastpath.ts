@@ -53,9 +53,9 @@ export function tryFastPath(utterance: string, today: string): FastPathResult | 
 
   // Memory controls.
   if (/^pause memory$/.test(text)) return hit({ intent: "pause_memory" });
-  let m = /^forget (last hour|today)$/.exec(text);
+  let   m = /^forget (the )?(last hour|today)$/.exec(text);
   if (m) {
-    const range = m[1] === "last hour" ? "last_hour" : "today";
+    const range = m[2] === "last hour" ? "last_hour" : "today";
     return hit({ intent: "forget", memory: { text: null, day: null, range } });
   }
   m = /^what was i (reading|searching|looking at)( on (\w+))?$/.exec(text);
@@ -82,8 +82,8 @@ export function tryFastPath(utterance: string, today: string): FastPathResult | 
   // Shift ("I'm running 20 minutes late").
   m = /(?:i'?m\s+)?running (\d+)\s*(minutes?|mins?)\s+late/.exec(text);
   if (m) return hit({ intent: "shift_day", shiftMin: Number(m[1]) });
-  m = /(?:push|shift)\s+(everything|it|all|my day|things)\s+(back\s+)?by\s+(\d+)/.exec(text);
-  if (m) return hit({ intent: "shift_day", shiftMin: Number(m[3]) });
+  m = /(?:push|shift)\s+(everything|it|all|my day|things)\s+((back|later)\s+)?by\s+(\d+)/.exec(text);
+  if (m) return hit({ intent: "shift_day", shiftMin: Number(m[4]) });
   m = /^(?:pull|move)\s+(everything|it|all|my day)\s+earlier\s+by\s+(\d+)/.exec(text);
   if (m) return hit({ intent: "shift_day", shiftMin: -Number(m[2]) });
 
