@@ -106,6 +106,8 @@ event_exceptions(id, user_id, event_id, occurrence_date date,
 
 **Routing and hosting:** `BrowserRouter` (no hash routes) with a single-page-app fallback; host the web app as a **Render Static Site** (free, HTTPS included; static sites do not spin down, so no keep-alive pinger is needed). Render settings: build command `npm ci && npm run build -w apps/web`, publish directory `apps/web/dist`, a rewrite rule `/*` to `/index.html` (Render dashboard > Redirects/Rewrites), and build-time env vars `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Do not deploy the app as a Render web service. Supabase client uses `flowType: 'pkce'` for Google sign-in. Auth redirect URLs must include the Render URL (`https://<name>.onrender.com`) and `http://localhost:5173`.
 
+**App routes (all behind sign-in except /login):** `/` → `/dashboard`. `/dashboard`, `/calendar`, `/classes`, `/tasks`, `/memory`, `/activity`, `/settings` (sub-routes: `profile`, `devices`, `voice`, `ai`, `privacy`, `appearance`; index → `profile`). `/remote` is the phone PWA. `/pair` is legacy and redirects to `/settings/devices` (query string preserved, so `?from=onboarding` survives). Unknown paths render the 404 page. Pairing never blocks the app: sign-in lands on `/dashboard`, which shows a dismissible "Connect your phone" card until a phone row exists. (There is no `docs/PLAN.md`; this section is the route list.)
+
 **UI libraries:** `react-router`, `@supabase/supabase-js`, `lucide-react`, `qrcode.react` (QR), `@fontsource/plus-jakarta-sans` + `@fontsource/jetbrains-mono`, `zod`, `vitest`. Build the calendar time grid yourself with pointer events (snap to 15 minutes); do not add a heavy calendar library.
 
 ## 4. Voice pipeline and instant replies
@@ -303,6 +305,6 @@ Files in `design/` (move the loose `tokens.css`, `Rocky_*.dc.html` and `support.
 5. The wizard's step 4 checklist shows the command `rocky-brain start`. Make the real command match the final brain CLI name.
 6. Samples use real-looking personal data (name, email, school). Replace with seed data from the demo user, and never hard-code personal data into shipped code.
 7. Google Fonts and the Lucide CDN are used in the design files. In the app, bundle fonts and icons locally.
-8. Sidebar items shown: Dashboard, Calendar, Classes, Memory, Activity, Settings (Tasks lives on the Dashboard and the Day view). Confirm with Om before adding a separate Tasks page.
+8. Sidebar items shown: Dashboard, Calendar, Classes, Tasks, Memory, Activity, Settings (Om confirmed the separate Tasks page; Tasks also lives on the Dashboard and the Day view). Settings has Profile, Devices, Voice, AI, Privacy, Appearance sub-pages.
 
 **Implementation order for the UI (OpenCode, matches section 8):** B1 scaffold the app, add `tokens.css` + font/icon packages and map tokens into Tailwind v4 with `@theme inline` (for example `--color-surface: var(--surface)`) without renaming any token, so utilities like `bg-surface` work -> build the app shell (sidebar, top bar, voice bar, status chips) -> build **Pairing first** (laptop `/pair` page and wizard step 5, phone `/remote` pair flow with real QR scan using the camera API or `BarcodeDetector`, with the typed-code fallback) -> phone calendar + talk button + result sheet -> laptop Dashboard + Calendar with voice states -> remaining pages.

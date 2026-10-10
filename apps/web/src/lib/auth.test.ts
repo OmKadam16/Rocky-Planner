@@ -24,15 +24,15 @@ describe('buildLoginRedirect (preserves full path incl. query)', () => {
 
 describe('parseNextParam (open-redirect guard)', () => {
   it('rejects off-origin targets', () => {
-    expect(parseNextParam('//evil.com/x')).toBe('/pair');
-    expect(parseNextParam('https://evil.com/')).toBe('/pair');
-    expect(parseNextParam('javascript:alert(1)')).toBe('/pair');
+    expect(parseNextParam('//evil.com/x')).toBe('/dashboard');
+    expect(parseNextParam('https://evil.com/')).toBe('/dashboard');
+    expect(parseNextParam('javascript:alert(1)')).toBe('/dashboard');
   });
 
-  it('falls back when missing or malformed', () => {
-    expect(parseNextParam(null)).toBe('/pair');
-    expect(parseNextParam('')).toBe('/pair');
-    expect(parseNextParam('%E0%A4%A')).toBe('/pair');
+  it('falls back to the dashboard when missing or malformed', () => {
+    expect(parseNextParam(null)).toBe('/dashboard');
+    expect(parseNextParam('')).toBe('/dashboard');
+    expect(parseNextParam('%E0%A4%A')).toBe('/dashboard');
     expect(parseNextParam(null, '/remote')).toBe('/remote');
   });
 });

@@ -190,7 +190,7 @@ export async function publishLaptopPairing(
 
 /**
  * Refresh devices.last_seen for this account's laptop row.
- * Called from PairPage every 15 s while /pair is open.
+ * Called from AppShell every 15 s on every app page.
  * TEMPORARY owner: apps/brain takes this over with its own 15 s heartbeat
  * (PLAN.md section 6) once the brain runs — then delete these calls.
  */

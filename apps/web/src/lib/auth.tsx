@@ -91,7 +91,7 @@ export function buildLoginRedirect(nextPath: string): string {
 }
 
 /** Validate a ?next value; fall back when missing or off-origin. */
-export function parseNextParam(raw: string | null, fallback = '/pair'): string {
+export function parseNextParam(raw: string | null, fallback = '/dashboard'): string {
   if (!raw) return fallback;
   try {
     const decoded = decodeURIComponent(raw);

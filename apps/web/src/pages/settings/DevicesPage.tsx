@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   Check,
@@ -24,27 +24,26 @@ import {
   freshPairExpiry,
   generateSecurePairCode,
   type LaptopPairStatus,
-} from '../lib/pairing';
-import { detectPairClaim } from '../lib/pairClaim';
+} from '../../lib/pairing';
+import { detectPairClaim } from '../../lib/pairClaim';
 import {
   demoHeartbeat,
   demoPublishLaptopPair,
   demoReadPaired,
   isDemoPairingEnabled,
-} from '../lib/demoOnly.pairingFallback';
+} from '../../lib/demoOnly.pairingFallback';
 import {
   getSupabase,
   isSupabaseConfigured,
   publishLaptopPairing,
   readLatestPhoneCommand,
   readPairDevices,
-  touchLaptopHeartbeat,
   unpairPhone,
   type PairDeviceRow,
   type PairError,
-} from '../lib/supabase';
-import { DemoBadge } from '../components/DemoBadge';
-import { StatusBadge } from '../components/StatusBadge';
+} from '../../lib/supabase';
+import { DemoBadge } from '../../components/DemoBadge';
+import { StatusBadge } from '../../components/StatusBadge';
 
 const STEPS = [
   'Open Rocky on your phone and sign in with the same Google account',
@@ -113,9 +112,15 @@ const STATUS_META: Record<
   },
 };
 
-export function PairPage() {
+export function DevicesPage() {
   const demo = isSupabaseConfigured() ? false : isDemoPairingEnabled();
   const realRelay = !demo && isSupabaseConfigured();
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
+  // First-run onboarding links here with ?from=onboarding: auto-continue to
+  // the dashboard once the phone connects. Everywhere else the user stays
+  // put and gets a "Go to dashboard" button instead.
+  const fromOnboarding = params.get('from') === 'onboarding';
   const [code, setCode] = useState(() => generateSecurePairCode());
   const [expiresAtMs, setExpiresAtMs] = useState(() => freshPairExpiry());
   const [laptopName, setLaptopName] = useState(() => defaultLaptopName());
@@ -214,16 +219,13 @@ export function PairPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Heartbeat every 15 s keeps devices.last_seen fresh while /pair is open.
-  // TEMPORARY owner: apps/brain takes this over with its own 15 s heartbeat
-  // (PLAN.md section 6) once the brain runs — then delete this interval and
-  // keep only the brain's. The phone decides "laptop offline" solely from
-  // last_seen older than 45 s, so this interval is what keeps the laptop
-  // looking alive until the brain exists.
+  // Heartbeat lives in AppShell now (every app page, TEMPORARY until the
+  // brain takes it over — PLAN.md section 6). DEMO-ONLY mode has no relay,
+  // so the local heartbeat stays here with the demo claim path.
   useEffect(() => {
+    if (!demo) return;
     const id = window.setInterval(() => {
-      if (demo) demoHeartbeat();
-      else void touchLaptopHeartbeat();
+      demoHeartbeat();
     }, 15_000);
     return () => window.clearInterval(id);
   }, [demo]);
@@ -398,6 +400,15 @@ export function PairPage() {
     const id = window.setInterval(() => setNowMs(Date.now()), 10_000);
     return () => window.clearInterval(id);
   }, [realRelay, devices.laptop, devices.phone]);
+
+  // First-run onboarding only: once connected, continue to the dashboard
+  // automatically. Direct visits stay on this page (with a button instead).
+  useEffect(() => {
+    if (!fromOnboarding || status !== 'connected') return;
+    const t = window.setTimeout(() => navigate('/dashboard', { replace: true }), 2500);
+    timers.current.push(t);
+    return () => window.clearTimeout(t);
+  }, [fromOnboarding, status, navigate]);
 
   const unpair = useCallback(async () => {
     setUnpairError(null);
@@ -704,6 +715,17 @@ export function PairPage() {
                     <RefreshCw size={15} aria-hidden />
                     Generate new code
                   </button>
+                )}
+                {status === 'connected' && !fromOnboarding && (
+                  <Link
+                    to="/dashboard"
+                    className="mt-1 inline-flex h-10 items-center rounded-[10px] bg-accent px-4 text-sm font-bold text-white"
+                  >
+                    Go to dashboard
+                  </Link>
+                )}
+                {status === 'connected' && fromOnboarding && (
+                  <span className="text-sm text-ink2">Continuing to the dashboard…</span>
                 )}
               </div>
             )}
