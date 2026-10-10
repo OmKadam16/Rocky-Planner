@@ -7,7 +7,7 @@
     },
     {
       "utterance": "Move my study block after dinner",
-      "expect": { "intent": "move_event", "target": "study block", "timeText": "after dinner" }
+      "expect": { "intent": "move_event", "target": "my study block", "timeText": "after dinner" }
     },
     {
       "utterance": "I'm running 20 minutes late",
@@ -31,7 +31,7 @@
     },
     {
       "utterance": "Move gym to Thursday at 6",
-      "expect": { "intent": "move_event", "target": "gym", "targetDayText": "Thursday", "timeText": "6" }
+      "expect": { "intent": "move_event", "target": "gym", "dayText": "Thursday", "timeText": "6" }
     },
     {
       "utterance": "Replan Thursday",
