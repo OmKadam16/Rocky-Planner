@@ -1,6 +1,7 @@
 // SHARED CONTRACT (Agent A + Agent B). The LLM returns exactly one Intent object.
 // `intentJsonSchema` is passed to Ollama as `format`; `IntentSchema` (zod) validates the result.
-// The LLM never computes dates or minutes: days are words or ISO dates, times are "HH:mm".
+// The LLM never computes dates or minutes: it COPIES the user's time/day WORDS verbatim into
+// `timeText`/`dayText` ("3 to 4", "after dinner", "tomorrow", "Thursday") and code resolves them.
 import { z } from "zod";
 
 export const INTENT_NAMES = [
@@ -23,8 +24,8 @@ export type IntentName = (typeof INTENT_NAMES)[number];
 
 export const MEMORY_RANGES = ["last_hour", "today", "yesterday", "this_week"] as const;
 
-const HHMM = /^([01]?\d|2[0-3]):[0-5]\d$|^24:00$/;
-const DAY = /^(today|tonight|tomorrow|yesterday|sunday|monday|tuesday|wednesday|thursday|friday|saturday|\d{4}-\d{2}-\d{2})$/i;
+/** Free-text day words copied verbatim ("tomorrow", "Thursday", "2026-10-20") or null. */
+const dayText = () => opt(z.string().min(1).max(40));
 
 /** Every key is present in LLM output; missing keys default to null so hand-written intents stay short. */
 const opt = <T extends z.ZodType>(schema: T) => schema.nullable().default(null);
@@ -36,11 +37,11 @@ export const IntentSchema = z.object({
   /** Fuzzy reference to an existing item (move_event, cancel_event, complete_task). */
   target: opt(z.string().min(1)),
   /** Which day's occurrence of `target` ("cancel gym tomorrow"). */
-  targetDay: opt(z.string().regex(DAY)),
+  targetDayText: dayText(),
   /** Day for the new item / destination day of a move / day to query or shift. */
-  day: opt(z.string().regex(DAY)),
-  start: opt(z.string().regex(HHMM)),
-  end: opt(z.string().regex(HHMM)),
+  dayText: dayText(),
+  /** Time words copied verbatim ("3 to 4", "7 tonight", "after dinner") or null. Never clock times. */
+  timeText: opt(z.string().min(1).max(120)),
   durationMin: opt(z.number().int().min(5).max(1440)),
   fixed: opt(z.boolean()),
   priority: opt(z.enum(["high", "med", "low"])),
@@ -54,7 +55,7 @@ export const IntentSchema = z.object({
   memory: opt(
     z.object({
       text: z.string().nullable().default(null),
-      day: z.string().regex(DAY).nullable().default(null),
+      day: z.string().min(1).max(40).nullable().default(null),
       range: z.enum(MEMORY_RANGES).nullable().default(null),
     }),
   ),
@@ -86,11 +87,10 @@ export function parseIntent(raw: unknown): { ok: true; intent: Intent } | { ok: 
 }
 
 const nullable = (type: string, extra: Record<string, unknown> = {}) => ({ type: [type, "null"], ...extra });
+// Free-text day/time words: no patterns — the model copies words verbatim and code resolves them.
 // Lowercase-only and [0-9] instead of \d: llama.cpp grammar conversion handles plain classes best.
-const dayProp = nullable("string", {
-  pattern: "^(today|tonight|tomorrow|yesterday|sunday|monday|tuesday|wednesday|thursday|friday|saturday|[0-9]{4}-[0-9]{2}-[0-9]{2})$",
-});
-const timeProp = nullable("string", { pattern: "^([01]?[0-9]|2[0-3]):[0-5][0-9]$" });
+const dayTextProp = nullable("string");
+const timeTextProp = nullable("string");
 
 /** JSON schema for Ollama `format`. All keys required (nullable) so small models emit a fixed shape. */
 export const intentJsonSchema = {
@@ -99,10 +99,9 @@ export const intentJsonSchema = {
     intent: { type: "string", enum: [...INTENT_NAMES] },
     title: nullable("string"),
     target: nullable("string"),
-    targetDay: dayProp,
-    day: dayProp,
-    start: timeProp,
-    end: timeProp,
+    targetDayText: dayTextProp,
+    dayText: dayTextProp,
+    timeText: timeTextProp,
     durationMin: nullable("integer"),
     fixed: nullable("boolean"),
     priority: { type: ["string", "null"], enum: ["high", "med", "low", null] },
@@ -121,7 +120,7 @@ export const intentJsonSchema = {
       type: ["object", "null"],
       properties: {
         text: nullable("string"),
-        day: dayProp,
+        day: dayTextProp,
         range: { type: ["string", "null"], enum: [...MEMORY_RANGES, null] },
       },
       required: ["text", "day", "range"],
@@ -133,10 +132,9 @@ export const intentJsonSchema = {
     "intent",
     "title",
     "target",
-    "targetDay",
-    "day",
-    "start",
-    "end",
+    "targetDayText",
+    "dayText",
+    "timeText",
     "durationMin",
     "fixed",
     "priority",
