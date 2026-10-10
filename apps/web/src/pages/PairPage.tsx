@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { QRCodeSVG } from 'qrcode.react';
 import {
@@ -6,6 +6,7 @@ import {
   CircleAlert,
   CircleCheck,
   Copy,
+  Laptop,
   RefreshCw,
   ScanLine,
   Smartphone,
@@ -24,6 +25,7 @@ import {
   generateSecurePairCode,
   type LaptopPairStatus,
 } from '../lib/pairing';
+import { detectPairClaim } from '../lib/pairClaim';
 import {
   demoHeartbeat,
   demoPublishLaptopPair,
@@ -31,9 +33,14 @@ import {
   isDemoPairingEnabled,
 } from '../lib/demoOnly.pairingFallback';
 import {
+  getSupabase,
   isSupabaseConfigured,
   publishLaptopPairing,
+  readLatestPhoneCommand,
+  readPairDevices,
   touchLaptopHeartbeat,
+  unpairPhone,
+  type PairDeviceRow,
   type PairError,
 } from '../lib/supabase';
 import { DemoBadge } from '../components/DemoBadge';
@@ -108,6 +115,7 @@ const STATUS_META: Record<
 
 export function PairPage() {
   const demo = isSupabaseConfigured() ? false : isDemoPairingEnabled();
+  const realRelay = !demo && isSupabaseConfigured();
   const [code, setCode] = useState(() => generateSecurePairCode());
   const [expiresAtMs, setExpiresAtMs] = useState(() => freshPairExpiry());
   const [laptopName, setLaptopName] = useState(() => defaultLaptopName());
@@ -115,6 +123,16 @@ export function PairPage() {
   const [secsLeft, setSecsLeft] = useState(PAIR_EXPIRY_SEC);
   const [copied, setCopied] = useState(false);
   const [heard, setHeard] = useState(false);
+  const [heardText, setHeardText] = useState<string | null>(null);
+  const [phoneName, setPhoneName] = useState<string | null>(null);
+  const [devices, setDevices] = useState<{
+    laptop: PairDeviceRow | null;
+    phone: PairDeviceRow | null;
+  }>({ laptop: null, phone: null });
+  const [published, setPublished] = useState(false);
+  const [unpairing, setUnpairing] = useState(false);
+  const [unpairError, setUnpairError] = useState<string | null>(null);
+  const [nowMs, setNowMs] = useState(() => Date.now());
   const [publishError, setPublishError] = useState<PairError | null>(null);
   const [netOffline, setNetOffline] = useState(
     () => typeof navigator !== 'undefined' && navigator.onLine === false,
@@ -144,10 +162,12 @@ export function PairPage() {
           lastSeenMs: Date.now(),
         });
         setPublishError(null);
+        setPublished(true);
         return;
       }
       const res = await publishLaptopPairing(c, e, laptopNameRef.current);
       setPublishError(res.ok ? null : res.failure);
+      setPublished(res.ok);
     },
     [demo],
   );
@@ -164,6 +184,11 @@ export function PairPage() {
       setSecsLeft(PAIR_EXPIRY_SEC);
       setStatus('waiting');
       setHeard(false);
+      setHeardText(null);
+      setPhoneName(null);
+      setDevices({ laptop: null, phone: null });
+      setPublished(false);
+      setUnpairError(null);
       setCopied(false);
       setPublishError(null);
       void doPublish(c, e);
@@ -255,6 +280,141 @@ export function PairPage() {
     return () => window.clearInterval(id);
   }, [demo]);
 
+  // REAL claim detection (Supabase relay): Realtime on `devices` for this
+  // user plus a 2 s poll fallback. Both funnel through detectPairClaim():
+  // claimed when the laptop row's pair_code went null (claim_pair clears it,
+  // single use) while our code was published, or when the phone row's
+  // last_seen/created_at is at/after this code's creation. On detection the
+  // page walks confirming → connected, shows the phone's row name, and stops
+  // the 2 s poll. The channel is torn down on unmount and whenever a new
+  // code is generated (effect re-runs on `code`).
+  useEffect(() => {
+    if (!realRelay) return;
+    if (publishError) return;
+    const sb = getSupabase();
+    if (!sb) return;
+    let alive = true;
+    let settled = false;
+    let pollId = 0;
+    const myCode = code;
+    const bornAt = createdAt.current;
+
+    const onClaim = (name: string | null, rows: { laptop: PairDeviceRow | null; phone: PairDeviceRow | null }) => {
+      if (!alive || settled) return;
+      settled = true;
+      if (pollId) window.clearInterval(pollId);
+      setDevices(rows);
+      if (name) setPhoneName(name);
+      setStatus((s) => (s === 'waiting' || s === 'confirming' ? 'confirming' : s));
+      const t = window.setTimeout(() => {
+        if (!alive) return;
+        setStatus((s) => (s === 'confirming' ? 'connected' : s));
+      }, 2200);
+      timers.current.push(t);
+    };
+
+    const check = async () => {
+      if (!alive || settled) return;
+      try {
+        const rows = await readPairDevices();
+        if (!alive || settled) return;
+        // Keep the "Paired devices" list fresh while waiting.
+        setDevices(rows);
+        const res = detectPairClaim(rows.laptop, rows.phone, {
+          publishedCode: myCode,
+          published,
+          createdAtMs: bornAt,
+        });
+        if (res.claimed) onClaim(res.phoneName, rows);
+      } catch {
+        /* keep polling — Realtime may still fire */
+      }
+    };
+
+    pollId = window.setInterval(() => void check(), 2000);
+    void check();
+    const channel = sb
+      .channel('pair-claim')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'devices' },
+        () => void check(),
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'devices' },
+        () => void check(),
+      )
+      .subscribe();
+    return () => {
+      alive = false;
+      if (pollId) window.clearInterval(pollId);
+      void sb.removeChannel(channel);
+    };
+  }, [realRelay, code, published, publishError]);
+
+  // REAL "heard" signal: stay on "Listening for your phone…" until a command
+  // row with source='phone' created after this code exists. Realtime on
+  // `commands` + a 5 s poll fallback; the line renders the row's real text.
+  useEffect(() => {
+    if (!realRelay || status !== 'connected') return;
+    const sb = getSupabase();
+    if (!sb) return;
+    let alive = true;
+    const bornAt = createdAt.current;
+    const check = async () => {
+      try {
+        const latest = await readLatestPhoneCommand();
+        if (!alive || !latest) return;
+        if (Date.parse(latest.created_at) < bornAt) return;
+        const text = (latest.transcript ?? latest.text ?? '').trim();
+        setHeard(true);
+        setHeardText(text ? text.slice(0, 120) : null);
+      } catch {
+        /* keep polling */
+      }
+    };
+    const pollId = window.setInterval(() => void check(), 5000);
+    void check();
+    const channel = sb
+      .channel('pair-heard')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'commands' },
+        () => void check(),
+      )
+      .subscribe();
+    return () => {
+      alive = false;
+      window.clearInterval(pollId);
+      void sb.removeChannel(channel);
+    };
+  }, [realRelay, status]);
+
+  // Local clock tick so "seen Xs ago" + online dots stay fresh without
+  // hitting the relay (claim polling itself stops after detection).
+  useEffect(() => {
+    if (!realRelay || (!devices.laptop && !devices.phone)) return;
+    const id = window.setInterval(() => setNowMs(Date.now()), 10_000);
+    return () => window.clearInterval(id);
+  }, [realRelay, devices.laptop, devices.phone]);
+
+  const unpair = useCallback(async () => {
+    setUnpairError(null);
+    setUnpairing(true);
+    try {
+      await unpairPhone();
+    } catch (e) {
+      setUnpairError(e instanceof Error ? e.message : 'Could not unpair.');
+      setUnpairing(false);
+      return;
+    }
+    setUnpairing(false);
+    // The old code is single-use (cleared on claim), so a fresh code is
+    // published for the next phone.
+    resetPair();
+  }, [resetPair]);
+
   useEffect(() => () => timers.current.forEach((t) => window.clearTimeout(t)), []);
 
   const copyCode = useCallback(async () => {
@@ -344,16 +504,68 @@ export function PairPage() {
                 <StatusBadge tone={meta.tone}>{meta.badge}</StatusBadge>
               </span>
               <span className="text-sm leading-relaxed text-ink2">{meta.sub}</span>
+              {(status === 'confirming' || status === 'connected') && phoneName && (
+                <span className="flex items-center gap-2 text-sm font-semibold text-ink1">
+                  <Smartphone size={14} aria-hidden />
+                  {phoneName}
+                </span>
+              )}
               {status === 'connected' && (
                 <span className="mt-1.5 flex items-center gap-2 text-sm text-ink1">
                   <Smartphone size={14} aria-hidden />
-                  {heard
-                    ? 'Heard from your phone: “what’s next today?” · 0.9 s'
-                    : 'Listening for your phone…'}
+                  {heard && heardText
+                    ? `Heard from your phone: “${heardText}”`
+                    : heard
+                      ? 'Heard from your phone.'
+                      : 'Listening for your phone…'}
                 </span>
               )}
             </div>
           </div>
+
+          {realRelay && (devices.laptop || devices.phone) && (
+            <div
+              className="flex flex-col gap-3 rounded-2xl p-4"
+              style={{ background: 'var(--surface)', border: '1px solid var(--line)' }}
+            >
+              <span className="text-[14px] font-semibold">Paired devices</span>
+              <ul className="flex list-none flex-col gap-2.5 p-0">
+                {devices.laptop && (
+                  <DeviceLine
+                    icon={<Laptop size={15} aria-hidden />}
+                    name={devices.laptop.name ?? laptopName}
+                    role="This laptop"
+                    lastSeen={devices.laptop.last_seen}
+                    nowMs={nowMs}
+                  />
+                )}
+                {devices.phone && (
+                  <DeviceLine
+                    icon={<Smartphone size={15} aria-hidden />}
+                    name={devices.phone.name ?? 'Phone'}
+                    role="Phone"
+                    lastSeen={devices.phone.last_seen}
+                    nowMs={nowMs}
+                    action={
+                      <button
+                        type="button"
+                        onClick={() => void unpair()}
+                        disabled={unpairing}
+                        className="inline-flex h-8 items-center rounded-lg border border-line px-2.5 text-xs font-semibold text-danger disabled:opacity-50"
+                      >
+                        {unpairing ? 'Unpairing…' : 'Unpair'}
+                      </button>
+                    }
+                  />
+                )}
+              </ul>
+              {unpairError && (
+                <span role="alert" className="text-xs text-danger">
+                  {unpairError}
+                </span>
+              )}
+            </div>
+          )}
 
           <p className="text-sm text-ink3">
             You can pair a phone later in Settings → Devices.{' '}
@@ -471,13 +683,17 @@ export function PairPage() {
                 )}
                 <span className="text-xl font-bold">
                   {status === 'confirming'
-                    ? 'Your phone'
+                    ? (phoneName ?? 'Your phone')
                     : status === 'connected'
                       ? 'Connected'
                       : meta.title}
                 </span>
                 <span className="flex items-center gap-2 text-sm text-ink2">
-                  {status === 'confirming' ? 'Waiting for you to confirm…' : meta.sub}
+                  {status === 'confirming'
+                    ? 'Waiting for you to confirm…'
+                    : status === 'connected' && phoneName
+                      ? `Paired with ${phoneName}. ${meta.sub}`
+                      : meta.sub}
                 </span>
                 {(status === 'expired' || status === 'offline') && (
                   <button
@@ -534,5 +750,63 @@ export function PairPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function deviceOnline(lastSeen: string | null, nowMs: number): boolean {
+  if (!lastSeen) return false;
+  const ms = Date.parse(lastSeen);
+  if (Number.isNaN(ms)) return false;
+  return nowMs - ms <= LAPTOP_OFFLINE_AFTER_SEC * 1000;
+}
+
+function formatSeenAgo(lastSeen: string | null, nowMs: number): string {
+  if (!lastSeen) return 'never seen';
+  const ms = Date.parse(lastSeen);
+  if (Number.isNaN(ms)) return 'never seen';
+  const diff = Math.max(0, nowMs - ms);
+  if (diff < 15_000) return 'seen just now';
+  if (diff < 60_000) return `seen ${Math.round(diff / 1000)}s ago`;
+  if (diff < 3_600_000) return `seen ${Math.round(diff / 60_000)}m ago`;
+  return `seen ${Math.round(diff / 3_600_000)}h ago`;
+}
+
+function DeviceLine({
+  icon,
+  name,
+  role,
+  lastSeen,
+  nowMs,
+  action,
+}: {
+  icon: ReactNode;
+  name: string;
+  role: string;
+  lastSeen: string | null;
+  nowMs: number;
+  action?: ReactNode;
+}) {
+  const online = deviceOnline(lastSeen, nowMs);
+  return (
+    <li className="flex items-center gap-2.5">
+      <span className="grid h-8 w-8 flex-none place-items-center rounded-full bg-surface2 text-ink2">
+        {icon}
+      </span>
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="flex items-center gap-1.5 truncate text-sm font-semibold text-ink1">
+          <span
+            aria-label={online ? 'online' : 'offline'}
+            title={online ? 'online' : 'offline'}
+            className="h-2 w-2 flex-none rounded-full"
+            style={{ background: online ? 'var(--success)' : 'var(--ink4)' }}
+          />
+          <span className="truncate">{name}</span>
+        </span>
+        <span className="text-xs text-ink3">
+          {role} · {formatSeenAgo(lastSeen, nowMs)}
+        </span>
+      </span>
+      {action}
+    </li>
   );
 }

@@ -265,3 +265,61 @@ export async function unpairPhone(): Promise<void> {
   const { error } = await sb.from('devices').delete().eq('role', 'phone');
   if (error) throw mapPairFailure(error);
 }
+
+export interface PairDeviceRow {
+  id: string;
+  role: 'laptop' | 'phone';
+  name: string | null;
+  last_seen: string;
+  pair_code: string | null;
+  pair_expires_at: string | null;
+  created_at: string | null;
+}
+
+/**
+ * Both pairing rows for the /pair claim check + "Paired devices" list.
+ * Missing rows come back null (fresh account, never paired).
+ */
+export async function readPairDevices(): Promise<{
+  laptop: PairDeviceRow | null;
+  phone: PairDeviceRow | null;
+}> {
+  const sb = getSupabase();
+  if (!sb) return { laptop: null, phone: null };
+  const { data, error } = await sb
+    .from('devices')
+    .select('id,role,name,last_seen,pair_code,pair_expires_at,created_at')
+    .in('role', ['laptop', 'phone']);
+  if (error || !data) return { laptop: null, phone: null };
+  const rows = data as PairDeviceRow[];
+  return {
+    laptop: rows.find((r) => r.role === 'laptop') ?? null,
+    phone: rows.find((r) => r.role === 'phone') ?? null,
+  };
+}
+
+export interface LatestPhoneCommand {
+  id: string;
+  text: string | null;
+  transcript: string | null;
+  created_at: string;
+}
+
+/**
+ * Newest command row sent from the phone. /pair shows "Listening…" until one
+ * of these exists — the "heard" line only ever renders this real row, never a
+ * canned echo.
+ */
+export async function readLatestPhoneCommand(): Promise<LatestPhoneCommand | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  const { data, error } = await sb
+    .from('commands')
+    .select('id,text,transcript,created_at')
+    .eq('source', 'phone')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data as LatestPhoneCommand;
+}
