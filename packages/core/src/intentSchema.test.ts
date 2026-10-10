@@ -7,15 +7,14 @@ describe("intentSchema", () => {
     expect([...intentJsonSchema.required].sort()).toEqual(Object.keys(IntentSchema.shape).sort());
   });
 
-  it("accepts a full LLM object", () => {
+  it("accepts a full LLM object with verbatim time words", () => {
     const raw = JSON.stringify({
       intent: "add_event",
       title: "Meet friend",
       target: null,
-      targetDay: null,
-      day: "today",
-      start: "19:00",
-      end: null,
+      targetDayText: null,
+      dayText: "today",
+      timeText: "7 tonight",
       durationMin: 90,
       fixed: true,
       priority: "high",
@@ -29,7 +28,13 @@ describe("intentSchema", () => {
     });
     const r = parseIntent(raw);
     expect(r.ok).toBe(true);
-    if (r.ok) expect(r.intent).toMatchObject({ intent: "add_event", start: "19:00", durationMin: 90 });
+    if (r.ok) expect(r.intent).toMatchObject({ intent: "add_event", timeText: "7 tonight", durationMin: 90 });
+  });
+
+  it("keeps clock-looking and relative phrases verbatim (code resolves them)", () => {
+    expect(parseIntent({ intent: "add_event", title: "Gym", timeText: "3 to 4" }).ok).toBe(true);
+    expect(parseIntent({ intent: "add_event", title: "Walk", timeText: "after dinner" }).ok).toBe(true);
+    expect(parseIntent({ intent: "cancel_event", target: "gym", targetDayText: "Thursday" }).ok).toBe(true);
   });
 
   it("fills missing keys with null", () => {
@@ -39,8 +44,8 @@ describe("intentSchema", () => {
   it("rejects bad output", () => {
     expect(parseIntent("not json").ok).toBe(false);
     expect(parseIntent({ intent: "launch_rocket" }).ok).toBe(false);
-    expect(parseIntent({ intent: "add_event", start: "7pm" }).ok).toBe(false);
-    expect(parseIntent({ intent: "add_event", day: "next week" }).ok).toBe(false);
+    expect(parseIntent({ intent: "add_event", timeText: "x".repeat(121) }).ok).toBe(false);
+    expect(parseIntent({ intent: "add_event", dayText: "x".repeat(41) }).ok).toBe(false);
     expect(parseIntent({ intent: "add_event", priority: "urgent" }).ok).toBe(false);
   });
 

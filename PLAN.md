@@ -131,12 +131,13 @@ Prompt = static system prompt + compact schedule (`id|title|start-end|fixed/flex
   "intent": "add_event|move_event|cancel_event|query_day|replan|shift_day|add_task|add_assignment|complete_task|undo|memory_search|forget|pause_memory|chitchat",
   "title": "Meet friend",
   "target": "gym",                       // title/fuzzy ref of existing item for move/cancel
-  "targetDay": "monday",                 // which occurrence of target ("cancel gym tomorrow"), same formats as day
-  "day": "today|tomorrow|monday..sunday|YYYY-MM-DD",
-  "start": "19:00", "end": null, "durationMin": 90,
+  "targetDayText": "tomorrow",           // which occurrence of target, copied verbatim or null
+  "dayText": "today|tomorrow|monday..sunday|YYYY-MM-DD",   // copied verbatim or null
+  "timeText": "3 to 4|7 tonight|after dinner",             // copied verbatim or null, NEVER clock times
+  "durationMin": 90,
   "fixed": true, "priority": "high", "travelMin": 20,
   "shiftMin": null,
-  "anchor": { "relation": "after", "target": "dinner" },  // or null: place relative to another item
+  "anchor": { "relation": "after", "target": "dinner" },  // or null: structured fallback when timeText is empty
   "scope": "one",                        // one | all: "all" only when the user says every/all
   "memory": { "text": "papers about EEG", "day": "wednesday", "range": null },  // range: last_hour|today|yesterday|this_week|null
   "rearrangeOthers": true,
@@ -144,7 +145,7 @@ Prompt = static system prompt + compact schedule (`id|title|start-end|fixed/flex
 }
 ```
 
-Rules: times as `HH:mm`, days as words/ISO; code converts to minutes since midnight + dates. If anything is ambiguous, set `clarify` and speak the question. Validate every output with the schema (zod) before use; on invalid output retry once, then ask the user to repeat.
+Rules: the LLM copies the user's time/day WORDS verbatim into `timeText`/`dayText`/`targetDayText` and never emits clock times or dates it computed — learned the hard way (qwen3.5:2b reads "3 to 4" as 09:00 and invents "Thursday" for "after dinner"). `packages/core/src/timePhrase.ts` resolves them deterministically (`parseTimeText`, `resolveDayText`); unparseable words make the applier ask instead of guessing. If anything is ambiguous, set `clarify` and speak the question. Validate every output with the schema (zod) before use; on invalid output retry once, then ask the user to repeat.
 
 **Scheduler** (`packages/core/src/scheduler`, pure TS, 100% unit-tested with Vitest, no I/O):
 

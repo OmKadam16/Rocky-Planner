@@ -1,0 +1,137 @@
+{
+  "now": { "date": "2026-10-12", "weekday": "Monday", "timezone": "America/New_York" },
+  "cases": [
+    {
+      "utterance": "I'm meeting a friend at 7 tonight for an hour and a half",
+      "expect": { "intent": "add_event", "dayText": "today", "timeText": "7 tonight", "durationMin": 90 }
+    },
+    {
+      "utterance": "Move my study block after dinner",
+      "expect": { "intent": "move_event", "target": "my study block", "timeText": "after dinner" }
+    },
+    {
+      "utterance": "I'm running 20 minutes late",
+      "expect": { "intent": "shift_day", "shiftMin": 20 }
+    },
+    {
+      "utterance": "What's my day look like",
+      "expect": { "intent": "query_day" }
+    },
+    {
+      "utterance": "Cancel gym tomorrow",
+      "expect": { "intent": "cancel_event", "target": "gym", "targetDayText": "tomorrow" }
+    },
+    {
+      "utterance": "Undo that",
+      "expect": { "intent": "undo" }
+    },
+    {
+      "utterance": "Gym 3 to 4",
+      "expect": { "intent": "add_event", "title": "gym", "timeText": "3 to 4" }
+    },
+    {
+      "utterance": "Move gym to Thursday at 6",
+      "expect": { "intent": "move_event", "target": "gym", "dayText": "Thursday", "timeText": "6" }
+    },
+    {
+      "utterance": "Replan Thursday",
+      "expect": { "intent": "replan", "dayText": "Thursday" }
+    },
+    {
+      "utterance": "Remind me to email Prof Lin",
+      "expect": { "intent": "add_task", "title": "email prof lin" }
+    },
+    {
+      "utterance": "What was I reading on Wednesday",
+      "expect": { "intent": "memory_search" }
+    },
+    {
+      "utterance": "Pause memory",
+      "expect": { "intent": "pause_memory" }
+    },
+    {
+      "utterance": "Forget the last hour",
+      "expect": { "intent": "forget" }
+    },
+    {
+      "utterance": "Push everything by 15 minutes",
+      "expect": { "intent": "shift_day", "shiftMin": 15 }
+    },
+    {
+      "utterance": "Dentist tomorrow at 3 pm",
+      "expect": { "intent": "add_event", "dayText": "tomorrow", "timeText": "3 pm" }
+    },
+    {
+      "utterance": "Move study to 8",
+      "expect": { "intent": "move_event", "target": "study", "timeText": "8" }
+    },
+    {
+      "utterance": "Delete gym on Friday",
+      "expect": { "intent": "cancel_event", "target": "gym", "targetDayText": "Friday" }
+    },
+    {
+      "utterance": "What's on Friday",
+      "expect": { "intent": "query_day", "dayText": "Friday" }
+    },
+    {
+      "utterance": "Add gym tomorrow at 7",
+      "expect": { "intent": "add_event", "title": "gym", "dayText": "tomorrow", "timeText": "7" }
+    },
+    {
+      "utterance": "Study 4 to 6",
+      "expect": { "intent": "add_event", "title": "study", "timeText": "4 to 6" }
+    },
+    {
+      "utterance": "Shift my day later by 30",
+      "expect": { "intent": "shift_day", "shiftMin": 30 }
+    },
+    {
+      "utterance": "Book a dentist appointment Thursday at 3",
+      "expect": { "intent": "add_event", "dayText": "Thursday", "timeText": "3" }
+    },
+    {
+      "utterance": "Move my study to after dinner",
+      "expect": { "intent": "move_event", "timeText": "after dinner" }
+    },
+    {
+      "utterance": "Cancel the meeting on Monday",
+      "expect": { "intent": "cancel_event", "targetDayText": "Monday" }
+    },
+    {
+      "utterance": "I'm meeting a friend at 7",
+      "expect": { "intent": "add_event", "timeText": "7" }
+    },
+    {
+      "utterance": "Move gym to 8",
+      "expect": { "intent": "move_event", "target": "gym", "timeText": "8" }
+    },
+    {
+      "utterance": "gym tomorrow at 8",
+      "expect": { "intent": "add_event", "title": "gym", "dayText": "tomorrow", "timeText": "8" }
+    },
+    {
+      "utterance": "dinner tomorrow at 7",
+      "expect": { "intent": "add_event", "title": "dinner", "dayText": "tomorrow", "timeText": "7" }
+    },
+    {
+      "utterance": "cancel that",
+      "expect": { "intent": "undo" }
+    },
+    {
+      "utterance": "scratch that",
+      "expect": { "intent": "undo" }
+    },
+    {
+      "utterance": "never mind",
+      "expect": { "intent": "undo" }
+    },
+    {
+      "utterance": "forget that",
+      "expect": { "intent": "undo" }
+    },
+    {
+      "utterance": "take that back",
+      "expect": { "intent": "undo" }
+    }
+  ]
+}
