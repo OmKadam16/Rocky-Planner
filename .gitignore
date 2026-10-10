@@ -4,3 +4,5 @@ dist/
 .env.*.local
 apps/brain/.session
 *.log
+
+docs/fidelity/

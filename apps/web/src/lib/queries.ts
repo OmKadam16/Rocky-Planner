@@ -5,12 +5,26 @@
 // omit it. Recurrence expansion stays in @rocky/core (expandEvents) — callers
 // fetch raw rows here and expand client-side (see remote.ts useOccurrences).
 
-import type { Assignment, ClassRow, Command, Profile, Task } from '@rocky/core';
+import type { Assignment, ClassRow, Command, EventRow, Profile, Task } from '@rocky/core';
 import { getSupabase, isSupabaseConfigured } from './supabase';
 import type { ProfileRowUpdate } from './profile';
 
 function sbOrNull() {
   return isSupabaseConfigured() ? getSupabase() : null;
+}
+
+/** Raw event rows in a date window (callers expand with core expandEvents). */
+export async function fetchEventsRange(from: string, to: string): Promise<EventRow[]> {
+  const sb = sbOrNull();
+  if (!sb) return [];
+  const { data, error } = await sb
+    .from('events')
+    .select('*')
+    .lte('event_date', to)
+    .order('event_date', { ascending: true });
+  if (error) throw new Error(error.message);
+  const rows = (data ?? []) as EventRow[];
+  return rows.filter((e) => e.repeat_freq !== 'none' || e.event_date >= from);
 }
 
 export async function fetchTasksForDate(date: string): Promise<Task[]> {
@@ -44,6 +58,32 @@ export async function setTaskDone(id: string, done: boolean): Promise<void> {
   const sb = sbOrNull();
   if (!sb) throw new Error('Supabase is not configured.');
   const { error } = await sb.from('tasks').update({ done }).eq('id', id);
+  if (error) throw new Error(error.message);
+}
+
+/** Add a task for a date (Dashboard + Tasks "press Enter" boxes). */
+export async function insertTask(title: string, taskDate: string): Promise<Task> {
+  const sb = sbOrNull();
+  if (!sb) throw new Error('Supabase is not configured.');
+  const clean = title.trim();
+  if (!clean) throw new Error('Write something first.');
+  const { data, error } = await sb
+    .from('tasks')
+    .insert({ title: clean, task_date: taskDate })
+    .select('*')
+    .single();
+  if (error) throw new Error(error.message);
+  return data as Task;
+}
+
+/** Cycle an assignment through todo / in_progress / done (Due-soon menu). */
+export async function setAssignmentStatus(
+  id: string,
+  status: Assignment['status'],
+): Promise<void> {
+  const sb = sbOrNull();
+  if (!sb) throw new Error('Supabase is not configured.');
+  const { error } = await sb.from('assignments').update({ status }).eq('id', id);
   if (error) throw new Error(error.message);
 }
 
@@ -115,5 +155,18 @@ export async function saveProfile(row: ProfileRowUpdate): Promise<void> {
   const { error } = await sb
     .from('profiles')
     .upsert(row, { onConflict: 'user_id' });
+  if (error) throw new Error(error.message);
+}
+
+/** Upsert the wizard "About you" fields (chips + free text). */
+export async function saveProfileExtras(
+  userId: string,
+  extras: { traits: string[]; hobbies: string[]; study_styles: string[]; about_me: string | null },
+): Promise<void> {
+  const sb = sbOrNull();
+  if (!sb) throw new Error('Supabase is not configured.');
+  const { error } = await sb
+    .from('profiles')
+    .upsert({ user_id: userId, ...extras }, { onConflict: 'user_id' });
   if (error) throw new Error(error.message);
 }

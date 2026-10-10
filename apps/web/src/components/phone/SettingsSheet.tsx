@@ -6,6 +6,8 @@ import {
   useShowLatency,
   useSpeakReplies,
   useThemePref,
+  useVoiceSpeed,
+  VOICE_SPEEDS,
   type ThemePref,
 } from '../../lib/prefs';
 import type { LaptopPresenceState } from '../../lib/remote';
@@ -25,14 +27,17 @@ export function SettingsSheet({
   presence,
   onClose,
   onUnpaired,
+  onSwitchLaptop,
 }: {
   presence: LaptopPresenceState;
   onClose: () => void;
   onUnpaired: () => void;
+  onSwitchLaptop: () => void;
 }) {
   const { signOut } = useSession();
   const [speak, setSpeak] = useSpeakReplies();
   const [showLatency, setShowLatency] = useShowLatency();
+  const [speed, setSpeed] = useVoiceSpeed();
   const [themePref, setThemePref] = useThemePref();
 
   const statusWord =
@@ -79,7 +84,7 @@ export function SettingsSheet({
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
-            onClick={onClose}
+            onClick={onSwitchLaptop}
             className="inline-flex h-11 items-center justify-center rounded-xl border border-line text-sm font-bold text-ink1"
           >
             Switch laptop
@@ -99,7 +104,28 @@ export function SettingsSheet({
         </div>
 
         <div className="flex flex-col gap-2">
-          <span className="text-xs font-semibold text-ink2">Theme</span>
+          <span className="text-xs font-semibold text-ink2">Voice speed</span>
+          <div className="grid grid-cols-3 gap-1 rounded-2xl border border-line bg-surface2 p-1" role="group" aria-label="Voice speed">
+            {VOICE_SPEEDS.map((v) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setSpeed(v)}
+                aria-pressed={speed === v}
+                className="h-10 rounded-xl text-sm font-bold"
+                style={{
+                  background: speed === v ? 'var(--accent)' : 'transparent',
+                  color: speed === v ? '#fff' : 'var(--ink2)',
+                }}
+              >
+                {v}×
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <span className="text-xs font-semibold text-ink2">Appearance</span>
           <div className="grid grid-cols-3 gap-1 rounded-2xl border border-line bg-surface2 p-1" role="group" aria-label="Theme">
             {THEME_OPTS.map((o) => (
               <button
@@ -122,7 +148,7 @@ export function SettingsSheet({
         <button
           type="button"
           onClick={() => void signOut()}
-          className="inline-flex h-[52px] items-center justify-center gap-2 rounded-2xl border border-line text-[15px] font-bold text-ink1"
+          className="inline-flex h-[52px] items-center justify-center gap-2 rounded-2xl border border-line text-[15px] font-bold text-danger"
         >
           <LogOut size={16} aria-hidden />
           Sign out

@@ -1,6 +1,11 @@
-import { useMemo, useState } from 'react';
-import { CalendarX2, MoreVertical, Sprout } from 'lucide-react';
+// Phone home screen: read-only calendar + talk button.
+// Fixed header (title, laptop pill + Day/Week, week strip, NEXT, deadline
+// flag); only the timeline scrolls. No editing here by design.
+
+import { useEffect, useMemo, useState } from 'react';
+import { CalendarX2, Ellipsis, Flag, Sprout } from 'lucide-react';
 import { addDays, weekdayOf } from '@rocky/core';
+import type { Assignment } from '@rocky/core';
 import {
   formatRange,
   insertSampleEvents,
@@ -10,9 +15,9 @@ import {
   useLaptopPresence,
   useNowTick,
   useOccurrences,
-  weekDates,
-  weekStartOf,
 } from '../../lib/remote';
+import { fetchOpenAssignments } from '../../lib/queries';
+import { nextUpCountdownShort } from '../../lib/dashboard';
 import { useShowLatency } from '../../lib/prefs';
 import { DayTimeline } from './DayTimeline';
 import { EventSheet } from './EventSheet';
@@ -20,24 +25,46 @@ import { SettingsSheet } from './SettingsSheet';
 import { TalkButton, type TalkLatency } from './TalkButton';
 import { kindPrefix, nextUp } from './blocks';
 
-const WEEKDAY_SHORT = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+const DAY3 = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-function prettyDate(iso: string): { weekday: string; md: string } {
+function prettyDate(iso: string): { weekday: string; md: string; title: string } {
   const y = Number(iso.slice(0, 4));
   const m = Number(iso.slice(5, 7));
   const d = Number(iso.slice(8, 10));
   const dt = new Date(y, m - 1, d);
   const weekday = dt.toLocaleDateString('en-US', { weekday: 'long' });
-  return { weekday, md: `${MONTH_SHORT[m - 1]} ${d}` };
+  const md = `${MONTH_SHORT[m - 1]} ${d}`;
+  return { weekday, md, title: `${weekday}, ${md}` };
 }
 
-/**
- * Phone home screen (B3): read-only calendar + talk button.
- * Header date + laptop chip, week strip, day timeline / week agenda,
- * event bottom sheet, settings sheet. No editing here by design.
- */
-export function PhoneHome({ onUnpaired }: { onUnpaired: () => void }) {
+/** "11:00" — NEXT pill start time, no meridiem like the design. */
+function shortClock(min: number): string {
+  const h24 = Math.floor(min / 60);
+  const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+  return `${h12}:${String(min % 60).padStart(2, '0')}`;
+}
+
+function time12(min: number): string {
+  const h24 = Math.floor(min / 60);
+  const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+  return `${h12}:${String(min % 60).padStart(2, '0')} ${h24 < 12 ? 'AM' : 'PM'}`;
+}
+
+function localDateOf(iso: string): string | null {
+  const ms = Date.parse(iso);
+  if (Number.isNaN(ms)) return null;
+  const d = new Date(ms);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+export function PhoneHome({
+  onUnpaired,
+  onSwitchLaptop,
+}: {
+  onUnpaired: () => void;
+  onSwitchLaptop: () => void;
+}) {
   const today = todayLocal();
   const [selected, setSelected] = useState(today);
   const [view, setView] = useState<'day' | 'week'>('day');
@@ -46,14 +73,27 @@ export function PhoneHome({ onUnpaired }: { onUnpaired: () => void }) {
   const [latency, setLatency] = useState<TalkLatency | null>(null);
   const [seedBusy, setSeedBusy] = useState(false);
   const [seedError, setSeedError] = useState<string | null>(null);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [showLatency] = useShowLatency();
 
-  const weekStart = weekStartOf(selected);
-  const weekEnd = addDays(weekStart, 6);
+  // Monday-first week (design strip runs Mon–Sun).
+  const monday = useMemo(
+    () => addDays(selected, -((weekdayOf(selected) + 6) % 7)),
+    [selected],
+  );
+  const strip = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(monday, i)), [monday]);
   const presence = useLaptopPresence(true);
-  const { byDate, loading, error, refetch } = useOccurrences(weekStart, weekEnd, true);
+  const { byDate, loading, error, refetch } = useOccurrences(monday, addDays(monday, 6), true);
   useNowTick(30_000);
   const nowMin = nowMinutesLocal();
+
+  useEffect(() => {
+    let alive = true;
+    void fetchOpenAssignments().then((a) => alive && setAssignments(a));
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const dayList = useMemo(() => byDate.get(selected) ?? [], [byDate, selected]);
   const openOccurrence = useMemo(
@@ -61,14 +101,32 @@ export function PhoneHome({ onUnpaired }: { onUnpaired: () => void }) {
     [dayList, openId],
   );
   const next = selected === today ? nextUp(dayList, nowMin) : null;
-  const { weekday, md } = prettyDate(selected);
+  const dueDates = useMemo(() => {
+    const set = new Set<string>();
+    for (const a of assignments) {
+      if (!a.due_at || a.status === 'done') continue;
+      const d = localDateOf(a.due_at);
+      if (d) set.add(d);
+    }
+    return set;
+  }, [assignments]);
+  const dueFlag = useMemo(
+    () => assignments.find((a) => a.due_at && localDateOf(a.due_at) === selected) ?? null,
+    [assignments, selected],
+  );
+  const dueFlagMin = useMemo(() => {
+    if (!dueFlag?.due_at) return null;
+    const dt = new Date(dueFlag.due_at);
+    return Number.isNaN(dt.getTime()) ? null : dt.getHours() * 60 + dt.getMinutes();
+  }, [dueFlag]);
+  const { title } = prettyDate(selected);
 
-  const chip =
+  const pill =
     presence.status === 'online'
-      ? { dot: 'var(--success)', label: 'Online' }
+      ? { bg: 'var(--success-soft)', fg: 'var(--success)', dot: 'var(--success)', label: 'Laptop online' }
       : presence.status === 'offline'
-        ? { dot: 'var(--danger)', label: 'Offline' }
-        : { dot: 'var(--warning)', label: 'Connecting…' };
+        ? { bg: 'var(--danger-soft)', fg: 'var(--danger)', dot: 'var(--danger)', label: 'Laptop offline' }
+        : { bg: 'var(--warning-soft)', fg: 'var(--warning)', dot: 'var(--warning)', label: 'Connecting…' };
 
   async function seed() {
     setSeedBusy(true);
@@ -84,98 +142,109 @@ export function PhoneHome({ onUnpaired }: { onUnpaired: () => void }) {
   }
 
   return (
-    <div className="mx-auto flex min-h-full w-full max-w-md flex-col bg-bg text-ink1">
-      {/* Header */}
-      <header className="flex items-center gap-2 px-5 pt-3">
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate text-[22px] font-bold leading-tight tracking-tight">{weekday}</h1>
-          <p className="text-sm text-ink2">
-            {md}
-            {selected !== today && (
-              <>
-                {' · '}
-                <button type="button" onClick={() => setSelected(today)} className="font-bold text-accent-ink">
-                  Today
-                </button>
-              </>
-            )}
-          </p>
+    <div className="mx-auto flex h-full w-full max-w-md flex-col bg-bg text-ink1">
+      {/* Fixed header */}
+      <header className="flex-none px-5 pt-4">
+        <div className="flex items-center gap-2">
+          <h1 className="min-w-0 flex-1 truncate text-[28px] font-bold leading-tight tracking-tight">
+            {title}
+          </h1>
+          <button
+            type="button"
+            onClick={() => setSettingsOpen(true)}
+            aria-label="Settings"
+            className="grid h-10 w-10 flex-none place-items-center rounded-xl text-ink1"
+          >
+            <Ellipsis size={22} aria-hidden />
+          </button>
         </div>
-        <span
-          className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-bold"
-          style={{ background: 'var(--surface2)', color: 'var(--ink1)' }}
-          title={`Laptop: ${presence.laptopName} — ${chip.label}`}
-        >
-          <span className="h-2 w-2 rounded-full" style={{ background: chip.dot }} aria-hidden />
-          {chip.label}
-        </span>
-        <button
-          type="button"
-          onClick={() => setSettingsOpen(true)}
-          aria-label="Settings"
-          className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-surface text-ink2"
-        >
-          <MoreVertical size={19} aria-hidden />
-        </button>
-      </header>
-
-      {/* Day / Week toggle */}
-      <div className="px-5 pt-3">
-        <div className="grid grid-cols-2 gap-1 rounded-2xl border border-line bg-surface p-1" role="group" aria-label="Calendar view">
-          {(['day', 'week'] as const).map((v) => (
-            <button
-              key={v}
-              type="button"
-              onClick={() => setView(v)}
-              aria-pressed={view === v}
-              className="h-9 rounded-xl text-sm font-bold capitalize"
-              style={{
-                background: view === v ? 'var(--accent)' : 'transparent',
-                color: view === v ? '#fff' : 'var(--ink2)',
-              }}
-            >
-              {v}
-            </button>
-          ))}
+        <div className="flex items-center gap-2 pt-2.5">
+          <span
+            className="inline-flex min-w-0 flex-1 items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-bold"
+            style={{ background: pill.bg, color: pill.fg }}
+            title={`Laptop: ${presence.laptopName}`}
+          >
+            <span className="h-2 w-2 flex-none rounded-full" style={{ background: pill.dot }} aria-hidden />
+            <span className="truncate">{pill.label}</span>
+          </span>
+          <div className="flex flex-none rounded-xl border border-line bg-surface p-1" role="group" aria-label="Calendar view">
+            {(['day', 'week'] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setView(v)}
+                aria-pressed={view === v}
+                className="h-8 rounded-lg px-4 text-sm font-bold capitalize"
+                style={{
+                  background: view === v ? 'var(--surface2)' : 'transparent',
+                  color: view === v ? 'var(--ink1)' : 'var(--ink3)',
+                }}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
-
-      {/* Week strip */}
-      <div className="px-5 pt-3">
-        <div className="grid grid-cols-7 gap-1" role="group" aria-label="Week">
-          {weekDates(weekStart).map((d) => {
+        <div className="grid grid-cols-7 gap-1 pt-2.5" role="group" aria-label="Week">
+          {strip.map((d) => {
             const isSel = d === selected;
-            const isToday = d === today;
-            const hasEvents = (byDate.get(d) ?? []).length > 0;
+            const count = (byDate.get(d) ?? []).length;
+            const hasDeadline = dueDates.has(d);
             return (
               <button
                 key={d}
                 type="button"
                 onClick={() => setSelected(d)}
-                aria-label={`${prettyDate(d).weekday}, ${prettyDate(d).md}${isToday ? ', today' : ''}`}
+                aria-label={`${prettyDate(d).title}${d === today ? ', today' : ''}, ${count} events`}
                 aria-pressed={isSel}
-                className="flex h-[60px] flex-col items-center justify-center gap-[3px] rounded-[14px]"
-                style={{
-                  background: isSel ? 'var(--accent)' : 'var(--surface)',
-                  color: isSel ? '#fff' : 'var(--ink1)',
-                  outline: !isSel && isToday ? '1.5px solid var(--accent)' : 'none',
-                }}
+                className="flex flex-col items-center gap-0.5 rounded-2xl py-1.5"
+                style={{ background: isSel ? 'var(--accent-soft)' : 'transparent' }}
               >
-                <span className="text-xs font-semibold opacity-85">{WEEKDAY_SHORT[weekdayOf(d)]}</span>
-                <span className="text-[16px] font-bold">{Number(d.slice(8, 10))}</span>
+                <span className="text-xs font-semibold text-ink2">{DAY3[weekdayOf(d)]}</span>
                 <span
-                  aria-hidden
-                  className="h-[5px] w-[5px] rounded-full"
-                  style={{ background: hasEvents ? (isSel ? '#fff' : 'var(--accent)') : 'transparent' }}
-                />
+                  className="tnum text-[18px] font-bold"
+                  style={{ color: isSel ? 'var(--accent-ink)' : 'var(--ink1)' }}
+                >
+                  {Number(d.slice(8, 10))}
+                </span>
+                <span className="flex h-[7px] items-center" aria-hidden>
+                  {hasDeadline ? (
+                    <span className="h-[6px] w-[6px] rounded-full bg-danger" />
+                  ) : count > 0 ? (
+                    <span className="h-[6px] w-[6px] rounded-full bg-accent" />
+                  ) : null}
+                </span>
               </button>
             );
           })}
         </div>
-      </div>
+        {next && view === 'day' && (
+          <div className="mt-2 flex items-center gap-2 rounded-2xl bg-surface px-3.5 py-2.5">
+            <span className="flex-none text-xs font-bold uppercase tracking-[0.06em] text-accent-ink">Next</span>
+            <button
+              type="button"
+              onClick={() => setOpenId(next.id)}
+              className="min-w-0 flex-1 truncate text-left text-[15px] font-semibold"
+            >
+              {next.title} <span className="tnum font-normal text-ink2">· {shortClock(next.startMin)}</span>
+            </button>
+            <span className="tnum flex-none rounded-full bg-accent-soft px-2.5 py-1 text-xs font-bold text-accent-ink">
+              {nextUpCountdownShort(next.startMin, nowMin)}
+            </span>
+          </div>
+        )}
+        {dueFlag?.due_at && dueFlagMin != null && view === 'day' && (
+          <div className="mt-2 flex items-center gap-2 rounded-xl border border-danger bg-danger-soft px-3.5 py-2 text-sm">
+            <Flag size={14} aria-hidden className="shrink-0 text-danger" />
+            <span className="min-w-0 flex-1 truncate font-semibold">
+              {dueFlag.title} <span className="tnum font-normal">· due {time12(dueFlagMin)}</span>
+            </span>
+          </div>
+        )}
+      </header>
 
-      {/* Body */}
-      <div className="min-h-0 flex-1 px-5 pb-40 pt-3">
+      {/* Scrolling timeline only */}
+      <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-44 pt-3">
         {loading ? (
           <div className="flex flex-col gap-2.5 pt-1" aria-label="Loading calendar">
             {[52, 80, 36, 110].map((h, i) => (
@@ -200,33 +269,20 @@ export function PhoneHome({ onUnpaired }: { onUnpaired: () => void }) {
           </div>
         ) : view === 'day' ? (
           <div className="flex flex-col gap-3">
-            {next && (
-              <button
-                type="button"
-                onClick={() => setOpenId(next.id)}
-                className="flex items-center gap-2 rounded-2xl bg-accent-soft px-3.5 py-2.5 text-left text-sm font-semibold text-ink1"
-              >
-                <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-white">Next up</span>
-                <span className="min-w-0 flex-1 truncate">{next.title}</span>
-                <span className="tnum text-xs text-ink2">{formatRange(next.startMin, next.endMin)}</span>
-              </button>
-            )}
             {dayList.length === 0 ? (
               <EmptyDay onSeed={isSeedEnabled() ? seed : null} seedBusy={seedBusy} seedError={seedError} />
             ) : (
-              <div className="overflow-x-hidden">
-                <DayTimeline
-                  occurrences={dayList}
-                  isToday={selected === today}
-                  nowMin={nowMin}
-                  onOpen={(o) => setOpenId(o.id)}
-                />
-              </div>
+              <DayTimeline
+                occurrences={dayList}
+                isToday={selected === today}
+                nowMin={nowMin}
+                onOpen={(o) => setOpenId(o.id)}
+              />
             )}
           </div>
         ) : (
           <div className="flex flex-col gap-3.5">
-            {weekDates(weekStart).map((d) => {
+            {strip.map((d) => {
               const list = byDate.get(d) ?? [];
               const pd = prettyDate(d);
               return (
@@ -285,7 +341,15 @@ export function PhoneHome({ onUnpaired }: { onUnpaired: () => void }) {
 
       {openOccurrence && <EventSheet occurrence={openOccurrence} onClose={() => setOpenId(null)} />}
       {settingsOpen && (
-        <SettingsSheet presence={presence} onClose={() => setSettingsOpen(false)} onUnpaired={onUnpaired} />
+        <SettingsSheet
+          presence={presence}
+          onClose={() => setSettingsOpen(false)}
+          onUnpaired={onUnpaired}
+          onSwitchLaptop={() => {
+            setSettingsOpen(false);
+            onSwitchLaptop();
+          }}
+        />
       )}
     </div>
   );
@@ -343,4 +407,3 @@ function SeedButton({
     </div>
   );
 }
-

@@ -1,10 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import type { Assignment, Occurrence } from '@rocky/core';
 import {
+  dueChipLabel,
   dueLabel,
   dueSoonAssignments,
+  formatClock,
   greetingForHour,
+  leaveByLabel,
+  nextUpCountdown,
+  nextUpCountdownShort,
   nextUpOccurrence,
+  urgencyFor,
 } from './dashboard';
 
 function occ(id: string, startMin: number, endMin: number): Occurrence {
@@ -40,8 +46,7 @@ function asg(id: string, due_at: string | null, status: Assignment['status'] = '
   };
 }
 
-describe('greetingForHour', () => {
-  it('splits the day at noon and 6pm', () => {
+describe('greetingForHour', () => {  it('splits the day at noon and 6pm', () => {
     expect(greetingForHour(0)).toBe('Good morning');
     expect(greetingForHour(11)).toBe('Good morning');
     expect(greetingForHour(12)).toBe('Good afternoon');
@@ -79,6 +84,46 @@ describe('dueSoonAssignments', () => {
   });
 });
 
+describe('nextUpCountdown + leaveByLabel (Next-up card)', () => {
+  it('counts down in MIN / H M, NOW when started', () => {
+    expect(nextUpCountdown(750, 642)).toBe('IN 1H 48M');
+    expect(nextUpCountdown(660, 642)).toBe('IN 18 MIN');
+    expect(nextUpCountdown(642, 642)).toBe('NOW');
+    expect(nextUpCountdown(600, 642)).toBe('NOW');
+  });
+
+  it('labels the leave-by time from the travel buffer', () => {
+    expect(leaveByLabel(750, 15)).toBe('Leave by 12:15 · 15 min walk');
+  });
+
+  it('counts down lowercase for the phone NEXT pill', () => {
+    expect(nextUpCountdownShort(750, 642)).toBe('in 1h 48m');
+    expect(nextUpCountdownShort(660, 642)).toBe('in 18 min');
+    expect(nextUpCountdownShort(642, 642)).toBe('now');
+  });
+});
+
+describe('urgencyFor + dueChipLabel (Due-soon chips)', () => {
+  // Local components keep this green in any timezone.
+  const at = (day: number, h: number, m = 0) => new Date(2026, 9, day, h, m).getTime();
+  const now = at(10, 12);
+
+  it('marks today/overdue danger, 3 days warning, later neutral', () => {
+    expect(urgencyFor(at(10, 23), now)).toBe('danger');
+    expect(urgencyFor(at(9, 9), now)).toBe('danger');
+    expect(urgencyFor(at(12, 9), now)).toBe('warning');
+    expect(urgencyFor(at(13, 9), now)).toBe('warning');
+    expect(urgencyFor(at(14, 9), now)).toBe('neutral');
+  });
+
+  it('labels chips like the design', () => {
+    expect(dueChipLabel(new Date(at(10, 23, 59)).toISOString(), now)).toBe('Tonight 11:59 PM');
+    expect(dueChipLabel(new Date(at(9, 9)).toISOString(), now)).toBe('Overdue');
+    expect(dueChipLabel(new Date(at(12, 9)).toISOString(), now)).toBe('Mon, Oct 12');
+    expect(dueChipLabel(new Date(at(14, 9)).toISOString(), now)).toBe('Wed, Oct 14');
+    expect(dueChipLabel('junk', now)).toBe('');
+  });
+});
 describe('dueLabel', () => {
   // Built from local components so the test holds in any timezone.
   const local = (day: number, hour: number) =>
@@ -95,5 +140,15 @@ describe('dueLabel', () => {
     const label = dueLabel(local(20, 9), now);
     expect(label.startsWith('Due ')).toBe(true);
     expect(dueLabel('not-a-date', now)).toBe('');
+  });
+});
+
+describe('formatClock (Today-list time column)', () => {
+  it('formats minutes since midnight as 12-hour time', () => {
+    expect(formatClock(540)).toBe('9:00 AM');
+    expect(formatClock(600)).toBe('10:00 AM');
+    expect(formatClock(750)).toBe('12:30 PM');
+    expect(formatClock(0)).toBe('12:00 AM');
+    expect(formatClock(1439)).toBe('11:59 PM');
   });
 });

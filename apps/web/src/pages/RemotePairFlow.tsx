@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import jsQR from 'jsqr';
 import {
+  ArrowLeftRight,
   ChevronLeft,
   CircleAlert,
   CircleCheck,
@@ -10,7 +11,9 @@ import {
   Keyboard,
   Laptop,
   Link2,
+  Mic,
   ScanLine,
+  Smartphone,
   TimerOff,
   UserX,
   WifiOff,
@@ -411,10 +414,16 @@ export function RemotePairFlow({ onPaired }: { onPaired: () => void }) {
 
       {/* INTRO */}
       {state === 'intro' && (
-        <div className="flex flex-1 flex-col gap-5 pt-10">
-          <span className="grid h-[76px] w-[76px] place-items-center rounded-[22px] bg-accent text-white">
-            <Laptop size={34} aria-hidden />
-          </span>
+        <div className="flex flex-1 flex-col gap-5 pt-6">
+          <div className="flex items-center justify-center gap-4 rounded-[22px] border border-line bg-surface p-6">
+            <span className="grid h-16 w-16 place-items-center rounded-2xl bg-surface2 text-ink2">
+              <Smartphone size={28} aria-hidden />
+            </span>
+            <ArrowLeftRight size={20} aria-hidden className="text-ink3" />
+            <span className="grid h-16 w-16 place-items-center rounded-2xl bg-accent text-white">
+              <Laptop size={28} aria-hidden />
+            </span>
+          </div>
           <div>
             <h1 className="text-[28px] font-bold leading-tight tracking-tight">
               Pair with your laptop
@@ -422,7 +431,7 @@ export function RemotePairFlow({ onPaired }: { onPaired: () => void }) {
             <p className="mt-2.5 text-[16px] leading-relaxed text-ink2">
               Your phone becomes a mic and a live window into the calendar on
               your laptop. Open Rocky on your laptop and go to{' '}
-              <b className="text-ink1">Connect your phone</b>.
+              <b className="text-ink1">Settings → Devices</b>.
             </p>
           </div>
           <span className="flex-1" />
@@ -620,10 +629,12 @@ export function RemotePairFlow({ onPaired }: { onPaired: () => void }) {
             Paired with {laptopName}. Your phone now mirrors the calendar and
             works as a mic.
           </p>
-          <div className="mt-2 w-full rounded-2xl border border-line bg-surface p-4 text-left">
-            <p className="text-sm font-semibold">Calendar + talk button live here now.</p>
-            <p className="mt-1 text-sm leading-relaxed text-ink2">
-              Open the calendar to see your day and talk to Rocky.
+          <div className="flex w-full items-center gap-3 rounded-2xl border border-line bg-surface p-3.5">
+            <span className="grid h-10 w-10 flex-none place-items-center rounded-full bg-accent text-white">
+              <Mic size={18} aria-hidden />
+            </span>
+            <p className="text-sm leading-snug text-ink1">
+              Try it: hold the button and say “What&apos;s my day look like?”
             </p>
           </div>
           <button

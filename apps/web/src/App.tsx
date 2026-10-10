@@ -21,6 +21,7 @@ import { AiPage } from './pages/settings/AiPage';
 import { PrivacyPage } from './pages/settings/PrivacyPage';
 import { AppearancePage } from './pages/settings/AppearancePage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { WizardPage } from './pages/wizard/WizardPage';
 import { RemoteGate } from './pages/RemoteGate';
 import { LoginPage } from './pages/LoginPage';
 
@@ -57,6 +58,15 @@ export function App() {
           />
           {/* Legacy laptop pairing route → Settings → Devices. */}
           <Route path="/pair" element={<PairRedirect />} />
+          {/* First-run setup (no app shell — centered wizard column). */}
+          <Route
+            path="/wizard"
+            element={
+              <RequireAuth>
+                <WizardPage />
+              </RequireAuth>
+            }
+          />
           <Route
             element={
               <RequireAuth>

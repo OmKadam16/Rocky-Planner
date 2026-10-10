@@ -13,7 +13,7 @@ import {
   Undo2,
 } from 'lucide-react';
 import { buzz } from '../../lib/pairing';
-import { speakLocal, useSpeakReplies } from '../../lib/prefs';
+import { speakLocal, useSpeakReplies, useVoiceSpeed } from '../../lib/prefs';
 import { clearQueue, enqueueCommand, readQueue, type QueuedCommand } from '../../lib/remote';
 import {
   isMockTalkEnabled,
@@ -62,6 +62,7 @@ export function TalkButton({
 }) {
   const mock = isMockTalkEnabled();
   const [speak] = useSpeakReplies();
+  const [speed] = useVoiceSpeed();
   const [voice, setVoice] = useState<VoiceState>('idle');
   const [micGranted, setMicGranted] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -141,11 +142,11 @@ export function TalkButton({
           setResult(r);
           onLatency({ sttMs: r.sttMs, llmMs: r.llmMs, totalMs: r.totalMs });
           setVoice('result');
-          speakLocal(r.reply, speak);
+          speakLocal(r.reply, speak, speed);
         } else {
           setClarify(mockClarifyFor(script.transcript));
           setVoice('clarify');
-          speakLocal('Which one do you mean?', speak);
+          speakLocal('Which one do you mean?', speak, speed);
         }
       }, sending + listening + thinking);
     },
@@ -155,7 +156,7 @@ export function TalkButton({
   const send = useCallback(() => {
     stopMic();
     buzz(15);
-    speakLocal('On it.', speak);
+    speakLocal('On it.', speak, speed);
     setVoice('sent');
     later(() => {
       if (laptopOffline) {
@@ -364,7 +365,7 @@ export function TalkButton({
                       type="button"
                       onClick={() => {
                         setUndone(true);
-                        speakLocal('Undone.', speak);
+                        speakLocal('Undone.', speak, speed);
                       }}
                       className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-line bg-surface2 text-[16px] font-bold text-ink1"
                     >

@@ -5,6 +5,16 @@ export type ThemePref = 'light' | 'dark' | 'system';
 const THEME_KEY = 'rocky-theme';
 const SPEAK_KEY = 'rocky-speak-replies';
 const LATENCY_KEY = 'rocky-show-latency';
+const SPEED_KEY = 'rocky-voice-speed';
+
+export type VoiceSpeed = 0.8 | 1 | 1.2;
+export const VOICE_SPEEDS: VoiceSpeed[] = [0.8, 1, 1.2];
+
+/** Parse a stored speed; anything unrecognized falls back to 1×. */
+export function parseVoiceSpeed(raw: string | null): VoiceSpeed {
+  const n = Number(raw);
+  return n === 0.8 || n === 1 || n === 1.2 ? n : 1;
+}
 
 function readLS(key: string): string | null {
   try {
@@ -92,6 +102,16 @@ export function useSpeakReplies(): [boolean, (v: boolean) => void] {
 /** Show the latency debug HUD on the phone home screen. */
 export function useShowLatency(): [boolean, (v: boolean) => void] {
   return useBoolPref(LATENCY_KEY, false);
+}
+
+/** Spoken-reply speed (speechSynthesis rate), shared phone + laptop. */
+export function useVoiceSpeed(): [VoiceSpeed, (v: VoiceSpeed) => void] {
+  const [value, setValue] = useState<VoiceSpeed>(() => parseVoiceSpeed(readLS(SPEED_KEY)));
+  const set = useCallback((v: VoiceSpeed) => {
+    writeLS(SPEED_KEY, String(v));
+    setValue(v);
+  }, []);
+  return [value, set];
 }
 
 /** Speak text on this device. No cloud TTS — browser speechSynthesis only. */

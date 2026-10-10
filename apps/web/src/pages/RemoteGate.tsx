@@ -11,6 +11,8 @@ import { PhoneHome } from '../components/phone/PhoneHome';
  */
 export function RemoteGate() {
   const [paired, setPaired] = useState<boolean | null>(null);
+  // "Switch laptop" opens the pair flow even while a phone row exists.
+  const [manualPair, setManualPair] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -41,8 +43,20 @@ export function RemoteGate() {
     );
   }
 
-  if (paired) {
-    return <PhoneHome onUnpaired={() => setPaired(false)} />;
+  if (paired && !manualPair) {
+    return (
+      <PhoneHome
+        onUnpaired={() => setPaired(false)}
+        onSwitchLaptop={() => setManualPair(true)}
+      />
+    );
   }
-  return <RemotePairFlow onPaired={() => setPaired(true)} />;
+  return (
+    <RemotePairFlow
+      onPaired={() => {
+        setManualPair(false);
+        setPaired(true);
+      }}
+    />
+  );
 }

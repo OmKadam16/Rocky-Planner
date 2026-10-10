@@ -18,6 +18,17 @@ function hourLabel(h: number): string {
   return `${h - 12} PM`;
 }
 
+function clockShort(min: number): string {
+  const h24 = Math.floor(min / 60);
+  const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+  return `${h12}:${String(min % 60).padStart(2, '0')}`;
+}
+
+function clockWithSuffix(min: number): string {
+  const h24 = Math.floor(min / 60);
+  return `${clockShort(min)} ${h24 < 12 ? 'AM' : 'PM'}`;
+}
+
 /**
  * Phone day timeline (read-only). 56 px/hour, absolute blocks, travel
  * stripes before buffered events, red now-line when viewing today.
@@ -95,7 +106,7 @@ function TimelineBlock({
           }}
         >
           <Footprints size={12} aria-hidden />
-          {o.travelMin} min
+          {o.travelMin} min walk
         </div>
       )}
       <button
@@ -128,7 +139,7 @@ function TimelineBlock({
         </span>
         {tall && (
           <span className="tnum truncate text-xs opacity-80">
-            {minutesToHHmm(o.startMin)} – {minutesToHHmm(o.endMin)}
+            {clockShort(o.startMin)}–{clockWithSuffix(o.endMin)}
             {o.subtitle ? ` · ${o.subtitle}` : ''}
           </span>
         )}
